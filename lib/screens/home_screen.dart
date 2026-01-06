@@ -15,57 +15,83 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
+  static const Color _blue = Color(0xFF2E63F6);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // HEADER
-            const HomeHeader(),
+      extendBody: true, // ✅ allows floating effect
 
-            // ACTION BUTTONS (MOVED UPWARD)
-            Transform.translate(
-              offset: const Offset(0, -25), // 👈 move up slightly
-              child: const ActionButtons(),
+      body: Stack(
+        children: [
+          // ✅ MAIN CONTENT (pad bottom so it doesn't hide behind floating nav)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 95),
+            child: Column(
+              children: [
+                // 🔒 FIXED HEADER
+                const HomeHeader(),
+
+                // 🔒 FIXED ACTION BUTTONS (OVERLAPPING HEADER)
+                Transform.translate(
+                  offset: const Offset(0, -25),
+                  child: const ActionButtons(),
+                ),
+
+                // 🔽 SCROLLABLE CONTENT ONLY
+                Expanded(
+                  child: Transform.translate(
+                    offset: const Offset(0, -15),
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Column(
+                        children: const [
+                          QuickActions(),
+                          ReferralBanner(),
+                          SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-
-            // SPACE AFTER OVERLAP
-            const SizedBox(height: 10),
-
-            // CONTENT
-            const QuickActions(),
-            const ReferralBanner(),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
-
-      // BOTTOM NAV
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 10,
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(Icons.home, 'Home', 0),
-              _buildNavItem(Icons.credit_card, '', 1),
-              _buildNavItem(Icons.pie_chart_outline, '', 2),
-              _buildNavItem(Icons.person_outline, '', 3),
-            ],
           ),
-        ),
+          
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: 14,
+            child: SafeArea(
+              top: false,
+              child: Container(
+                height: 70,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white, // ✅ white background
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 18,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildNavItem(Icons.home_rounded, 'Home', 0),
+                    _buildNavItem(Icons.credit_card_rounded, 'Cards', 1),
+                    _buildNavItem(Icons.pie_chart_outline, 'Stats', 2),
+                    _buildNavItem(Icons.person_outline_rounded, 'Profile', 3),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -73,42 +99,41 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildNavItem(IconData icon, String label, int index) {
     final bool isSelected = _currentIndex == index;
 
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _currentIndex = index;
-        });
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: isSelected
-                ? BoxDecoration(
-                    color: const Color(0xFF2E63F6),
-                    borderRadius: BorderRadius.circular(12),
-                  )
-                : null,
-            child: Icon(
+    return InkWell(
+      borderRadius: BorderRadius.circular(22),
+      onTap: () => setState(() => _currentIndex = index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.symmetric(
+          horizontal: isSelected ? 14 : 10,
+          vertical: 10,
+        ),
+        decoration: BoxDecoration(
+          color: isSelected ? _blue : Colors.transparent, // ✅ blue pill only when selected
+          borderRadius: BorderRadius.circular(22),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
               icon,
-              color: isSelected ? Colors.white : Colors.grey,
-              size: 24,
+              size: 22,
+              color: isSelected ? Colors.white : Colors.grey, // ✅ blue/white theme
             ),
-          ),
-          if (isSelected && label.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
+            if (isSelected) ...[
+              const SizedBox(width: 8),
+              Text(
                 label,
                 style: GoogleFonts.inter(
-                  color: const Color(0xFF2E63F6),
+                  color: Colors.white, // ✅ text inside the blue pill
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-            ),
-        ],
+            ],
+          ],
+        ),
       ),
     );
   }

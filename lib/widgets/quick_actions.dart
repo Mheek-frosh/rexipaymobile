@@ -58,10 +58,11 @@ class QuickActions extends StatelessWidget {
     ];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 🔹 TITLE ROW (NO EXTRA SPACE BELOW)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -73,27 +74,35 @@ class QuickActions extends StatelessWidget {
                   color: Colors.black87,
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+              const Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Colors.grey,
+              ),
             ],
           ),
-      
+
+          const SizedBox(height: 6), // ✅ minimal gap only
+
+          // 🔹 GRID
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 4,
-              childAspectRatio: 0.8,
+              childAspectRatio: 0.95, // ✅ tighter vertical layout
               crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
+              mainAxisSpacing: 10, // 🔽 reduced
             ),
             itemCount: actions.length,
             itemBuilder: (context, index) {
               final action = actions[index];
               return Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    height: 50,
-                    width: 50,
+                    height: 48,
+                    width: 48,
                     decoration: BoxDecoration(
                       color: action['color'] as Color,
                       shape: BoxShape.circle,
@@ -101,10 +110,10 @@ class QuickActions extends StatelessWidget {
                     child: Icon(
                       action['icon'] as IconData,
                       color: action['iconColor'] as Color,
-                      size: 24,
+                      size: 22,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4), // ✅ reduced gap
                   Text(
                     action['label'] as String,
                     textAlign: TextAlign.center,
