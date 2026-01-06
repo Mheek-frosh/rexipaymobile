@@ -22,20 +22,27 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Stack(
-              alignment: Alignment.bottomCenter,
-              clipBehavior: Clip.none,
-              children: [const HomeHeader()],
+            // HEADER
+            const HomeHeader(),
+
+            // ACTION BUTTONS (MOVED UPWARD)
+            Transform.translate(
+              offset: const Offset(0, -25), // 👈 move up slightly
+              child: const ActionButtons(),
             ),
-          
-            const ActionButtons(),
-// Spacing after ActionButtons
+
+            // SPACE AFTER OVERLAP
+            const SizedBox(height: 10),
+
+            // CONTENT
             const QuickActions(),
             const ReferralBanner(),
             const SizedBox(height: 20),
           ],
         ),
       ),
+
+      // BOTTOM NAV
       bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
@@ -49,7 +56,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         child: SafeArea(
-          // Ensure it respects bottom safe area on devices like iPhone
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -65,7 +71,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildNavItem(IconData icon, String label, int index) {
-    bool isSelected = _currentIndex == index;
+    final bool isSelected = _currentIndex == index;
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -79,15 +86,13 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.all(8),
             decoration: isSelected
                 ? BoxDecoration(
-              color: const Color(0xFF2E63F6),
-              borderRadius: BorderRadius.circular(12),
-            )
+                    color: const Color(0xFF2E63F6),
+                    borderRadius: BorderRadius.circular(12),
+                  )
                 : null,
             child: Icon(
               icon,
-              color: isSelected
-                  ? Colors.white
-                  : Colors.grey, // Active: White, Inactive: Grey
+              color: isSelected ? Colors.white : Colors.grey,
               size: 24,
             ),
           ),

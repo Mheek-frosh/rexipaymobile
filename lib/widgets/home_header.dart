@@ -7,17 +7,23 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 80),
+      padding: const EdgeInsets.only(
+        top: 50,
+        left: 20,
+        right: 20,
+        bottom: 80,
+      ),
       decoration: const BoxDecoration(
         color: Color(0xFF2E63F6), // Main Blue
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
       ),
       child: Column(
         children: [
+          // TOP ROW
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Icon(Icons.person, color: Colors.white, size: 28),
+
               Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
@@ -31,6 +37,7 @@ class HomeHeader extends StatelessWidget {
                   ],
                 ),
               ),
+
               Row(
                 children: const [
                   Icon(
@@ -48,29 +55,26 @@ class HomeHeader extends StatelessWidget {
               ),
             ],
           ),
+
           const SizedBox(height: 30),
+
+          // NG FLAG + TEXT
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Flag approximation
-              Container(
+              Image.asset(
+                'assets/images/ng.png',
                 width: 20,
-                height: 15,
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                  border: Border.all(color: Colors.white, width: 1),
-                ),
-                child: const Center(
-                  child: Text(
-                    "N",
-                    style: TextStyle(color: Colors.white, fontSize: 8),
-                  ),
-                ),
+                height: 20,
+                fit: BoxFit.contain,
               ),
               const SizedBox(width: 8),
               Text(
                 'NG Naria',
-                style: GoogleFonts.inter(color: Colors.white70, fontSize: 14),
+                style: GoogleFonts.inter(
+                  color: Colors.white70,
+                  fontSize: 14,
+                ),
               ),
               const Icon(
                 Icons.keyboard_arrow_down,
@@ -79,20 +83,30 @@ class HomeHeader extends StatelessWidget {
               ),
             ],
           ),
+
           const SizedBox(height: 10),
+
+          // BALANCE
           Text(
-            '₦2,250,000',
+            '₦250,000',
             style: GoogleFonts.inter(
               color: Colors.white,
               fontSize: 32,
               fontWeight: FontWeight.bold,
             ),
           ),
+
           Text(
             'Available Balance',
-            style: GoogleFonts.inter(color: Colors.white70, fontSize: 14),
+            style: GoogleFonts.inter(
+              color: Colors.white70,
+              fontSize: 14,
+            ),
           ),
+
           const SizedBox(height: 20),
+
+          // ADD MONEY BUTTON
           OutlinedButton.icon(
             onPressed: () {},
             icon: const Icon(
@@ -108,7 +122,10 @@ class HomeHeader extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 12,
+              ),
             ),
           ),
         ],
@@ -127,7 +144,8 @@ class HomeHeader extends StatelessWidget {
         text,
         style: GoogleFonts.inter(
           color: Colors.white,
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+          fontWeight:
+              isSelected ? FontWeight.w600 : FontWeight.normal,
           fontSize: 12,
         ),
       ),
