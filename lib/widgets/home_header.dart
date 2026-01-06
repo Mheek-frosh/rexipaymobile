@@ -7,7 +7,7 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 30),
+      padding: const EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 80),
       decoration: const BoxDecoration(
         color: Color(0xFF2E63F6), // Main Blue
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),

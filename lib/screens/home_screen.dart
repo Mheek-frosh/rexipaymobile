@@ -27,13 +27,9 @@ class _HomeScreenState extends State<HomeScreen> {
               clipBehavior: Clip.none,
               children: [const HomeHeader()],
             ),
-            const SizedBox(
-              height: 20,
-            ), // Spacing before ActionButtons
+          
             const ActionButtons(),
-            const SizedBox(
-              height: 40,
-            ), // Spacing after ActionButtons
+// Spacing after ActionButtons
             const QuickActions(),
             const ReferralBanner(),
             const SizedBox(height: 20),

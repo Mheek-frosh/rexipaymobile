@@ -76,7 +76,7 @@ class QuickActions extends StatelessWidget {
               const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
             ],
           ),
-          const SizedBox(height: 20),
+      
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
