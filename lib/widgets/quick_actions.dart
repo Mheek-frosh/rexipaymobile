@@ -62,7 +62,7 @@ class QuickActions extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 🔹 TITLE ROW (NO EXTRA SPACE BELOW)
+          // 🔹 TITLE ROW (AS CLOSE AS POSSIBLE TO GRID)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -72,6 +72,7 @@ class QuickActions extends StatelessWidget {
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
+                  height: 1.0, // ✅ tightest text height
                 ),
               ),
               const Icon(
@@ -81,51 +82,55 @@ class QuickActions extends StatelessWidget {
               ),
             ],
           ),
+        SizedBox(height:20),
 
-          const SizedBox(height: 6), // ✅ minimal gap only
-
-          // 🔹 GRID
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              childAspectRatio: 0.95, // ✅ tighter vertical layout
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 10, // 🔽 reduced
+          // 🔹 GRID (NO TOP PADDING AT ALL)
+          MediaQuery.removePadding(
+            context: context,
+            removeTop: true,
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                childAspectRatio: 1.0,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 8,
+              ),
+              itemCount: actions.length,
+              itemBuilder: (context, index) {
+                final action = actions[index];
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      height: 48,
+                      width: 48,
+                      decoration: BoxDecoration(
+                        color: action['color'] as Color,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        action['icon'] as IconData,
+                        color: action['iconColor'] as Color,
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      action['label'] as String,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.w500,
+                        height: 1.2,
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
-            itemCount: actions.length,
-            itemBuilder: (context, index) {
-              final action = actions[index];
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    height: 48,
-                    width: 48,
-                    decoration: BoxDecoration(
-                      color: action['color'] as Color,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      action['icon'] as IconData,
-                      color: action['iconColor'] as Color,
-                      size: 22,
-                    ),
-                  ),
-                  const SizedBox(height: 4), // ✅ reduced gap
-                  Text(
-                    action['label'] as String,
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: Colors.grey[700],
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              );
-            },
           ),
         ],
       ),

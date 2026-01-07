@@ -21,44 +21,41 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      extendBody: true, // ✅ allows floating effect
+      extendBody: true, // allows floating nav
 
       body: Stack(
         children: [
-          // ✅ MAIN CONTENT (pad bottom so it doesn't hide behind floating nav)
+          // 🔹 MAIN CONTENT (NO SCROLL)
           Padding(
-            padding: const EdgeInsets.only(bottom: 95),
+            padding: const EdgeInsets.only(bottom: 85), // space for nav
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // 🔒 FIXED HEADER
+                // 🔒 HEADER
                 const HomeHeader(),
 
-                // 🔒 FIXED ACTION BUTTONS (OVERLAPPING HEADER)
+                // 🔒 ACTION BUTTONS (OVERLAP HEADER)
                 Transform.translate(
                   offset: const Offset(0, -25),
                   child: const ActionButtons(),
                 ),
 
-                // 🔽 SCROLLABLE CONTENT ONLY
-                Expanded(
-                  child: Transform.translate(
-                    offset: const Offset(0, -15),
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: Column(
-                        children: const [
-                          QuickActions(),
-                          ReferralBanner(),
-                          SizedBox(height: 20),
-                        ],
-                      ),
-                    ),
+                // 🔹 CONTENT STARTS IMMEDIATELY
+                Transform.translate(
+                  offset: const Offset(0, -30),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      QuickActions(),
+                      ReferralBanner(),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-          
+
+          // 🔹 FLOATING BOTTOM NAV (WHITE CONTAINER RESTORED)
           Positioned(
             left: 16,
             right: 16,
@@ -67,9 +64,9 @@ class _HomeScreenState extends State<HomeScreen> {
               top: false,
               child: Container(
                 height: 70,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 decoration: BoxDecoration(
-                  color: Colors.white, // ✅ white background
+                  color: Colors.white, // ✅ WHITE CONTAINER KEPT
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
@@ -110,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
           vertical: 10,
         ),
         decoration: BoxDecoration(
-          color: isSelected ? _blue : Colors.transparent, // ✅ blue pill only when selected
+          color: isSelected ? _blue : Colors.transparent,
           borderRadius: BorderRadius.circular(22),
         ),
         child: Row(
@@ -119,14 +116,14 @@ class _HomeScreenState extends State<HomeScreen> {
             Icon(
               icon,
               size: 22,
-              color: isSelected ? Colors.white : Colors.grey, // ✅ blue/white theme
+              color: isSelected ? Colors.white : Colors.grey,
             ),
             if (isSelected) ...[
               const SizedBox(width: 8),
               Text(
                 label,
                 style: GoogleFonts.inter(
-                  color: Colors.white, // ✅ text inside the blue pill
+                  color: Colors.white,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
