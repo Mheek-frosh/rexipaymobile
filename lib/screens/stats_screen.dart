@@ -293,22 +293,13 @@ class _StatsScreenState extends State<StatsScreen> {
   List<PieChartSectionData> showingSections() {
     return List.generate(5, (i) {
       final isTouched = i == touchedIndex;
-      final fontSize = isTouched ? 20.0 : 12.0;
       final radius = isTouched ? 70.0 : 60.0;
-      const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
       return switch (i) {
         0 => PieChartSectionData(
           color: const Color(0xFF5B86FC), // Salary Blue
           value: 40,
           title: '40%',
           radius: radius,
-          titleStyle: GoogleFonts.inter(
-            // fontSize: fontSize,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xffffffff),
-            // shadows: shadows,
-          ),
           badgeWidget: _Badge(
             '40%',
             size: 40,
