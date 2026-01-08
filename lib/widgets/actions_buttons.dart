@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../utils/app_colors.dart';
 
 class ActionButtons extends StatelessWidget {
   const ActionButtons({super.key});
@@ -12,15 +13,8 @@ class ActionButtons extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 20),
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.cardBackground,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Color(0x0D000000),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -29,7 +23,7 @@ class ActionButtons extends StatelessWidget {
             Container(height: 30, width: 1, color: Colors.grey[200]),
             _buildActionButton(
               Icons.arrow_downward,
-              'Recieve',
+              'Receive',
               const Color(0xFF2E63F6),
             ),
             Container(height: 30, width: 1, color: Colors.grey[200]),
@@ -58,7 +52,7 @@ class ActionButtons extends StatelessWidget {
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: Colors.grey[800],
+            color: AppColors.textPrimary,
           ),
         ),
       ],

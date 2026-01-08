@@ -16,7 +16,7 @@ class FloatingBottomNav extends GetView<MainController> {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: AppColors.navBackground,
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(

@@ -1,19 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../controllers/theme_controller.dart';
 
 class AppColors {
   static const Color primary = Color(0xFF2E63F6);
-  static const Color secondary = Color(
-    0xFF0D0D0D,
-  ); // Assuming a dark secondary or background
-  static const Color background = Color(0xFFF5F5F5);
-  static const Color white = Colors.white;
-  static const Color black = Colors.black;
-  static const Color grey = Colors.grey;
-  static const Color red = Colors.red;
-  static const Color green = Colors.green;
+  static const Color secondary = Color(0xFF0D0D0D);
 
-  // Add more specific colors as needed based on the design
-  static const Color cardBackground = Color(0xFF1E1E1E);
-  static const Color textPrimary = Color(0xFF000000);
-  static const Color textSecondary = Color(0xFF757575);
+  static bool get _isDark {
+    try {
+      return Get.find<ThemeController>().isDarkMode;
+    } catch (_) {
+      return Get.isDarkMode;
+    }
+  }
+
+  static Color get background =>
+      _isDark ? const Color(0xFF0D0D0D) : const Color(0xFFF5F5F5);
+
+  static Color get white => _isDark ? const Color(0xFF1C1E23) : Colors.white;
+
+  static Color get black => _isDark ? Colors.white : Colors.black;
+
+  static Color get grey => Colors.grey;
+  static Color get red => Colors.red;
+  static Color get green => Colors.green;
+
+  static Color get cardBackground =>
+      _isDark ? const Color(0xFF1C1E23) : Colors.white;
+
+  static Color get textPrimary => _isDark ? Colors.white : Colors.black;
+
+  static Color get textSecondary =>
+      _isDark ? const Color(0xFF9E9E9E) : const Color(0xFF757575);
+
+  static Color get navBackground =>
+      _isDark ? const Color(0xFF121317) : Colors.white;
 }

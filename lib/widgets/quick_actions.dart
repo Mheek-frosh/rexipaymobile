@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../utils/app_colors.dart';
 
 class QuickActions extends StatelessWidget {
   const QuickActions({super.key});
@@ -71,18 +72,14 @@ class QuickActions extends StatelessWidget {
                 style: GoogleFonts.inter(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: AppColors.textPrimary,
                   height: 1.0, // ✅ tightest text height
                 ),
               ),
-              const Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: Colors.grey,
-              ),
+              const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
             ],
           ),
-        SizedBox(height:20),
+          SizedBox(height: 20),
 
           // 🔹 GRID (NO TOP PADDING AT ALL)
           MediaQuery.removePadding(
@@ -122,7 +119,7 @@ class QuickActions extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: GoogleFonts.inter(
                         fontSize: 12,
-                        color: Colors.grey[700],
+                        color: AppColors.textSecondary,
                         fontWeight: FontWeight.w500,
                         height: 1.2,
                       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/main_controller.dart';
 import '../widgets/floating_bottom_nav.dart';
+import '../utils/app_colors.dart';
 import 'home_screen.dart';
 import 'card_screen.dart';
 import 'stats_screen.dart';
@@ -12,12 +13,13 @@ class MainWrapper extends GetView<MainController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      body: Stack(
-        children: [
-          Obx(
-            () => IndexedStack(
+    return Obx(
+      () => Scaffold(
+        backgroundColor: AppColors.background,
+        extendBody: true,
+        body: Stack(
+          children: [
+            IndexedStack(
               index: controller.currentIndex,
               children: const [
                 HomeScreen(),
@@ -26,14 +28,14 @@ class MainWrapper extends GetView<MainController> {
                 ProfileScreen(),
               ],
             ),
-          ),
-          const Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: FloatingBottomNav(),
-          ),
-        ],
+            const Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: FloatingBottomNav(),
+            ),
+          ],
+        ),
       ),
     );
   }
