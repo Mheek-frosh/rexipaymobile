@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../controllers/main_controller.dart';
+import '../routes/app_routes.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final MainController controller = Get.find<MainController>();
+
     return Container(
       padding: const EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 80),
       decoration: const BoxDecoration(
@@ -19,32 +24,48 @@ class HomeHeader extends StatelessWidget {
             children: [
               const Icon(Icons.person, color: Colors.white, size: 28),
 
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    _buildToggleOption(context, 'Bank', true),
-                    _buildToggleOption(context, 'Crypto', false),
-                  ],
+              // CENTERED TOGGLE
+              Obx(
+                () => Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: Row(
+                    children: [
+                      _buildToggleOption(
+                        context,
+                        'Bank',
+                        controller.homeView == 0,
+                        () => controller.switchHomeView(0),
+                      ),
+                      _buildToggleOption(
+                        context,
+                        'Crypto',
+                        controller.homeView == 1,
+                        () => controller.switchHomeView(1),
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
               Row(
-                children: const [
-                  Icon(
+                children: [
+                  const Icon(
                     Icons.headset_mic_outlined,
                     color: Colors.white,
                     size: 28,
                   ),
-                  SizedBox(width: 15),
-                  Icon(
-                    Icons.notifications_outlined,
-                    color: Colors.white,
-                    size: 28,
+                  const SizedBox(width: 15),
+                  GestureDetector(
+                    onTap: () => Get.toNamed(Routes.NOTIFICATIONS),
+                    child: const Icon(
+                      Icons.notifications_outlined,
+                      color: Colors.white,
+                      size: 28,
+                    ),
                   ),
                 ],
               ),
@@ -65,7 +86,7 @@ class HomeHeader extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'NG Naria',
+                'NG Naira',
                 style: GoogleFonts.inter(color: Colors.white70, fontSize: 14),
               ),
               const Icon(
@@ -123,19 +144,24 @@ class HomeHeader extends StatelessWidget {
     BuildContext context,
     String text,
     bool isSelected,
+    VoidCallback onTap,
   ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFF2E63F6) : Colors.transparent,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        text,
-        style: GoogleFonts.inter(
-          color: Colors.white,
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          fontSize: 12,
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF2E63F6) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          text,
+          style: GoogleFonts.inter(
+            color: Colors.white,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+            fontSize: 13,
+          ),
         ),
       ),
     );

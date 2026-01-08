@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
 import '../utils/app_text.dart';
+import '../routes/app_routes.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -152,11 +153,14 @@ class _StatsScreenState extends State<StatsScreen> {
                       'Transactions',
                       style: AppText.header2.copyWith(fontSize: 18),
                     ),
-                    Text(
-                      'See All',
-                      style: GoogleFonts.inter(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
+                    GestureDetector(
+                      onTap: () => Get.toNamed(Routes.TRANSACTIONS),
+                      child: Text(
+                        'See All',
+                        style: GoogleFonts.inter(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],

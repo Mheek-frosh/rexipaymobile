@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../controllers/main_controller.dart';
+import 'crypto_view.dart';
 import '../widgets/actions_buttons.dart';
 import '../widgets/home_header.dart';
 import '../widgets/quick_actions.dart';
@@ -11,31 +13,37 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final MainController controller = Get.find<MainController>();
+
     return Obx(
       () => Scaffold(
         backgroundColor: AppColors.background,
         body: SingleChildScrollView(
-          padding: const EdgeInsets.only(bottom: 100), // space for floating nav
           child: Column(
             children: [
-              // 🔒 HEADER
+              // 🔒 HEADER (Common for both)
               const HomeHeader(),
 
-              // 🔒 ACTION BUTTONS (OVERLAP HEADER)
-              Transform.translate(
-                offset: const Offset(0, -25),
-                child: const ActionButtons(),
-              ),
-
-              // 🔹 CONTENT STARTS IMMEDIATELY
-              Transform.translate(
-                offset: const Offset(0, -30),
-                child: Column(children: [QuickActions(), ReferralBanner()]),
-              ),
+              // 🔒 DYNAMIC VIEW SWITCHING
+              controller.homeView == 0 ? _buildBankView() : const CryptoView(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildBankView() {
+    return Column(
+      children: [
+        // 🔒 ACTION BUTTONS (OVERLAP HEADER)
+        const ActionButtons(),
+
+        // 🔹 CONTENT
+        QuickActions(),
+        const ReferralBanner(),
+        const SizedBox(height: 100), // space for floating nav
+      ],
     );
   }
 }
