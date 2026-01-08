@@ -19,15 +19,30 @@ class ActionButtons extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildActionButton(Icons.arrow_upward, 'Send', Colors.orange),
-            Container(height: 30, width: 1, color: Colors.grey[200]),
             _buildActionButton(
+              context,
+              Icons.arrow_upward,
+              'Send',
+              Colors.orange,
+            ),
+            Container(
+              height: 30,
+              width: 1,
+              color: AppColors.black.withOpacity(0.1),
+            ),
+            _buildActionButton(
+              context,
               Icons.arrow_downward,
               'Receive',
               const Color(0xFF2E63F6),
             ),
-            Container(height: 30, width: 1, color: Colors.grey[200]),
+            Container(
+              height: 30,
+              width: 1,
+              color: AppColors.black.withOpacity(0.1),
+            ),
             _buildActionButton(
+              context,
               Icons.currency_exchange,
               'Convert',
               Colors.orange,
@@ -38,13 +53,20 @@ class ActionButtons extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButton(IconData icon, String label, Color color) {
+  Widget _buildActionButton(
+    BuildContext context,
+    IconData icon,
+    String label,
+    Color color,
+  ) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       children: [
         CircleAvatar(
           radius: 24,
-          backgroundColor: color,
-          child: Icon(icon, color: Colors.white, size: 24),
+          backgroundColor: isDark ? AppColors.surfaceVariant : color,
+          child: Icon(icon, color: isDark ? color : Colors.white, size: 24),
         ),
         const SizedBox(height: 8),
         Text(

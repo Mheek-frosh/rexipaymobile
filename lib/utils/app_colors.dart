@@ -17,7 +17,7 @@ class AppColors {
   static Color get background =>
       _isDark ? const Color(0xFF0D0D0D) : const Color(0xFFF5F5F5);
 
-  static Color get white => _isDark ? const Color(0xFF1C1E23) : Colors.white;
+  static Color get white => _isDark ? const Color(0xFF1F222B) : Colors.white;
 
   static Color get black => _isDark ? Colors.white : Colors.black;
 
@@ -26,7 +26,7 @@ class AppColors {
   static Color get green => Colors.green;
 
   static Color get cardBackground =>
-      _isDark ? const Color(0xFF1C1E23) : Colors.white;
+      _isDark ? const Color(0xFF1F222B) : Colors.white;
 
   static Color get textPrimary => _isDark ? Colors.white : Colors.black;
 
@@ -34,5 +34,8 @@ class AppColors {
       _isDark ? const Color(0xFF9E9E9E) : const Color(0xFF757575);
 
   static Color get navBackground =>
-      _isDark ? const Color(0xFF121317) : Colors.white;
+      _isDark ? const Color(0xFF1F222B) : Colors.white;
+
+  static Color get surfaceVariant =>
+      _isDark ? const Color(0xFF2C2F3A) : const Color(0xFFF0F0F0);
 }

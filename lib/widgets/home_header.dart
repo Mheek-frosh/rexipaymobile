@@ -7,12 +7,7 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(
-        top: 50,
-        left: 20,
-        right: 20,
-        bottom: 80,
-      ),
+      padding: const EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 80),
       decoration: const BoxDecoration(
         color: Color(0xFF2E63F6), // Main Blue
       ),
@@ -32,8 +27,8 @@ class HomeHeader extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    _buildToggleOption('Bank', true),
-                    _buildToggleOption('Crypto', false),
+                    _buildToggleOption(context, 'Bank', true),
+                    _buildToggleOption(context, 'Crypto', false),
                   ],
                 ),
               ),
@@ -71,10 +66,7 @@ class HomeHeader extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 'NG Naria',
-                style: GoogleFonts.inter(
-                  color: Colors.white70,
-                  fontSize: 14,
-                ),
+                style: GoogleFonts.inter(color: Colors.white70, fontSize: 14),
               ),
               const Icon(
                 Icons.keyboard_arrow_down,
@@ -98,10 +90,7 @@ class HomeHeader extends StatelessWidget {
 
           Text(
             'Available Balance',
-            style: GoogleFonts.inter(
-              color: Colors.white70,
-              fontSize: 14,
-            ),
+            style: GoogleFonts.inter(color: Colors.white70, fontSize: 14),
           ),
 
           const SizedBox(height: 20),
@@ -122,10 +111,7 @@ class HomeHeader extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 12,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
           ),
         ],
@@ -133,7 +119,11 @@ class HomeHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildToggleOption(String text, bool isSelected) {
+  Widget _buildToggleOption(
+    BuildContext context,
+    String text,
+    bool isSelected,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
@@ -144,8 +134,7 @@ class HomeHeader extends StatelessWidget {
         text,
         style: GoogleFonts.inter(
           color: Colors.white,
-          fontWeight:
-              isSelected ? FontWeight.w600 : FontWeight.normal,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           fontSize: 12,
         ),
       ),

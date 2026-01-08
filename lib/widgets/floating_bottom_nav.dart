@@ -30,10 +30,15 @@ class FloatingBottomNav extends GetView<MainController> {
           () => Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(Icons.home_rounded, 'Home', 0),
-              _buildNavItem(Icons.credit_card_rounded, 'Cards', 1),
-              _buildNavItem(Icons.pie_chart_outline, 'Stats', 2),
-              _buildNavItem(Icons.person_outline_rounded, 'Profile', 3),
+              _buildNavItem(context, Icons.home_rounded, 'Home', 0),
+              _buildNavItem(context, Icons.credit_card_rounded, 'Cards', 1),
+              _buildNavItem(context, Icons.pie_chart_outline, 'Stats', 2),
+              _buildNavItem(
+                context,
+                Icons.person_outline_rounded,
+                'Profile',
+                3,
+              ),
             ],
           ),
         ),
@@ -41,8 +46,14 @@ class FloatingBottomNav extends GetView<MainController> {
     );
   }
 
-  Widget _buildNavItem(IconData icon, String label, int index) {
+  Widget _buildNavItem(
+    BuildContext context,
+    IconData icon,
+    String label,
+    int index,
+  ) {
     final bool isSelected = controller.currentIndex == index;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return InkWell(
       onTap: () => controller.changePage(index),
@@ -51,7 +62,9 @@ class FloatingBottomNav extends GetView<MainController> {
         duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.transparent,
+          color: isSelected
+              ? (isDark ? AppColors.surfaceVariant : AppColors.primary)
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(30),
         ),
         child: Row(
@@ -59,7 +72,9 @@ class FloatingBottomNav extends GetView<MainController> {
           children: [
             Icon(
               icon,
-              color: isSelected ? Colors.white : Colors.grey,
+              color: isSelected
+                  ? (isDark ? AppColors.primary : Colors.white)
+                  : Colors.grey,
               size: 24,
             ),
             if (isSelected) ...[
@@ -67,7 +82,7 @@ class FloatingBottomNav extends GetView<MainController> {
               Text(
                 label,
                 style: GoogleFonts.inter(
-                  color: Colors.white,
+                  color: isDark ? AppColors.primary : Colors.white,
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
                 ),

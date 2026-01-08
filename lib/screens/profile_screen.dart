@@ -213,10 +213,15 @@ class ProfileScreen extends GetView<ThemeController> {
       leading: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: iconColor != null ? iconBgColor : Colors.grey[400],
+          color: (iconColor != null ? iconBgColor : Colors.grey[400]!)
+              .withOpacity(controller.isDarkMode ? 0.2 : 1.0),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: iconColor ?? Colors.white, size: 20),
+        child: Icon(
+          icon,
+          color: iconColor != null ? iconColor : Colors.white,
+          size: 20,
+        ),
       ),
       title: Text(
         title,
