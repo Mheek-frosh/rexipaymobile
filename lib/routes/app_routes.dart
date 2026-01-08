@@ -5,6 +5,8 @@ abstract class Routes {
   static const PROFILE = _Paths.PROFILE;
   static const TRANSACTIONS = _Paths.TRANSACTIONS;
   static const NOTIFICATIONS = _Paths.NOTIFICATIONS;
+  static const TRANSFER = _Paths.TRANSFER;
+  static const PAYMENT_SUCCESS = _Paths.PAYMENT_SUCCESS;
 }
 
 abstract class _Paths {
@@ -13,4 +15,6 @@ abstract class _Paths {
   static const PROFILE = '/profile';
   static const TRANSACTIONS = '/transactions';
   static const NOTIFICATIONS = '/notifications';
+  static const TRANSFER = '/transfer';
+  static const PAYMENT_SUCCESS = '/payment-success';
 }

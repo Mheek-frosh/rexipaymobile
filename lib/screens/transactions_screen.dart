@@ -179,10 +179,8 @@ class TransactionsScreen extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 25,
-            backgroundImage: AssetImage(avatar),
-            onBackgroundImageError: (_, __) {},
-            backgroundColor: Colors.grey[200],
-            child: const Icon(Icons.person, color: Colors.grey),
+            backgroundColor: AppColors.primary.withOpacity(0.1),
+            child: Icon(Icons.person, color: AppColors.primary),
           ),
           const SizedBox(width: 15),
           Expanded(

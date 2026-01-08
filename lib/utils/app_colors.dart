@@ -15,7 +15,7 @@ class AppColors {
   }
 
   static Color get background =>
-      _isDark ? const Color(0xFF0D0D0D) : const Color(0xFFF5F5F5);
+      _isDark ? const Color(0xFF0D0D0D) : const Color(0xFFF8F9FA);
 
   static Color get white => _isDark ? const Color(0xFF1F222B) : Colors.white;
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
+import '../routes/app_routes.dart';
+import 'package:get/get.dart';
 
 class CryptoActions extends StatelessWidget {
   const CryptoActions({super.key});
@@ -19,11 +21,14 @@ class CryptoActions extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildActionButton(
-              context,
-              Icons.arrow_upward,
-              'Send',
-              Colors.orange,
+            GestureDetector(
+              onTap: () => Get.toNamed(Routes.TRANSFER),
+              child: _buildActionButton(
+                context,
+                Icons.arrow_upward,
+                'Send',
+                Colors.orange,
+              ),
             ),
             Container(
               height: 30,
