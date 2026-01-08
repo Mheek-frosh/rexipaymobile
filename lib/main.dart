@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:rexipaymobile/screens/home_screen.dart';
-
+import 'routes/app_pages.dart';
 
 void main() {
   runApp(const RexiPayApp());
@@ -12,7 +12,7 @@ class RexiPayApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'RexiPay',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -20,7 +20,8 @@ class RexiPayApp extends StatelessWidget {
         useMaterial3: true,
         textTheme: GoogleFonts.interTextTheme(),
       ),
-      home: const HomeScreen(),
+      initialRoute: AppPages.INITIAL,
+      getPages: AppPages.routes,
     );
   }
 }
