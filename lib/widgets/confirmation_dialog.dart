@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
 import '../routes/app_routes.dart';
-import '../controllers/transfer_controller.dart';
 
 class ConfirmationDialog extends StatelessWidget {
   final String recipientName;

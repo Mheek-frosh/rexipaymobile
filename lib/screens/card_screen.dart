@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:rexipaymobile/utils/app_colors.dart';
 import 'package:rexipaymobile/utils/app_text.dart';
 import 'package:rexipaymobile/controllers/card_controller.dart';
+import 'package:rexipaymobile/widgets/pin_entry_dialog.dart';
 
 class CardScreen extends StatelessWidget {
   const CardScreen({super.key});
@@ -119,160 +120,173 @@ class CardScreen extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                // Virtual Card
-                Container(
-                  height: 200,
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF2E63F6), Color(0xFF5B86FC)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Debit.',
-                            style: GoogleFonts.inter(
-                              color: Colors.white,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text(
-                            'COOLPAY.NG',
-                            style: GoogleFonts.inter(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
+                // Virtual Card (Tappable)
+                GestureDetector(
+                  onTap: () {
+                    Get.bottomSheet(
+                      const PinEntryDialog(),
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                    );
+                  },
+                  child: Container(
+                    height: 200,
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF2E63F6), Color(0xFF5B86FC)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      const SizedBox(height: 10),
-                      // Chip and Logo placeholder
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Simple Chip representation
-                          Container(
-                            width: 40,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE0E0E0),
-                              borderRadius: BorderRadius.circular(5),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Debit.',
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
                             ),
-                            child: const Icon(
-                              Icons.grid_3x3,
-                              size: 20,
-                              color: Colors.grey,
-                            ), // Placeholder for chip lines
-                          ),
-                          // Mastercard logo placeholder (using circles)
-                          SizedBox(
-                            height: 40,
-                            child: Stack(
-                              children: [
-                                Container(
-                                  width: 30,
-                                  height: 30,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.white, // red
-                                  ),
-                                ),
-                                Positioned(
-                                  left: 15,
-                                  child: Container(
+                            Text(
+                              'COOLPAY.NG',
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        // Chip and Logo placeholder
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Simple Chip representation
+                            Container(
+                              width: 40,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE0E0E0),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: const Icon(
+                                Icons.grid_3x3,
+                                size: 20,
+                                color: Colors.grey,
+                              ), // Placeholder for chip lines
+                            ),
+                            // Mastercard logo placeholder (using circles)
+                            SizedBox(
+                              height: 40,
+                              child: Stack(
+                                children: [
+                                  Container(
                                     width: 30,
                                     height: 30,
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: Colors.white.withOpacity(
-                                        0.7,
-                                      ), // orange
+                                      color: Colors.white, // red
                                     ),
+                                  ),
+                                  Positioned(
+                                    left: 15,
+                                    child: Container(
+                                      width: 30,
+                                      height: 30,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.white.withOpacity(
+                                          0.7,
+                                        ), // orange
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        Text(
+                          '5355  ****  ****  ****',
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                        const SizedBox(height: 15),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "VALID\nTHRU",
+                                  style: GoogleFonts.inter(
+                                    color: Colors.white70,
+                                    fontSize: 8,
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      Text(
-                        '5355 9274 7927 2638',
-                        style: GoogleFonts.inter(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 2,
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "VALID\nTHRU",
-                                style: GoogleFonts.inter(
-                                  color: Colors.white70,
-                                  fontSize: 8,
-                                ),
+                            Text(
+                              "**/**",
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontSize: 14,
                               ),
-                            ],
-                          ),
-                          Text(
-                            "23/28",
-                            style: GoogleFonts.inter(
-                              color: Colors.white,
-                              fontSize: 14,
                             ),
-                          ),
-                          const Spacer(),
-                        ],
-                      ),
-                      const SizedBox(height: 5),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'USIDAMEN OZELUAH MIKE',
-                            style: GoogleFonts.inter(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
+                            const Spacer(),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'USIDAMEN OZELUAH MIKE',
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                          Text(
-                            'Verve',
-                            style: GoogleFonts.inter(
-                              color: Colors.red, // Verve color roughly
-                              fontSize: 18,
-                              fontWeight: FontWeight.w900,
-                              fontStyle: FontStyle.italic,
+                            Text(
+                              'Verve',
+                              style: GoogleFonts.inter(
+                                color: Colors.red, // Verve color roughly
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900,
+                                fontStyle: FontStyle.italic,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
                 const SizedBox(height: 15),
                 Center(
                   child: Text(
-                    'Tap the card to see the number and CVV',
-                    style: GoogleFonts.inter(color: Colors.grey, fontSize: 12),
+                    'Tap to see card details',
+                    style: GoogleFonts.inter(
+                      color: AppColors.textSecondary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
 
