@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
 import '../controllers/transfer_controller.dart';
 import 'confirmation_dialog.dart';
+import 'custom_buttons.dart';
 
 class AmountBottomSheet extends StatelessWidget {
   final String name;
@@ -152,39 +153,22 @@ class AmountBottomSheet extends StatelessWidget {
                 Container(width: 150, height: 2, color: Colors.grey[200]),
                 const SizedBox(height: 30),
                 // Next Button
-                SizedBox(
+                PrimaryButton(
+                  text: 'Next',
+                  onPressed: () {
+                    Get.back();
+                    Get.bottomSheet(
+                      ConfirmationDialog(
+                        recipientName: name,
+                        accountName: controller.accountName.value,
+                        amount:
+                            '₦${controller.amountController.text.isEmpty ? "0" : controller.amountController.text}',
+                        fee: '₦50',
+                      ),
+                      isScrollControlled: true,
+                    );
+                  },
                   width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Get.back(); // Close amount sheet
-                      Get.bottomSheet(
-                        ConfirmationDialog(
-                          recipientName: name,
-                          accountName: controller.accountName.value,
-                          amount:
-                              '₦${controller.amountController.text.isEmpty ? "0" : controller.amountController.text}',
-                          fee: '₦50',
-                        ),
-                        isScrollControlled: true,
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2E63F6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      'Next',
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 20),
               ],

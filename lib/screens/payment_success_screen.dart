@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 // import 'package:lottie/lottie.dart'; // Commented out as per user request
 import '../utils/app_colors.dart';
 import '../routes/app_routes.dart';
+import '../widgets/custom_buttons.dart';
 
 class PaymentSuccessScreen extends StatelessWidget {
   const PaymentSuccessScreen({super.key});
@@ -90,52 +91,16 @@ class PaymentSuccessScreen extends StatelessWidget {
                 ),
                 const Spacer(),
                 // Action Buttons
-                SizedBox(
+                SecondaryButton(
+                  text: 'Make another Payment',
+                  onPressed: () => Get.offNamed(Routes.TRANSFER),
                   width: double.infinity,
-                  height: 56,
-                  child: OutlinedButton(
-                    onPressed: () => Get.offNamed(Routes.TRANSFER),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(
-                        color: Color(0xFF2E63F6),
-                        width: 1.5,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      'Make another Payment',
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF2E63F6),
-                      ),
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 12),
-                SizedBox(
+                PrimaryButton(
+                  text: 'Back to Homepage',
+                  onPressed: () => Get.offAllNamed(Routes.HOME),
                   width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: () => Get.offAllNamed(Routes.HOME),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2E63F6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      'Back to Homepage',
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 20),
               ],

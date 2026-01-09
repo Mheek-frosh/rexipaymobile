@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controllers/main_controller.dart';
 import '../routes/app_routes.dart';
+import 'custom_buttons.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
@@ -24,32 +25,43 @@ class HomeHeader extends StatelessWidget {
             children: [
               const Icon(Icons.person, color: Colors.white, size: 28),
 
-              // CENTERED TOGGLE
-              Obx(
-                () => Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Colors.white24,
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: Row(
-                    children: [
-                      _buildToggleOption(
-                        context,
-                        'Bank',
-                        controller.homeView == 0,
-                        () => controller.switchHomeView(0),
+              // Spacer to push toggle to the right
+              const SizedBox(width: 5),
+
+              // TOGGLE (Aligned with camera notch)
+              Expanded(
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Obx(
+                    () => Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.white24,
+                        borderRadius: BorderRadius.circular(25),
                       ),
-                      _buildToggleOption(
-                        context,
-                        'Crypto',
-                        controller.homeView == 1,
-                        () => controller.switchHomeView(1),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildToggleOption(
+                            context,
+                            'Bank',
+                            controller.homeView == 0,
+                            () => controller.switchHomeView(0),
+                          ),
+                          _buildToggleOption(
+                            context,
+                            'Crypto',
+                            controller.homeView == 1,
+                            () => controller.switchHomeView(1),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
+
+              const SizedBox(width: 20),
 
               Row(
                 children: [
@@ -117,23 +129,10 @@ class HomeHeader extends StatelessWidget {
           const SizedBox(height: 20),
 
           // ADD MONEY BUTTON
-          OutlinedButton.icon(
+          IconOutlinedButton(
+            text: 'Add Money',
+            icon: Icons.account_balance_wallet_outlined,
             onPressed: () {},
-            icon: const Icon(
-              Icons.account_balance_wallet_outlined,
-              color: Colors.white,
-            ),
-            label: Text(
-              'Add Money',
-              style: GoogleFonts.inter(color: Colors.white),
-            ),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Colors.white),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            ),
           ),
         ],
       ),

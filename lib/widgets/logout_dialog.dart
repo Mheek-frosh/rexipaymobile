@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
+import 'custom_buttons.dart';
 
 class LogoutDialog extends StatelessWidget {
   const LogoutDialog({super.key});
@@ -62,54 +63,23 @@ class LogoutDialog extends StatelessWidget {
               children: [
                 // Cancel Button
                 Expanded(
-                  child: OutlinedButton(
+                  child: SecondaryButton(
+                    text: 'Cancel',
                     onPressed: () => Get.back(),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(
-                        color: Color(0xFF2E63F6),
-                        width: 2,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: Text(
-                      'Cancel',
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF2E63F6),
-                      ),
-                    ),
+                    borderRadius: 30,
+                    borderWidth: 2,
                   ),
                 ),
                 const SizedBox(width: 15),
                 // Logout Button
                 Expanded(
-                  child: ElevatedButton(
+                  child: PrimaryButton(
+                    text: 'Logout',
                     onPressed: () {
-                      Get.back(); // Close dialog
-                      // TODO: Implement actual logout logic
-                      // For now, just navigate to home or login screen
-                      Get.offAllNamed('/'); // Navigate to initial route
+                      Get.back();
+                      Get.offAllNamed('/');
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2E63F6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      'Logout',
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
+                    borderRadius: 30,
                   ),
                 ),
               ],

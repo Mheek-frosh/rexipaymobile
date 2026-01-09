@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
 import '../routes/app_routes.dart';
+import 'custom_buttons.dart';
 
 class ConfirmationDialog extends StatelessWidget {
   final String recipientName;
@@ -69,37 +70,20 @@ class ConfirmationDialog extends StatelessWidget {
             _buildDetailRow('Wallet', 'NG account', isWallet: true),
             const SizedBox(height: 30),
             // Send Button
-            SizedBox(
+            PrimaryButton(
+              text: 'Send',
+              onPressed: () {
+                Get.back();
+                Get.toNamed(
+                  Routes.PAYMENT_SUCCESS,
+                  arguments: {
+                    'recipientName': recipientName,
+                    'accountName': accountName,
+                    'amount': amount,
+                  },
+                );
+              },
               width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: () {
-                  Get.back(); // Close confirmation dialog
-                  Get.toNamed(
-                    Routes.PAYMENT_SUCCESS,
-                    arguments: {
-                      'recipientName': recipientName,
-                      'accountName': accountName,
-                      'amount': amount,
-                    },
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2E63F6),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                ),
-                child: Text(
-                  'Send',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
             ),
             const SizedBox(height: 20),
           ],
