@@ -5,6 +5,7 @@ import '../utils/app_colors.dart';
 import '../utils/app_text.dart';
 import '../controllers/theme_controller.dart';
 import '../controllers/main_controller.dart';
+import '../widgets/logout_dialog.dart';
 
 class ProfileScreen extends GetView<ThemeController> {
   const ProfileScreen({super.key});
@@ -187,7 +188,13 @@ class ProfileScreen extends GetView<ThemeController> {
                       iconBgColor: const Color(0xFFFFEBEE), // Light Red
                       iconColor: Colors.red,
                       title: 'Logout',
-                      onTap: () {},
+                      onTap: () {
+                        Get.bottomSheet(
+                          const LogoutDialog(),
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                        );
+                      },
                     ),
                   ],
                 ),
