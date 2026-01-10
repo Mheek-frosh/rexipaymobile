@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
+import 'package:get/get.dart';
+import '../routes/app_routes.dart';
 
 class QuickActions extends StatelessWidget {
   const QuickActions({super.key});
@@ -97,38 +99,45 @@ class QuickActions extends StatelessWidget {
               itemCount: actions.length,
               itemBuilder: (context, index) {
                 final action = actions[index];
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      height: 48,
-                      width: 48,
-                      decoration: BoxDecoration(
-                        color: (action['color'] as Color).withOpacity(
-                          Theme.of(context).brightness == Brightness.dark
-                              ? 0.2
-                              : 1.0,
+                return GestureDetector(
+                  onTap: () {
+                    if (action['label'] == 'Airtime') {
+                      Get.toNamed(Routes.AIRTIME);
+                    }
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        height: 48,
+                        width: 48,
+                        decoration: BoxDecoration(
+                          color: (action['color'] as Color).withOpacity(
+                            Theme.of(context).brightness == Brightness.dark
+                                ? 0.2
+                                : 1.0,
+                          ),
+                          shape: BoxShape.circle,
                         ),
-                        shape: BoxShape.circle,
+                        child: Icon(
+                          action['icon'] as IconData,
+                          color: action['iconColor'] as Color,
+                          size: 22,
+                        ),
                       ),
-                      child: Icon(
-                        action['icon'] as IconData,
-                        color: action['iconColor'] as Color,
-                        size: 22,
+                      const SizedBox(height: 3),
+                      Text(
+                        action['label'] as String,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w500,
+                          height: 1.2,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      action['label'] as String,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w500,
-                        height: 1.2,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 );
               },
             ),

@@ -116,6 +116,14 @@ class AppStrings {
   static const String addMoney = "Add Money";
   static const String bank = "Bank";
   static const String crypto = "Crypto";
+  static const String airtimeAndData = "Airtime & Data";
+  static const String airtime = "Airtime";
+  static const String data = "Data";
+  static const String network = "Network";
+  static const String contact = "Contact";
+  static const String topUp = "Top Up";
+  static const String enterAmount = "Enter amount";
+  static const String phoneNumberHint = "Phone number";
 
   // Common
   static const String details = "Details";

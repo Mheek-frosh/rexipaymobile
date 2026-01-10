@@ -9,6 +9,8 @@ import '../screens/payment_success_screen.dart';
 import '../screens/auth/signup_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/otp_verification_screen.dart';
+import '../screens/airtime_screen.dart';
+import '../bindings/airtime_binding.dart';
 import 'app_routes.dart';
 
 // ignore: avoid_classes_with_only_static_members
@@ -55,6 +57,11 @@ class AppPages {
       name: Routes.OTP_VERIFICATION,
       page: () => const OtpVerificationScreen(),
       binding: MainBinding(),
+    ),
+    GetPage(
+      name: Routes.AIRTIME,
+      page: () => const AirtimeScreen(),
+      binding: AirtimeBinding(),
     ),
   ];
 }
