@@ -102,7 +102,9 @@ class QuickActions extends StatelessWidget {
                 return GestureDetector(
                   onTap: () {
                     if (action['label'] == 'Airtime') {
-                      Get.toNamed(Routes.AIRTIME);
+                      Get.toNamed(Routes.AIRTIME, arguments: {'tab': 0});
+                    } else if (action['label'] == 'Internet') {
+                      Get.toNamed(Routes.AIRTIME, arguments: {'tab': 1});
                     }
                   },
                   child: Column(

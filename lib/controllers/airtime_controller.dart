@@ -9,6 +9,14 @@ class AirtimeController extends GetxController {
 
   final networks = ['MTN', 'Airtel', 'Glo', '9mobile'];
 
+  @override
+  void onInit() {
+    super.onInit();
+    if (Get.arguments != null && Get.arguments['tab'] != null) {
+      selectedTab.value = Get.arguments['tab'];
+    }
+  }
+
   void switchTab(int index) {
     selectedTab.value = index;
   }
