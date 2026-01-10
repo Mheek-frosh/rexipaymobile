@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
 import '../utils/app_text.dart';
+import '../utils/app_strings.dart';
 
 class TransactionsScreen extends StatelessWidget {
   const TransactionsScreen({super.key});
@@ -16,15 +17,11 @@ class TransactionsScreen extends StatelessWidget {
           backgroundColor: AppColors.background,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(
-              Icons.chevron_left,
-              color: AppColors.textPrimary,
-              size: 32,
-            ),
+            icon: Icon(Icons.arrow_back, color: AppColors.textPrimary),
             onPressed: () => Get.back(),
           ),
           title: Text(
-            'Transactions',
+            AppStrings.transactions,
             style: AppText.header2.copyWith(fontWeight: FontWeight.w700),
           ),
           centerTitle: true,

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
 import '../utils/app_text.dart';
+import '../utils/app_strings.dart';
 import '../controllers/theme_controller.dart';
 import '../controllers/main_controller.dart';
 import '../widgets/logout_dialog.dart';
@@ -12,16 +13,19 @@ class ProfileScreen extends GetView<ThemeController> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeController themeController = Get.find<ThemeController>();
+
     return Obx(
       () => Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: Text(
-            'My Profile',
-            style: AppText.header2.copyWith(fontWeight: FontWeight.w700),
-          ),
           backgroundColor: AppColors.background,
           elevation: 0,
+          automaticallyImplyLeading: false,
+          title: Text(
+            AppStrings.myProfile,
+            style: AppText.header2.copyWith(fontWeight: FontWeight.w700),
+          ),
           centerTitle: true,
         ),
         body: SingleChildScrollView(
@@ -72,41 +76,21 @@ class ProfileScreen extends GetView<ThemeController> {
                             ],
                           ),
                           const SizedBox(height: 4),
-                          RichText(
-                            text: TextSpan(
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                color: AppColors.textSecondary,
-                              ),
-                              children: [
-                                const TextSpan(text: 'Account number '),
-                                TextSpan(
-                                  text: '9034448700',
-                                  style: GoogleFonts.inter(
-                                    color: AppColors.textPrimary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
+                          Text(
+                            '${AppStrings.accountNumber} 9034448700',
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              color: AppColors.textSecondary,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                           const SizedBox(height: 2),
-                          RichText(
-                            text: TextSpan(
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                color: AppColors.textSecondary,
-                              ),
-                              children: [
-                                const TextSpan(text: 'Username '),
-                                TextSpan(
-                                  text: '@MheekfrOsh',
-                                  style: GoogleFonts.inter(
-                                    color: AppColors.textPrimary,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
+                          Text(
+                            '${AppStrings.username} @MheekfrOsh',
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              color: AppColors.textSecondary,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
@@ -129,18 +113,20 @@ class ProfileScreen extends GetView<ThemeController> {
                   children: [
                     // Dark Mode Toggle
                     _buildMenuItem(
-                      icon: controller.isDarkMode
+                      icon: themeController.isDarkMode
                           ? Icons.light_mode_outlined
                           : Icons.dark_mode_outlined,
-                      iconBgColor: Colors.grey[400]!,
-                      title: controller.isDarkMode ? 'Dark' : 'Light',
-                      trailing: Switch(
-                        value: controller.isDarkMode,
-                        activeColor: Colors.white,
-                        activeTrackColor: AppColors.primary,
-                        onChanged: (val) {
-                          controller.toggleTheme();
-                        },
+                      iconBgColor: const Color(0xFFF5F5F5),
+                      iconColor: Colors.black87,
+                      title: themeController.isDarkMode
+                          ? AppStrings.light
+                          : AppStrings.dark,
+                      trailing: Obx(
+                        () => Switch(
+                          value: themeController.isDarkMode,
+                          onChanged: (value) => themeController.toggleTheme(),
+                          activeColor: const Color(0xFF2E63F6),
+                        ),
                       ),
                       onTap: () {},
                     ),
@@ -149,7 +135,7 @@ class ProfileScreen extends GetView<ThemeController> {
                     _buildMenuItem(
                       icon: Icons.account_balance_outlined,
                       iconBgColor: const Color(0xFFFFD166), // Yellow
-                      title: 'Cards',
+                      title: AppStrings.cards,
                       onTap: () {
                         Get.find<MainController>().changePage(1);
                       },
@@ -160,7 +146,7 @@ class ProfileScreen extends GetView<ThemeController> {
                       icon: Icons.headset_mic_outlined,
                       iconBgColor: const Color(0xFFE8F5E9), // Light Green
                       iconColor: Colors.green,
-                      title: 'Support',
+                      title: AppStrings.support,
                       onTap: () {},
                     ),
                     _buildDivider(),
@@ -169,7 +155,7 @@ class ProfileScreen extends GetView<ThemeController> {
                       icon: Icons.settings_outlined,
                       iconBgColor: const Color(0xFFE8F0FE), // Light Blue
                       iconColor: AppColors.primary,
-                      title: 'Settings',
+                      title: AppStrings.settings,
                       onTap: () {},
                     ),
                     _buildDivider(),
@@ -178,7 +164,7 @@ class ProfileScreen extends GetView<ThemeController> {
                       icon: Icons.storage_rounded,
                       iconBgColor: const Color(0xFFE8F5E9), // Light Green
                       iconColor: Colors.green,
-                      title: 'Data & Privacy',
+                      title: AppStrings.dataPrivacy,
                       onTap: () {},
                     ),
                     _buildDivider(),
@@ -187,11 +173,10 @@ class ProfileScreen extends GetView<ThemeController> {
                       icon: Icons.logout_rounded,
                       iconBgColor: const Color(0xFFFFEBEE), // Light Red
                       iconColor: Colors.red,
-                      title: 'Logout',
+                      title: AppStrings.logout,
                       onTap: () {
                         Get.bottomSheet(
                           const LogoutDialog(),
-                          isScrollControlled: true,
                           backgroundColor: Colors.transparent,
                         );
                       },
@@ -221,7 +206,7 @@ class ProfileScreen extends GetView<ThemeController> {
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: (iconColor != null ? iconBgColor : Colors.grey[400]!)
-              .withOpacity(controller.isDarkMode ? 0.2 : 1.0),
+              .withOpacity(Get.find<ThemeController>().isDarkMode ? 0.2 : 1.0),
           shape: BoxShape.circle,
         ),
         child: Icon(

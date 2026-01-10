@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../controllers/notification_controller.dart';
 import '../utils/app_colors.dart';
 import '../utils/app_text.dart';
+import '../utils/app_strings.dart';
+import '../controllers/notification_controller.dart';
 
 class NotificationScreen extends GetView<NotificationController> {
   const NotificationScreen({super.key});
@@ -25,7 +26,7 @@ class NotificationScreen extends GetView<NotificationController> {
             onPressed: () => Get.back(),
           ),
           title: Text(
-            'Notifications',
+            AppStrings.notifications,
             style: AppText.header2.copyWith(fontWeight: FontWeight.w700),
           ),
           centerTitle: true,

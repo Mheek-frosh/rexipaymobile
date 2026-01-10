@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
-import '../routes/app_routes.dart';
+import '../utils/app_text.dart';
+import '../utils/app_strings.dart';
 import 'custom_buttons.dart';
 
 class ConfirmationDialog extends StatelessWidget {
@@ -58,30 +59,33 @@ class ConfirmationDialog extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            // Details Section
-            _buildDetailRow('Recipients', recipientName),
-            const SizedBox(height: 16),
-            _buildDetailRow('Account Name', accountName),
-            const SizedBox(height: 16),
-            _buildDetailRow('Amount', amount, isAmount: true),
-            const SizedBox(height: 16),
-            _buildDetailRow('Transaction Fee', fee),
-            const SizedBox(height: 16),
-            _buildDetailRow('Wallet', 'NG account', isWallet: true),
+            // Title
+            Text(
+              AppStrings.details,
+              style: AppText.header2.copyWith(fontWeight: FontWeight.w700),
+            ),
             const SizedBox(height: 30),
+            // Info Rows
+            _buildInfoRow(AppStrings.recipients, recipientName),
+            const SizedBox(height: 15),
+            _buildInfoRow(AppStrings.accountName, accountName),
+            const SizedBox(height: 15),
+            _buildInfoRow(AppStrings.amount, '₦ $amount', isAmount: true),
+            const SizedBox(height: 15),
+            _buildInfoRow(AppStrings.transactionFee, fee),
+            const SizedBox(height: 15),
+            _buildInfoRow(
+              AppStrings.wallet,
+              AppStrings.ngAccount,
+              isWallet: true,
+            ),
+            const SizedBox(height: 40),
             // Send Button
             PrimaryButton(
-              text: 'Send',
+              text: AppStrings.send,
               onPressed: () {
                 Get.back();
-                Get.toNamed(
-                  Routes.PAYMENT_SUCCESS,
-                  arguments: {
-                    'recipientName': recipientName,
-                    'accountName': accountName,
-                    'amount': amount,
-                  },
-                );
+                Get.toNamed('/payment-success');
               },
               width: double.infinity,
             ),
@@ -92,7 +96,7 @@ class ConfirmationDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(
+  Widget _buildInfoRow(
     String label,
     String value, {
     bool isAmount = false,

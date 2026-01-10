@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 // import 'package:lottie/lottie.dart'; // Commented out as per user request
 import '../utils/app_colors.dart';
+import '../utils/app_text.dart';
+import '../utils/app_strings.dart';
+import '../controllers/transfer_controller.dart';
 import '../routes/app_routes.dart';
 import '../widgets/custom_buttons.dart';
 
@@ -14,7 +17,9 @@ class PaymentSuccessScreen extends StatelessWidget {
     // Get arguments passed from confirmation dialog
     final args = Get.arguments as Map<String, dynamic>? ?? {};
     final recipientName = args['recipientName'] ?? 'Faith Adeyemi';
-    final amount = args['amount'] ?? '₦1,000,000';
+
+    // Initialize controller
+    final TransferController controller = Get.find<TransferController>();
 
     return Obx(
       () => Scaffold(
@@ -46,19 +51,19 @@ class PaymentSuccessScreen extends StatelessWidget {
                 const SizedBox(height: 24),
                 // Title
                 Text(
-                  'Payment Success!',
-                  style: GoogleFonts.inter(
-                    fontSize: 24,
+                  AppStrings.paymentSuccess,
+                  style: AppText.header2.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                    fontSize: 24,
                   ),
                 ),
                 const SizedBox(height: 8),
+                // Subtitle
                 Text(
-                  'Your payment was successful.',
+                  AppStrings.paymentSuccessful,
                   style: GoogleFonts.inter(
-                    fontSize: 16,
                     color: AppColors.textSecondary,
+                    fontSize: 14,
                   ),
                 ),
                 const SizedBox(height: 40),
@@ -71,34 +76,51 @@ class PaymentSuccessScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      _buildDetailRow('Amount', amount, isAmount: true),
+                      _buildDetailRow(
+                        AppStrings.amount,
+                        '₦ ${controller.amount}',
+                        isAmount: true,
+                      ),
                       const SizedBox(height: 12),
-                      _buildDetailRow('Status', 'Success', isStatus: true),
+                      _buildDetailRow(
+                        AppStrings.status,
+                        AppStrings.success,
+                        isStatus: true,
+                      ),
                       const SizedBox(height: 20),
                       Divider(color: AppColors.black.withOpacity(0.05)),
                       const SizedBox(height: 20),
-                      _buildDetailRow('Transaction ID', 'QWERTYUIOPASD'),
+                      _buildDetailRow(
+                        AppStrings.transactionId,
+                        'QWERTYUIOPASD',
+                      ),
                       const SizedBox(height: 16),
-                      _buildDetailRow('Sender', 'Faith Adeyemi'),
+                      _buildDetailRow(AppStrings.sender, 'Faith Adeyemi'),
                       const SizedBox(height: 16),
-                      _buildDetailRow('Receiver', recipientName),
+                      _buildDetailRow(AppStrings.receiver, recipientName),
                       const SizedBox(height: 16),
-                      _buildDetailRow('Payment Method', 'Bank Transfer'),
+                      _buildDetailRow(
+                        AppStrings.paymentMethod,
+                        AppStrings.bankTransfer,
+                      ),
                       const SizedBox(height: 16),
-                      _buildDetailRow('Payment Time', 'May 27, 2025, 15:26:10'),
+                      _buildDetailRow(
+                        AppStrings.paymentTime,
+                        'May 27, 2025, 15:26:10',
+                      ),
                     ],
                   ),
                 ),
                 const Spacer(),
                 // Action Buttons
                 SecondaryButton(
-                  text: 'Make another Payment',
+                  text: AppStrings.makeAnotherPayment,
                   onPressed: () => Get.offNamed(Routes.TRANSFER),
                   width: double.infinity,
                 ),
                 const SizedBox(height: 12),
                 PrimaryButton(
-                  text: 'Back to Homepage',
+                  text: AppStrings.backToHomepage,
                   onPressed: () => Get.offAllNamed(Routes.HOME),
                   width: double.infinity,
                 ),

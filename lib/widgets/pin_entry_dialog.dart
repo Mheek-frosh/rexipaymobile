@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
+import '../utils/app_strings.dart';
 import 'card_details_sheet.dart';
 
 class PinEntryDialog extends StatefulWidget {
@@ -78,43 +79,33 @@ class _PinEntryDialogState extends State<PinEntryDialog> {
             const SizedBox(height: 10),
             // Title
             Text(
-              'Enter Transaction PIN',
+              AppStrings.enterTransactionPin,
               style: GoogleFonts.inter(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 30),
-            // PIN Input Boxes
+            const SizedBox(height: 40),
+            // Pin indicators (circles)
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(4, (index) {
                 return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                  width: 60,
-                  height: 60,
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  width: 15,
+                  height: 15,
                   decoration: BoxDecoration(
-                    border: Border.all(
-                      color: const Color(0xFF2E63F6),
-                      width: 2,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Center(
-                    child: Text(
-                      _pin[index].isEmpty ? '' : '●',
-                      style: GoogleFonts.inter(
-                        fontSize: 32,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
+                    color: index < _currentIndex
+                        ? const Color(0xFF2E63F6)
+                        : Colors.grey[300],
+                    shape: BoxShape.circle,
                   ),
                 );
               }),
             ),
-            const SizedBox(height: 20),
-            // Forgot PIN
+            const SizedBox(height: 40),
+            // Forgot PIN?
             TextButton(
               onPressed: () {},
               child: Text(

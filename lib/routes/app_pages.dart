@@ -6,6 +6,9 @@ import '../screens/transactions_screen.dart';
 import '../screens/notification_screen.dart';
 import '../screens/transfer_screen.dart';
 import '../screens/payment_success_screen.dart';
+import '../screens/auth/signup_screen.dart';
+import '../screens/auth/login_screen.dart';
+import '../screens/auth/otp_verification_screen.dart';
 import 'app_routes.dart';
 
 // ignore: avoid_classes_with_only_static_members
@@ -36,6 +39,21 @@ class AppPages {
     GetPage(
       name: Routes.PAYMENT_SUCCESS,
       page: () => const PaymentSuccessScreen(),
+      binding: MainBinding(),
+    ),
+    GetPage(
+      name: Routes.SIGNUP,
+      page: () => const SignupScreen(),
+      binding: MainBinding(),
+    ),
+    GetPage(
+      name: Routes.LOGIN,
+      page: () => const LoginScreen(),
+      binding: MainBinding(),
+    ),
+    GetPage(
+      name: Routes.OTP_VERIFICATION,
+      page: () => const OtpVerificationScreen(),
       binding: MainBinding(),
     ),
   ];

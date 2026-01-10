@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:rexipaymobile/utils/app_colors.dart';
 import 'package:rexipaymobile/utils/app_text.dart';
+import 'package:rexipaymobile/utils/app_strings.dart';
 import 'package:rexipaymobile/controllers/card_controller.dart';
 import 'package:rexipaymobile/widgets/pin_entry_dialog.dart';
 
@@ -17,19 +18,17 @@ class CardScreen extends StatelessWidget {
       () => Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: Text('Virtual Card', style: AppText.header2),
-          centerTitle: true,
           backgroundColor: AppColors.background,
           elevation: 0,
-          actions: [
-            IconButton(
-              icon: Icon(
-                Icons.settings_outlined,
-                color: AppColors.black,
-              ), // Assuming iconColor was black/grey
-              onPressed: () {},
-            ),
-          ],
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: AppColors.textPrimary),
+            onPressed: () => Get.back(),
+          ),
+          title: Text(
+            AppStrings.virtualCard,
+            style: AppText.header2.copyWith(fontWeight: FontWeight.w700),
+          ),
+          centerTitle: true,
         ),
         body: SingleChildScrollView(
           child: Padding(
@@ -281,10 +280,10 @@ class CardScreen extends StatelessWidget {
                 const SizedBox(height: 15),
                 Center(
                   child: Text(
-                    'Tap to see card details',
+                    AppStrings.tapToSeeCardDetails,
                     style: GoogleFonts.inter(
-                      color: AppColors.textSecondary,
-                      fontSize: 13,
+                      color: Colors.white70,
+                      fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

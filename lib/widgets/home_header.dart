@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../utils/app_strings.dart';
 import '../controllers/main_controller.dart';
 import '../routes/app_routes.dart';
 import 'custom_buttons.dart';
@@ -20,64 +21,58 @@ class HomeHeader extends StatelessWidget {
       child: Column(
         children: [
           // TOP ROW
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Stack(
+            alignment: Alignment.center,
             children: [
-              const Icon(Icons.person, color: Colors.white, size: 28),
-
-              // Spacer to push toggle to the right
-              const SizedBox(width: 5),
-
-              // TOGGLE (Aligned with camera notch)
-              Expanded(
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Obx(
-                    () => Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.white24,
-                        borderRadius: BorderRadius.circular(25),
+              // TOGGLE (Centered)
+              Obx(
+                () => Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildToggleOption(
+                        context,
+                        AppStrings.bank,
+                        controller.homeView == 0,
+                        () => controller.switchHomeView(0),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _buildToggleOption(
-                            context,
-                            'Bank',
-                            controller.homeView == 0,
-                            () => controller.switchHomeView(0),
-                          ),
-                          _buildToggleOption(
-                            context,
-                            'Crypto',
-                            controller.homeView == 1,
-                            () => controller.switchHomeView(1),
-                          ),
-                        ],
+                      _buildToggleOption(
+                        context,
+                        AppStrings.crypto,
+                        controller.homeView == 1,
+                        () => controller.switchHomeView(1),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
-
-              const SizedBox(width: 20),
-
+              // ICONS (Spread out)
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Icon(
-                    Icons.headset_mic_outlined,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                  const SizedBox(width: 15),
-                  GestureDetector(
-                    onTap: () => Get.toNamed(Routes.NOTIFICATIONS),
-                    child: const Icon(
-                      Icons.notifications_outlined,
-                      color: Colors.white,
-                      size: 28,
-                    ),
+                  const Icon(Icons.person, color: Colors.white, size: 28),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.headset_mic_outlined,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                      const SizedBox(width: 15),
+                      GestureDetector(
+                        onTap: () => Get.toNamed(Routes.NOTIFICATIONS),
+                        child: const Icon(
+                          Icons.notifications_outlined,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -98,7 +93,7 @@ class HomeHeader extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'NG Naira',
+                AppStrings.ngNaira,
                 style: GoogleFonts.inter(color: Colors.white70, fontSize: 14),
               ),
               const Icon(
@@ -122,7 +117,7 @@ class HomeHeader extends StatelessWidget {
           ),
 
           Text(
-            'Available Balance',
+            AppStrings.availableBalance,
             style: GoogleFonts.inter(color: Colors.white70, fontSize: 14),
           ),
 

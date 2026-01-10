@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
+import '../utils/app_strings.dart';
 import '../controllers/transfer_controller.dart';
 import 'confirmation_dialog.dart';
 import 'custom_buttons.dart';
@@ -92,9 +93,9 @@ class AmountBottomSheet extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'NG Naira',
+                      AppStrings.ngNaira,
                       style: GoogleFonts.inter(
-                        fontSize: 14,
+                        fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: const Color(0xFF2E63F6),
                       ),
@@ -154,18 +155,16 @@ class AmountBottomSheet extends StatelessWidget {
                 const SizedBox(height: 30),
                 // Next Button
                 PrimaryButton(
-                  text: 'Next',
+                  text: AppStrings.next,
                   onPressed: () {
                     Get.back();
-                    Get.bottomSheet(
+                    Get.dialog(
                       ConfirmationDialog(
                         recipientName: name,
                         accountName: controller.accountName.value,
-                        amount:
-                            '₦${controller.amountController.text.isEmpty ? "0" : controller.amountController.text}',
-                        fee: '₦50',
+                        amount: controller.amount,
                       ),
-                      isScrollControlled: true,
+                      barrierDismissible: true,
                     );
                   },
                   width: double.infinity,

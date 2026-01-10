@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
+import '../utils/app_text.dart';
+import '../utils/app_strings.dart';
 
 class CardDetailsSheet extends StatelessWidget {
   const CardDetailsSheet({super.key});
@@ -29,12 +31,8 @@ class CardDetailsSheet extends StatelessWidget {
             const SizedBox(height: 20),
             // Title
             Text(
-              'Card Settings',
-              style: GoogleFonts.inter(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-              ),
+              AppStrings.details,
+              style: AppText.header2.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 30),
             // Full Card Display
@@ -182,47 +180,29 @@ class CardDetailsSheet extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 30),
-            // CVV Code
-            Text(
-              'CVV code: 579',
-              style: GoogleFonts.inter(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Warning Message
+            const SizedBox(height: 24),
+            // Warning box
             Container(
-              padding: const EdgeInsets.all(15),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFE5E5),
+                color: const Color(0xFFFFEBEE), // Very light red/pink
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
                   const Icon(
                     Icons.info_outline,
-                    color: Color(0xFFE53935),
-                    size: 20,
+                    color: Color(0xFFD32F2F),
+                    size: 18,
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: RichText(
-                      text: TextSpan(
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          color: const Color(0xFFE53935),
-                        ),
-                        children: const [
-                          TextSpan(text: 'Please don\'t give '),
-                          TextSpan(
-                            text: 'CVV',
-                            style: TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                          TextSpan(text: ' to anyone!'),
-                        ],
+                    child: Text(
+                      AppStrings.dontGiveCvv,
+                      style: GoogleFonts.inter(
+                        color: const Color(0xFFD32F2F),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),

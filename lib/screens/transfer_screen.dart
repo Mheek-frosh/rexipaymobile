@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
 import '../utils/app_text.dart';
+import '../utils/app_strings.dart';
 import '../controllers/transfer_controller.dart';
 import '../widgets/amount_bottom_sheet.dart';
 
@@ -20,15 +21,11 @@ class TransferScreen extends StatelessWidget {
           backgroundColor: AppColors.background,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(
-              Icons.chevron_left,
-              color: AppColors.textPrimary,
-              size: 30,
-            ),
+            icon: Icon(Icons.arrow_back, color: AppColors.textPrimary),
             onPressed: () => Get.back(),
           ),
           title: Text(
-            'Transfer to Bank',
+            AppStrings.transferToBank,
             style: AppText.header2.copyWith(fontWeight: FontWeight.w700),
           ),
           centerTitle: true,
@@ -62,18 +59,18 @@ class TransferScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Recipient Account',
+            AppStrings.recipientAccount,
             style: GoogleFonts.inter(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: AppColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           TextField(
-            controller: controller.accountController,
+            controller: controller.accountNumberController,
             decoration: InputDecoration(
-              hintText: 'Enter 10 digits Account Number',
+              hintText: AppStrings.enterAccountNumber,
               hintStyle: GoogleFonts.inter(color: Colors.grey[400]),
               enabledBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: Colors.grey[300]!),
@@ -92,7 +89,7 @@ class TransferScreen extends StatelessWidget {
                   ? null
                   : controller.selectedBank.value,
               decoration: InputDecoration(
-                hintText: 'Select Bank',
+                hintText: AppStrings.selectBank,
                 hintStyle: GoogleFonts.inter(color: Colors.grey[400]),
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.grey[300]!),
@@ -140,7 +137,7 @@ class TransferScreen extends StatelessWidget {
                 elevation: 0,
               ),
               child: Text(
-                'Next',
+                AppStrings.next,
                 style: GoogleFonts.inter(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -177,7 +174,7 @@ class TransferScreen extends StatelessWidget {
             ),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Search "Recipient name"',
+                hintText: AppStrings.searchRecipientName,
                 hintStyle: GoogleFonts.inter(color: Colors.grey[400]),
                 border: InputBorder.none,
                 suffixIcon: Icon(Icons.search, color: Colors.grey[400]),
@@ -186,7 +183,7 @@ class TransferScreen extends StatelessWidget {
           ),
           const SizedBox(height: 30),
           Text(
-            'Most Recent',
+            AppStrings.mostRecent,
             style: GoogleFonts.inter(
               fontSize: 16,
               fontWeight: FontWeight.w700,

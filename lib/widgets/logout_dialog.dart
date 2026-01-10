@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
+import '../utils/app_strings.dart';
 import 'custom_buttons.dart';
 
 class LogoutDialog extends StatelessWidget {
@@ -14,79 +15,64 @@ class LogoutDialog extends StatelessWidget {
         color: AppColors.cardBackground,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Pull Handle
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Close Icon
+          Align(
+            alignment: Alignment.topRight,
+            child: IconButton(
+              onPressed: () => Get.back(),
+              icon: Icon(Icons.close, color: AppColors.textSecondary, size: 24),
             ),
-            const SizedBox(height: 10),
-            // Close Button
-            Align(
-              alignment: Alignment.topRight,
-              child: IconButton(
-                onPressed: () => Get.back(),
-                icon: Icon(Icons.close, color: AppColors.textSecondary),
-              ),
+          ),
+          const SizedBox(height: 10),
+          // Title
+          Text(
+            AppStrings.logout,
+            style: GoogleFonts.inter(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFFFF4B4B), // Red title
             ),
-            const SizedBox(height: 10),
-            // Title
-            Text(
-              'Logout',
-              style: GoogleFonts.inter(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFFE53935), // Red color
-              ),
+          ),
+          const SizedBox(height: 16),
+          // Message
+          Text(
+            AppStrings.sureToLogout,
+            style: GoogleFonts.inter(
+              fontSize: 16,
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w500,
             ),
-            const SizedBox(height: 20),
-            // Message
-            Text(
-              'Are you sure you want to logout?',
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                color: AppColors.textSecondary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 30),
-            // Buttons
-            Row(
-              children: [
-                // Cancel Button
-                Expanded(
-                  child: SecondaryButton(
-                    text: 'Cancel',
-                    onPressed: () => Get.back(),
-                    borderRadius: 30,
-                    borderWidth: 2,
-                  ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 40),
+          // Buttons
+          Row(
+            children: [
+              Expanded(
+                child: SecondaryButton(
+                  text: AppStrings.cancel,
+                  onPressed: () => Get.back(),
                 ),
-                const SizedBox(width: 15),
-                // Logout Button
-                Expanded(
-                  child: PrimaryButton(
-                    text: 'Logout',
-                    onPressed: () {
-                      Get.back();
-                      Get.offAllNamed('/');
-                    },
-                    borderRadius: 30,
-                  ),
+              ),
+              const SizedBox(width: 15),
+              Expanded(
+                child: PrimaryButton(
+                  text: AppStrings.logout,
+                  onPressed: () {
+                    Get.back();
+                    // TODO: Implement actual logout logic
+                    Get.offAllNamed('/signup');
+                  },
                 ),
-              ],
-            ),
-            const SizedBox(height: 30),
-          ],
-        ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+        ],
       ),
     );
   }

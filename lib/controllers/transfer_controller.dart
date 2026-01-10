@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class TransferController extends GetxController {
-  final accountController = TextEditingController();
+  final accountNumberController = TextEditingController();
   final amountController = TextEditingController();
+  String get amount => amountController.text;
   final selectedBank = ''.obs;
   final recipientName = 'Divine Chiamaka'.obs;
   final recipientEmail = 'divine.ama9@gmail.com'.obs;
@@ -15,14 +16,14 @@ class TransferController extends GetxController {
   }
 
   void reset() {
-    accountController.clear();
+    accountNumberController.clear();
     amountController.clear();
     selectedBank.value = '';
   }
 
   @override
   void onClose() {
-    accountController.dispose();
+    accountNumberController.dispose();
     amountController.dispose();
     super.onClose();
   }
