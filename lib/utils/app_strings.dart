@@ -127,4 +127,6 @@ class AppStrings {
 
   // Common
   static const String details = "Details";
+  static const String buyAirtime = "Buy Airtime";
+  static const String confirm = "Confirm";
 }

@@ -40,8 +40,8 @@ class AirtimeScreen extends GetView<AirtimeController> {
             _buildTopUpSection(),
             const SizedBox(height: 40),
             PrimaryButton(
-              text: AppStrings.backToHomepage,
-              onPressed: () => Get.offAllNamed('/'),
+              text: AppStrings.buyAirtime,
+              onPressed: () => controller.buyAirtime(),
               width: double.infinity,
             ),
           ],
