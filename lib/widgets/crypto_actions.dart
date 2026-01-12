@@ -22,7 +22,7 @@ class CryptoActions extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             GestureDetector(
-              onTap: () => Get.toNamed(Routes.TRANSFER),
+              onTap: () => Get.toNamed(Routes.CHOOSE_CRYPTO),
               child: _buildActionButton(
                 context,
                 Icons.arrow_upward,

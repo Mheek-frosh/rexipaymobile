@@ -10,7 +10,10 @@ import '../screens/auth/signup_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/otp_verification_screen.dart';
 import '../screens/airtime_screen.dart';
+import '../screens/choose_crypto_screen.dart';
+import '../screens/transfer_crypto_screen.dart';
 import '../bindings/airtime_binding.dart';
+import '../bindings/crypto_binding.dart';
 import 'app_routes.dart';
 
 // ignore: avoid_classes_with_only_static_members
@@ -62,6 +65,16 @@ class AppPages {
       name: Routes.AIRTIME,
       page: () => const AirtimeScreen(),
       binding: AirtimeBinding(),
+    ),
+    GetPage(
+      name: Routes.CHOOSE_CRYPTO,
+      page: () => const ChooseCryptoScreen(),
+      binding: CryptoBinding(),
+    ),
+    GetPage(
+      name: Routes.TRANSFER_CRYPTO,
+      page: () => const TransferCryptoScreen(),
+      binding: CryptoBinding(),
     ),
   ];
 }

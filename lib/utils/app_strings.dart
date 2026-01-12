@@ -129,4 +129,15 @@ class AppStrings {
   static const String details = "Details";
   static const String buyAirtime = "Buy Airtime";
   static const String confirm = "Confirm";
+  static const String chooseCrypto = "Choose Crypto";
+  static const String yourPortfolio = "Your Portfolio";
+  static const String transferCrypto = "Transfer Crypto";
+  static const String coin = "Coin";
+  static const String address = "Address";
+  static const String minWithdrawal = "Min. withdrawal Amount: ";
+  static const String maxValue = "Max";
+  static const String proceed = "Proceed";
+  static const String addressHint = "Hold or paste reciever address";
+  static const String destinationWarning =
+      "Note: Make sure the destination wallet support BTC sent via this network.";
 }
