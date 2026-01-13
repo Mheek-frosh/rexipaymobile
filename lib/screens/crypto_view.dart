@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/crypto_actions.dart';
 import '../widgets/my_assets_list.dart';
-import '../widgets/referral_banner.dart';
+import '../widgets/banner_carousel.dart';
 
 class CryptoView extends StatelessWidget {
   const CryptoView({super.key});
@@ -12,8 +12,7 @@ class CryptoView extends StatelessWidget {
       children: [
         const CryptoActions(),
         const MyAssetsList(),
-        const SizedBox(height: 25),
-        const ReferralBanner(),
+        const BannerCarousel(),
         const SizedBox(height: 100), // Space for bottom nav
       ],
     );
