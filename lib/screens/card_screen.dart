@@ -6,6 +6,7 @@ import 'package:rexipaymobile/utils/app_text.dart';
 import 'package:rexipaymobile/utils/app_strings.dart';
 import 'package:rexipaymobile/controllers/card_controller.dart';
 import 'package:rexipaymobile/widgets/pin_entry_dialog.dart';
+import 'package:rexipaymobile/routes/app_routes.dart';
 
 class CardScreen extends StatelessWidget {
   const CardScreen({super.key});
@@ -316,7 +317,7 @@ class CardScreen extends StatelessWidget {
                             style: AppText.header2.copyWith(fontSize: 16),
                           ),
                           ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () => Get.toNamed(Routes.CHANGE_LIMIT),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primary,
                               shape: RoundedRectangleBorder(

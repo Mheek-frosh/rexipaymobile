@@ -13,6 +13,7 @@ abstract class Routes {
   static const AIRTIME = _Paths.AIRTIME;
   static const CHOOSE_CRYPTO = _Paths.CHOOSE_CRYPTO;
   static const TRANSFER_CRYPTO = _Paths.TRANSFER_CRYPTO;
+  static const CHANGE_LIMIT = _Paths.CHANGE_LIMIT;
 }
 
 abstract class _Paths {
@@ -29,4 +30,5 @@ abstract class _Paths {
   static const AIRTIME = '/airtime';
   static const CHOOSE_CRYPTO = '/choose-crypto';
   static const TRANSFER_CRYPTO = '/transfer-crypto';
+  static const CHANGE_LIMIT = '/change-limit';
 }

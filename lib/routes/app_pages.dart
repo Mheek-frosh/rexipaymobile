@@ -12,8 +12,10 @@ import '../screens/auth/otp_verification_screen.dart';
 import '../screens/airtime_screen.dart';
 import '../screens/choose_crypto_screen.dart';
 import '../screens/transfer_crypto_screen.dart';
+import '../screens/change_limit_screen.dart';
 import '../bindings/airtime_binding.dart';
 import '../bindings/crypto_binding.dart';
+import '../bindings/change_limit_binding.dart';
 import 'app_routes.dart';
 
 // ignore: avoid_classes_with_only_static_members
@@ -75,6 +77,11 @@ class AppPages {
       name: Routes.TRANSFER_CRYPTO,
       page: () => const TransferCryptoScreen(),
       binding: CryptoBinding(),
+    ),
+    GetPage(
+      name: Routes.CHANGE_LIMIT,
+      page: () => const ChangeLimitScreen(),
+      binding: ChangeLimitBinding(),
     ),
   ];
 }
