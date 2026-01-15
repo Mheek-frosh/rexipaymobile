@@ -21,10 +21,6 @@ class CardScreen extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: AppColors.background,
           elevation: 0,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: AppColors.textPrimary),
-            onPressed: () => Get.back(),
-          ),
           title: Text(
             AppStrings.virtualCard,
             style: AppText.header2.copyWith(fontWeight: FontWeight.w700),
@@ -120,103 +116,91 @@ class CardScreen extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                // Virtual Card (Tappable)
-                GestureDetector(
-                  onTap: () {
-                    Get.bottomSheet(
-                      const PinEntryDialog(),
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                    );
-                  },
-                  child: Container(
-                    height: 200,
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF2E63F6), Color(0xFF5B86FC)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
+                // Virtual Card
+                Container(
+                  height: 200,
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF2E63F6), Color(0xFF5B86FC)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Debit.',
-                              style: GoogleFonts.inter(
-                                color: Colors.white,
-                                fontSize: 14,
-                              ),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Debit.',
+                            style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontSize: 14,
                             ),
-                            Text(
-                              'COOLPAY.NG',
-                              style: GoogleFonts.inter(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          ),
+                          Text(
+                            'Rexipay',
+                            style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        // Chip and Logo placeholder
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            // Simple Chip representation
-                            Container(
-                              width: 40,
-                              height: 30,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFE0E0E0),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: const Icon(
-                                Icons.grid_3x3,
-                                size: 20,
-                                color: Colors.grey,
-                              ), // Placeholder for chip lines
-                            ),
-                            // Mastercard logo placeholder (using circles)
-                            SizedBox(
-                              height: 40,
-                              child: Stack(
-                                children: [
-                                  Container(
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      // Chip and Logo placeholder
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Simple Chip representation
+                          Image.asset(
+                            'assets/images/sim.png',
+                            width: 40,
+                            height: 30,
+                            fit: BoxFit.contain,
+                          ),
+                          // Mastercard logo placeholder (using circles)
+                          SizedBox(
+                            height: 40,
+                            child: Stack(
+                              children: [
+                                Container(
+                                  width: 30,
+                                  height: 30,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.white, // red
+                                  ),
+                                ),
+                                Positioned(
+                                  left: 15,
+                                  child: Container(
                                     width: 30,
                                     height: 30,
-                                    decoration: const BoxDecoration(
+                                    decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: Colors.white, // red
+                                      color: Colors.white.withOpacity(
+                                        0.7,
+                                      ), // orange
                                     ),
                                   ),
-                                  Positioned(
-                                    left: 15,
-                                    child: Container(
-                                      width: 30,
-                                      height: 30,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Colors.white.withOpacity(
-                                          0.7,
-                                        ), // orange
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        const Spacer(),
-                        Text(
-                          '5355  ****  ****  ****',
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      Obx(
+                        () => Text(
+                          controller.showCardDetails
+                              ? '5355  4200  1234  5678'
+                              : '5355  ****  ****  ****',
                           style: GoogleFonts.inter(
                             color: Colors.white,
                             fontSize: 22,
@@ -224,68 +208,80 @@ class CardScreen extends StatelessWidget {
                             letterSpacing: 2,
                           ),
                         ),
-                        const SizedBox(height: 15),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "VALID\nTHRU",
-                                  style: GoogleFonts.inter(
-                                    color: Colors.white70,
-                                    fontSize: 8,
-                                  ),
+                      ),
+                      const SizedBox(height: 15),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "VALID\nTHRU",
+                                style: GoogleFonts.inter(
+                                  color: Colors.white70,
+                                  fontSize: 8,
                                 ),
-                              ],
-                            ),
-                            Text(
-                              "**/**",
-                              style: GoogleFonts.inter(
-                                color: Colors.white,
-                                fontSize: 14,
                               ),
+                            ],
+                          ),
+                          Text(
+                            "**/**",
+                            style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontSize: 14,
                             ),
-                            const Spacer(),
-                          ],
-                        ),
-                        const SizedBox(height: 5),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'USIDAMEN OZELUAH MIKE',
-                              style: GoogleFonts.inter(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          ),
+                          const Spacer(),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'USIDAMEN OZELUAH MIKE',
+                            style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
                             ),
-                            Text(
-                              'Verve',
-                              style: GoogleFonts.inter(
-                                color: Colors.red, // Verve color roughly
-                                fontSize: 18,
-                                fontWeight: FontWeight.w900,
-                                fontStyle: FontStyle.italic,
-                              ),
+                          ),
+                          Text(
+                            'Verve',
+                            style: GoogleFonts.inter(
+                              color: Colors.red, // Verve color roughly
+                              fontSize: 18,
+                              fontWeight: FontWeight.w900,
+                              fontStyle: FontStyle.italic,
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
 
                 const SizedBox(height: 15),
                 Center(
-                  child: Text(
-                    AppStrings.tapToSeeCardDetails,
-                    style: GoogleFonts.inter(
-                      color: Colors.white70,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                  child: GestureDetector(
+                    onTap: () {
+                      if (!controller.showCardDetails) {
+                        Get.bottomSheet(
+                          const PinEntryDialog(),
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                        );
+                      }
+                      controller.toggleCardDetails();
+                    },
+                    child: Text(
+                      AppStrings.tapToSeeCardDetails,
+                      style: GoogleFonts.inter(
+                        color: Colors.white70,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),
