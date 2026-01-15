@@ -137,7 +137,7 @@ class ProfileScreen extends GetView<ThemeController> {
                       iconBgColor: const Color(0xFFFFD166), // Yellow
                       title: AppStrings.cards,
                       onTap: () {
-                        Get.toNamed(Routes.CARDS_LIST);
+                        Get.toNamed(Routes.ADD_CARD_INTRO);
                       },
                     ),
                     _buildDivider(),

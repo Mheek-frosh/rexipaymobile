@@ -16,13 +16,6 @@ class CardManagementController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Default card for demonstration based on Image 5
-    cards.add({
-      'type': 'Debit Card',
-      'last4': '8835',
-      'network': 'Mastercard',
-      'image': 'assets/images/mastercard_logo.png', // Placeholder
-    });
   }
 
   void addPinDigit(String digit) {
