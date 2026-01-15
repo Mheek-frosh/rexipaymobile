@@ -16,6 +16,9 @@ import '../screens/change_limit_screen.dart';
 import '../bindings/airtime_binding.dart';
 import '../bindings/crypto_binding.dart';
 import '../bindings/change_limit_binding.dart';
+import '../bindings/card_binding.dart';
+import '../screens/wallet/card_list_screen.dart';
+import '../screens/wallet/add_card_intro_screen.dart';
 import 'app_routes.dart';
 
 // ignore: avoid_classes_with_only_static_members
@@ -82,6 +85,16 @@ class AppPages {
       name: Routes.CHANGE_LIMIT,
       page: () => const ChangeLimitScreen(),
       binding: ChangeLimitBinding(),
+    ),
+    GetPage(
+      name: Routes.CARDS_LIST,
+      page: () => const CardListScreen(),
+      binding: CardBinding(),
+    ),
+    GetPage(
+      name: Routes.ADD_CARD_INTRO,
+      page: () => const AddCardIntroScreen(),
+      binding: CardBinding(),
     ),
   ];
 }

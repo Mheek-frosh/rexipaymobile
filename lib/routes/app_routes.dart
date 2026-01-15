@@ -14,6 +14,8 @@ abstract class Routes {
   static const CHOOSE_CRYPTO = _Paths.CHOOSE_CRYPTO;
   static const TRANSFER_CRYPTO = _Paths.TRANSFER_CRYPTO;
   static const CHANGE_LIMIT = _Paths.CHANGE_LIMIT;
+  static const CARDS_LIST = _Paths.CARDS_LIST;
+  static const ADD_CARD_INTRO = _Paths.ADD_CARD_INTRO;
 }
 
 abstract class _Paths {
@@ -31,4 +33,6 @@ abstract class _Paths {
   static const CHOOSE_CRYPTO = '/choose-crypto';
   static const TRANSFER_CRYPTO = '/transfer-crypto';
   static const CHANGE_LIMIT = '/change-limit';
+  static const CARDS_LIST = '/cards-list';
+  static const ADD_CARD_INTRO = '/add-card-intro';
 }

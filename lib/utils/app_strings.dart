@@ -140,4 +140,20 @@ class AppStrings {
   static const String addressHint = "Hold or paste reciever address";
   static const String destinationWarning =
       "Note: Make sure the destination wallet support BTC sent via this network.";
+  static const String cardAddedSuccessfully =
+      "Your card has been added successfully";
+  static const String enterPin = "Enter PIN";
+  static const String forgotPinQuestion = "Forgot PIN?";
+  static const String addNewCard = "Add New Card";
+  static const String name = "Name";
+  static const String enterFullName = "Enter Full Name";
+  static const String cardNumber = "Card Number";
+  static const String validThru = "Valid Thru";
+  static const String cvv = "CVV";
+  static const String add = "Add";
+  static const String finish = "Finish";
+  static const String done = "Done!";
+  static const String debitCard = "Debit Card";
+  static const String mastercard = "Master Card";
+  static const String addCard = "Add Card";
 }

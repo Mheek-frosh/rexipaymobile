@@ -21,6 +21,14 @@ class CardScreen extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: AppColors.background,
           elevation: 0,
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: AppColors.textPrimary,
+              size: 20,
+            ),
+            onPressed: () => Get.back(),
+          ),
           title: Text(
             AppStrings.virtualCard,
             style: AppText.header2.copyWith(fontWeight: FontWeight.w700),
