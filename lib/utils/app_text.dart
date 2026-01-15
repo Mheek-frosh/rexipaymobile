@@ -30,7 +30,7 @@ class AppText {
   static TextStyle get button => GoogleFonts.inter(
     fontSize: 16,
     fontWeight: FontWeight.w600,
-    color: AppColors.white,
+    color: Colors.white,
   );
 
   // Helper for dynamic styles
