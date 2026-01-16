@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -45,14 +46,48 @@ class ProfileScreen extends GetView<ThemeController> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      radius: 35,
-                      backgroundImage: const AssetImage(
-                        'assets/user_avatar_2.png',
-                      ),
-                      onBackgroundImageError: (_, __) {},
-                      backgroundColor: Colors.grey,
-                      child: const Icon(Icons.person, color: Colors.white),
+                    Stack(
+                      children: [
+                        Obx(
+                          () => CircleAvatar(
+                            radius: 40,
+                            backgroundColor: Colors.grey[200],
+                            backgroundImage:
+                                authController.profileImage.value != null
+                                ? FileImage(authController.profileImage.value!)
+                                : const AssetImage('assets/user_avatar_2.png')
+                                      as ImageProvider,
+                            onBackgroundImageError: (_, __) {},
+                            child: authController.profileImage.value == null
+                                ? const Icon(
+                                    Icons.person,
+                                    color: Colors.white,
+                                    size: 40,
+                                  )
+                                : null,
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: GestureDetector(
+                            onTap: () =>
+                                authController.showImageSourcePicker(context),
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF2E63F6),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(width: 15),
                     Expanded(

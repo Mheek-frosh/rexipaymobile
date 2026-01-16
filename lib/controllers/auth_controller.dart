@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:local_auth/local_auth.dart';
 
 class AuthController extends GetxController with WidgetsBindingObserver {
@@ -30,6 +33,98 @@ class AuthController extends GetxController with WidgetsBindingObserver {
   // Selected Country
   final selectedCountryFlag = '🇳🇬'.obs;
   final selectedCountryDialCode = '+234'.obs;
+
+  // Profile Image
+  final profileImage = Rxn<File>();
+  final _picker = ImagePicker();
+
+  Future<void> pickImage(ImageSource source) async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(
+        source: source,
+        imageQuality: 80,
+      );
+      if (pickedFile != null) {
+        profileImage.value = File(pickedFile.path);
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    }
+  }
+
+  void showImageSourcePicker(BuildContext context) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Select Image Source',
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildSourceOption(
+                  icon: Icons.camera_alt_outlined,
+                  label: 'Camera',
+                  onTap: () {
+                    Get.back();
+                    pickImage(ImageSource.camera);
+                  },
+                ),
+                _buildSourceOption(
+                  icon: Icons.photo_library_outlined,
+                  label: 'Gallery',
+                  onTap: () {
+                    Get.back();
+                    pickImage(ImageSource.gallery);
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSourceOption({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2E63F6).withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: const Color(0xFF2E63F6), size: 30),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void onInit() {

@@ -21,6 +21,7 @@ dependencies:
   country_picker: ^2.0.26
   intl: ^0.19.0
   local_auth: ^2.2.0
+  image_picker: ^1.0.4
 
 dev_dependencies:
   flutter_test:

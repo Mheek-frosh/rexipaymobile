@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'routes/app_pages.dart';
+import 'routes/app_routes.dart';
+import 'bindings/main_binding.dart';
 
 void main() {
   runApp(const RexiPayApp());
@@ -35,7 +37,8 @@ class RexiPayApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF0D0D0D),
       ),
       themeMode: ThemeMode.system,
-      initialRoute: '/signup',
+      initialBinding: MainBinding(),
+      initialRoute: Routes.SIGNUP,
       getPages: AppPages.routes,
     );
   }
