@@ -14,6 +14,7 @@ import '../screens/choose_crypto_screen.dart';
 import '../screens/transfer_crypto_screen.dart';
 import '../screens/change_limit_screen.dart';
 import '../bindings/airtime_binding.dart';
+import '../screens/data_screen.dart';
 import '../bindings/crypto_binding.dart';
 import '../bindings/change_limit_binding.dart';
 import '../bindings/card_binding.dart';
@@ -95,6 +96,11 @@ class AppPages {
       name: Routes.ADD_CARD_INTRO,
       page: () => const AddCardIntroScreen(),
       binding: CardBinding(),
+    ),
+    GetPage(
+      name: Routes.DATA,
+      page: () => const DataScreen(),
+      binding: AirtimeBinding(),
     ),
   ];
 }

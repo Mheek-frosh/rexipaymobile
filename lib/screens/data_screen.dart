@@ -7,8 +7,8 @@ import '../utils/app_text.dart';
 import '../utils/app_strings.dart';
 import '../widgets/custom_buttons.dart';
 
-class AirtimeScreen extends GetView<AirtimeController> {
-  const AirtimeScreen({super.key});
+class DataScreen extends GetView<AirtimeController> {
+  const DataScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,13 +37,23 @@ class AirtimeScreen extends GetView<AirtimeController> {
             const SizedBox(height: 30),
             _buildNetworkSection(),
             const SizedBox(height: 24),
-            _buildTopUpSection(),
+            Text(
+              'Select Data Plan',
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            _buildDataPlansGrid(),
             const SizedBox(height: 40),
             PrimaryButton(
-              text: AppStrings.buyAirtime,
-              onPressed: () => controller.buyAirtime(),
+              text: 'Buy Data',
+              onPressed: () => controller.buyData(),
               width: double.infinity,
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -157,12 +167,11 @@ class AirtimeScreen extends GetView<AirtimeController> {
                 ),
                 child: Row(
                   children: [
-                    // Network Placeholder Logo
                     Container(
                       width: 45,
                       height: 45,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFFFD100), // MTN Yellow
+                        color: Color(0xFFFFD100),
                         shape: BoxShape.circle,
                       ),
                       child: const Center(
@@ -222,58 +231,60 @@ class AirtimeScreen extends GetView<AirtimeController> {
     );
   }
 
-  Widget _buildTopUpSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppStrings.topUp,
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
-          ),
+  Widget _buildDataPlansGrid() {
+    return Obx(
+      () => GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 2.5,
         ),
-        const SizedBox(height: 12),
-        Container(
-          height: 70,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceVariant.withOpacity(0.3),
-            border: Border.all(color: Colors.grey[200]!),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              Text(
-                '₦',
-                style: GoogleFonts.inter(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+        itemCount: controller.dataPlans.length,
+        itemBuilder: (context, index) {
+          final plan = controller.dataPlans[index];
+          final isSelected = controller.selectedDataPlan.value == plan['name'];
+
+          return GestureDetector(
+            onTap: () => controller.setDataPlan(plan['name']!, plan['price']!),
+            child: Container(
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppColors.primary.withOpacity(0.1)
+                    : AppColors.cardBackground,
+                border: Border.all(
+                  color: isSelected ? AppColors.primary : Colors.grey[300]!,
+                  width: 1.5,
                 ),
+                borderRadius: BorderRadius.circular(12),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  controller: controller.amountController,
-                  keyboardType: TextInputType.number,
-                  style: GoogleFonts.inter(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    plan['name']!,
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
-                  decoration: InputDecoration(
-                    hintText: AppStrings.enterAmount,
-                    border: InputBorder.none,
-                    hintStyle: GoogleFonts.inter(color: Colors.grey[400]),
+                  Text(
+                    '₦${plan['price']}',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-        ),
-      ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
