@@ -9,6 +9,7 @@ import '../screens/payment_success_screen.dart';
 import '../screens/auth/signup_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/otp_verification_screen.dart';
+import '../screens/auth/welcome_back_screen.dart';
 import '../screens/airtime_screen.dart';
 import '../screens/choose_crypto_screen.dart';
 import '../screens/transfer_crypto_screen.dart';
@@ -95,6 +96,11 @@ class AppPages {
       name: Routes.ADD_CARD_INTRO,
       page: () => const AddCardIntroScreen(),
       binding: CardBinding(),
+    ),
+    GetPage(
+      name: Routes.WELCOME_BACK,
+      page: () => const WelcomeBackScreen(),
+      binding: MainBinding(),
     ),
   ];
 }

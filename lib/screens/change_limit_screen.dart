@@ -63,8 +63,8 @@ class ChangeLimitScreen extends GetView<ChangeLimitController> {
             ),
             const SizedBox(height: 40),
             NumericKeypad(
-              onNumberPressed: controller.onNumberPressed,
-              onBackspacePressed: controller.onBackspacePressed,
+              onKeyTap: controller.onNumberPressed,
+              onBackspace: controller.onBackspacePressed,
             ),
           ],
         ),

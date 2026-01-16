@@ -17,6 +17,7 @@ abstract class Routes {
   static const CARDS_LIST = _Paths.CARDS_LIST;
   static const ADD_CARD_INTRO = _Paths.ADD_CARD_INTRO;
   static const DATA = _Paths.DATA;
+  static const WELCOME_BACK = _Paths.WELCOME_BACK;
 }
 
 abstract class _Paths {
@@ -37,4 +38,5 @@ abstract class _Paths {
   static const CARDS_LIST = '/cards-list';
   static const ADD_CARD_INTRO = '/add-card-intro';
   static const DATA = '/data';
+  static const WELCOME_BACK = '/welcome-back';
 }

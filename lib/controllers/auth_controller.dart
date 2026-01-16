@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:local_auth/local_auth.dart';
 
-class AuthController extends GetxController {
+class AuthController extends GetxController with WidgetsBindingObserver {
   // Text controllers
   final phoneController = TextEditingController();
   final passwordController = TextEditingController();
@@ -14,6 +15,11 @@ class AuthController extends GetxController {
   final isLoginButtonEnabled = false.obs;
   final isOtpComplete = false.obs;
 
+  // Biometrics
+  final LocalAuthentication auth = LocalAuthentication();
+  final canCheckBiometrics = false.obs;
+  final isBiometricAuthenticated = false.obs;
+
   // Selected Country
   final selectedCountryFlag = '🇳🇬'.obs;
   final selectedCountryDialCode = '+234'.obs;
@@ -21,6 +27,7 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    WidgetsBinding.instance.addObserver(this);
     // Listen to phone and password changes for signup/login
     phoneController.addListener(_validateSignupFields);
     passwordController.addListener(_validateSignupFields);
@@ -65,8 +72,48 @@ class AuthController extends GetxController {
 
   @override
   void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
     phoneController.dispose();
     passwordController.dispose();
     super.onClose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Only show welcome back if user is logged in (for demo, if we are not on auth screens)
+      final currentRoute = Get.currentRoute;
+      if (currentRoute != '/signup' &&
+          currentRoute != '/login' &&
+          currentRoute != '/welcome-back') {
+        Get.toNamed('/welcome-back');
+      }
+    }
+  }
+
+  Future<void> checkBiometrics() async {
+    try {
+      canCheckBiometrics.value = await auth.canCheckBiometrics;
+    } catch (e) {
+      canCheckBiometrics.value = false;
+    }
+  }
+
+  Future<void> authenticateWithBiometrics() async {
+    try {
+      final bool authenticated = await auth.authenticate(
+        localizedReason: 'Please authenticate to continue',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: true,
+        ),
+      );
+      if (authenticated) {
+        isBiometricAuthenticated.value = true;
+        Get.offAllNamed('/home');
+      }
+    } catch (e) {
+      debugPrint('Biometric Error: $e');
+    }
   }
 }

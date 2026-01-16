@@ -4,6 +4,7 @@ import '../controllers/card_controller.dart';
 import '../controllers/theme_controller.dart';
 import '../controllers/notification_controller.dart';
 import '../controllers/transfer_controller.dart';
+import '../controllers/auth_controller.dart';
 
 class MainBinding extends Bindings {
   @override
@@ -13,5 +14,6 @@ class MainBinding extends Bindings {
     Get.lazyPut<ThemeController>(() => ThemeController());
     Get.lazyPut<NotificationController>(() => NotificationController());
     Get.lazyPut<TransferController>(() => TransferController());
+    Get.lazyPut<AuthController>(() => AuthController());
   }
 }

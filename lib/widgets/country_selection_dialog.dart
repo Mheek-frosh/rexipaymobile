@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
 import '../utils/app_text.dart';
+import 'package:country_picker/country_picker.dart' as cp;
 
 class Country {
   final String name;
@@ -28,15 +29,17 @@ class CountrySelectionDialog extends StatefulWidget {
 }
 
 class _CountrySelectionDialogState extends State<CountrySelectionDialog> {
-  final List<Country> countries = [
-    Country(name: 'Nigeria', code: 'NG', flag: '🇳🇬', dialCode: '+234'),
-    Country(name: 'Ghana', code: 'GH', flag: '🇬🇭', dialCode: '+233'),
-    Country(name: 'Kenya', code: 'KE', flag: '🇰🇪', dialCode: '+254'),
-    Country(name: 'South Africa', code: 'ZA', flag: '🇿🇦', dialCode: '+27'),
-    Country(name: 'United Kingdom', code: 'GB', flag: '🇬🇧', dialCode: '+44'),
-    Country(name: 'United States', code: 'US', flag: '🇺🇸', dialCode: '+1'),
-    Country(name: 'Canada', code: 'CA', flag: '🇨🇦', dialCode: '+1'),
-  ];
+  final List<Country> countries = cp.CountryService()
+      .getAll()
+      .map(
+        (c) => Country(
+          name: c.name,
+          code: c.countryCode,
+          flag: c.flagEmoji,
+          dialCode: '+${c.phoneCode}',
+        ),
+      )
+      .toList();
 
   late List<Country> filteredCountries;
   final searchController = TextEditingController();

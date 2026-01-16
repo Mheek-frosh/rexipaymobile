@@ -3,13 +3,17 @@ import '../utils/app_colors.dart';
 import '../utils/app_text.dart';
 
 class NumericKeypad extends StatelessWidget {
-  final Function(String) onNumberPressed;
-  final VoidCallback onBackspacePressed;
+  final Function(String) onKeyTap;
+  final VoidCallback onBackspace;
+  final IconData? leftButtonIcon;
+  final VoidCallback? onLeftButtonTap;
 
   const NumericKeypad({
     super.key,
-    required this.onNumberPressed,
-    required this.onBackspacePressed,
+    required this.onKeyTap,
+    required this.onBackspace,
+    this.leftButtonIcon,
+    this.onLeftButtonTap,
   });
 
   @override
@@ -22,7 +26,7 @@ class NumericKeypad extends StatelessWidget {
         const SizedBox(height: 15),
         _buildRow(['7', '8', '9']),
         const SizedBox(height: 15),
-        _buildRow(['', '0', 'backspace']),
+        _buildRow([leftButtonIcon != null ? 'leftItem' : '', '0', 'backspace']),
       ],
     );
   }
@@ -36,9 +40,11 @@ class NumericKeypad extends StatelessWidget {
         return GestureDetector(
           onTap: () {
             if (item == 'backspace') {
-              onBackspacePressed();
+              onBackspace();
+            } else if (item == 'leftItem') {
+              onLeftButtonTap?.call();
             } else {
-              onNumberPressed(item);
+              onKeyTap(item);
             }
           },
           child: Container(
@@ -48,14 +54,20 @@ class NumericKeypad extends StatelessWidget {
               color: AppColors.surfaceVariant,
               shape: BoxShape.circle,
             ),
-            child: Center(
-              child: item == 'backspace'
-                  ? Icon(Icons.backspace_outlined, color: AppColors.textPrimary)
-                  : Text(item, style: AppText.header2.copyWith(fontSize: 24)),
-            ),
+            child: Center(child: _buildItemChild(item)),
           ),
         );
       }).toList(),
     );
+  }
+
+  Widget _buildItemChild(String item) {
+    if (item == 'backspace') {
+      return Icon(Icons.backspace_outlined, color: AppColors.textPrimary);
+    } else if (item == 'leftItem') {
+      return Icon(leftButtonIcon, color: AppColors.textPrimary, size: 28);
+    } else {
+      return Text(item, style: AppText.header2.copyWith(fontSize: 24));
+    }
   }
 }
