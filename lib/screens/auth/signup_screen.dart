@@ -50,6 +50,44 @@ class SignupScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 40),
+                // Full Name Input
+                Text(
+                  'Full Name',
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: controller.nameController,
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    color: AppColors.textPrimary,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'e.g. Michael Ozeluah',
+                    hintStyle: GoogleFonts.inter(color: Colors.grey[400]),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF2E63F6)),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
                 // Phone Input
                 Text(
                   AppStrings.phone,

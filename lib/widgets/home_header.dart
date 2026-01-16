@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_strings.dart';
 import '../controllers/main_controller.dart';
 import '../routes/app_routes.dart';
+import '../controllers/auth_controller.dart';
 import 'custom_buttons.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -12,6 +13,7 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final MainController controller = Get.find<MainController>();
+    final AuthController authController = Get.find<AuthController>();
 
     return Container(
       padding: const EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 80),
@@ -81,7 +83,23 @@ class HomeHeader extends StatelessWidget {
 
           const SizedBox(height: 30),
 
-          // NG FLAG + TEXT
+          // NG FLAG + GREETING
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Obx(
+                () => Text(
+                  'Hello, ${authController.userName.value.split(' ').first}!',
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

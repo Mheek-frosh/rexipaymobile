@@ -143,12 +143,14 @@ class PhoneVerificationDialog extends StatelessWidget {
             ),
             const SizedBox(height: 15),
             // Phone Number
-            Text(
-              '${AppStrings.isThisCorrect}${controller.getFormattedPhone()}',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: AppColors.textSecondary,
+            Obx(
+              () => Text(
+                '${AppStrings.isThisCorrect}${controller.selectedCountryDialCode.value} ${controller.phoneController.text}',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
+                ),
               ),
             ),
             const SizedBox(height: 30),

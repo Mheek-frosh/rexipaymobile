@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
 import '../utils/app_strings.dart';
+import '../controllers/auth_controller.dart';
 import 'custom_buttons.dart';
 
 class SuccessVerificationDialog extends StatelessWidget {
@@ -117,8 +118,7 @@ class SuccessVerificationDialog extends StatelessWidget {
               text: AppStrings.continueText,
               onPressed: () {
                 Get.back();
-                // Navigate to next step
-                Get.offAllNamed('/home');
+                Get.find<AuthController>().completeSignup();
               },
               width: double.infinity,
               borderRadius: 12,

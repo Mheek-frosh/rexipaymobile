@@ -7,6 +7,7 @@ import '../utils/app_strings.dart';
 import '../controllers/theme_controller.dart';
 import '../widgets/logout_dialog.dart';
 import '../routes/app_routes.dart';
+import '../controllers/auth_controller.dart';
 
 class ProfileScreen extends GetView<ThemeController> {
   const ProfileScreen({super.key});
@@ -14,6 +15,7 @@ class ProfileScreen extends GetView<ThemeController> {
   @override
   Widget build(BuildContext context) {
     final ThemeController themeController = Get.find<ThemeController>();
+    final AuthController authController = Get.find<AuthController>();
 
     return Obx(
       () => Scaffold(
@@ -60,12 +62,14 @@ class ProfileScreen extends GetView<ThemeController> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                'Michael Ozeluah',
-                                style: GoogleFonts.inter(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                              Obx(
+                                () => Text(
+                                  authController.userName.value,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textPrimary,
+                                  ),
                                 ),
                               ),
                               Icon(
@@ -76,21 +80,25 @@ class ProfileScreen extends GetView<ThemeController> {
                             ],
                           ),
                           const SizedBox(height: 4),
-                          Text(
-                            '${AppStrings.accountNumber} 9034448700',
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w500,
+                          Obx(
+                            () => Text(
+                              '${AppStrings.accountNumber} ${authController.userPhone.value}',
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                color: AppColors.textSecondary,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 2),
-                          Text(
-                            '${AppStrings.username} @MheekfrOsh',
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w500,
+                          Obx(
+                            () => Text(
+                              '${AppStrings.username} @${authController.userName.value.replaceAll(' ', '').toLowerCase()}',
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                color: AppColors.textSecondary,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
                         ],

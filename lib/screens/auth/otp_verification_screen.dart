@@ -122,11 +122,23 @@ class OtpVerificationScreen extends StatelessWidget {
                     text: AppStrings.verifyNumber,
                     onPressed: controller.isOtpComplete.value
                         ? () {
-                            Get.bottomSheet(
-                              const SuccessVerificationDialog(),
-                              isScrollControlled: true,
-                              backgroundColor: Colors.transparent,
-                            );
+                            if (controller.otpValue.value == '123456') {
+                              Get.bottomSheet(
+                                const SuccessVerificationDialog(),
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                              );
+                            } else {
+                              Get.snackbar(
+                                'Verification Failed',
+                                'The OTP you entered is incorrect. Please try again.',
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Colors.redAccent,
+                                colorText: Colors.white,
+                                margin: const EdgeInsets.all(20),
+                                borderRadius: 12,
+                              );
+                            }
                           }
                         : () {},
                     width: double.infinity,

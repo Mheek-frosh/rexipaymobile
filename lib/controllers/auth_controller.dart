@@ -4,9 +4,16 @@ import 'package:local_auth/local_auth.dart';
 
 class AuthController extends GetxController with WidgetsBindingObserver {
   // Text controllers
+  final nameController = TextEditingController();
   final phoneController = TextEditingController();
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final otpValue = ''.obs;
+
+  // User details (Global state)
+  final userName = 'Michael Ozeluah'.obs; // Default for demo
+  final userPhone = '9034448700'.obs;
+  final userEmail = 'mheekfrosh@gmail.com'.obs;
 
   // Observable states
   final isPasswordVisible = false.obs;
@@ -28,17 +35,19 @@ class AuthController extends GetxController with WidgetsBindingObserver {
   void onInit() {
     super.onInit();
     WidgetsBinding.instance.addObserver(this);
-    // Listen to phone and password changes for signup/login
+    // Listen to fields for validation
+    nameController.addListener(_validateSignupFields);
     phoneController.addListener(_validateSignupFields);
-    passwordController.addListener(_validateSignupFields);
-
     passwordController.addListener(_validateSignupFields);
   }
 
   void _validateSignupFields() {
     isSignupButtonEnabled.value =
+        nameController.text.isNotEmpty &&
+        phoneController.text.isNotEmpty &&
+        passwordController.text.isNotEmpty;
+    isLoginButtonEnabled.value =
         phoneController.text.isNotEmpty && passwordController.text.isNotEmpty;
-    isLoginButtonEnabled.value = isSignupButtonEnabled.value;
   }
 
   void validateOtpValue() {
@@ -73,7 +82,9 @@ class AuthController extends GetxController with WidgetsBindingObserver {
   @override
   void onClose() {
     WidgetsBinding.instance.removeObserver(this);
+    nameController.dispose();
     phoneController.dispose();
+    emailController.dispose();
     passwordController.dispose();
     super.onClose();
   }
@@ -115,5 +126,15 @@ class AuthController extends GetxController with WidgetsBindingObserver {
     } catch (e) {
       debugPrint('Biometric Error: $e');
     }
+  }
+
+  void completeSignup() {
+    // Update global state with entered data
+    userName.value = nameController.text;
+    userPhone.value = phoneController.text;
+    // userEmail.value = emailController.text;
+
+    // In a real app, this would hit an API
+    Get.offAllNamed('/home');
   }
 }
