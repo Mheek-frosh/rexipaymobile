@@ -6,6 +6,7 @@ import '../../utils/app_text.dart';
 import '../../utils/app_strings.dart';
 import '../../controllers/auth_controller.dart';
 import '../../widgets/custom_buttons.dart';
+import '../../widgets/country_selection_dialog.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -77,27 +78,46 @@ class LoginScreen extends StatelessWidget {
                 Row(
                   children: [
                     // Country Code
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 15,
-                        vertical: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[300]!),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Text('🇳🇬', style: const TextStyle(fontSize: 20)),
-                          const SizedBox(width: 8),
-                          Text(
-                            '+234',
-                            style: GoogleFonts.inter(
-                              fontSize: 15,
-                              color: AppColors.textPrimary,
-                            ),
+                    GestureDetector(
+                      onTap: () {
+                        Get.bottomSheet(
+                          CountrySelectionDialog(
+                            onCountrySelected: (country) {
+                              controller.selectedCountryFlag.value =
+                                  country.flag;
+                              controller.selectedCountryDialCode.value =
+                                  country.dialCode;
+                            },
                           ),
-                        ],
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 15,
+                          vertical: 16,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey[300]!),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              controller.selectedCountryFlag.value,
+                              style: const TextStyle(fontSize: 20),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              controller.selectedCountryDialCode.value,
+                              style: GoogleFonts.inter(
+                                fontSize: 15,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),

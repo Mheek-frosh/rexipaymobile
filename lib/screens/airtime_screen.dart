@@ -6,6 +6,7 @@ import '../utils/app_colors.dart';
 import '../utils/app_text.dart';
 import '../utils/app_strings.dart';
 import '../widgets/custom_buttons.dart';
+import '../widgets/country_selection_dialog.dart';
 
 class AirtimeScreen extends GetView<AirtimeController> {
   const AirtimeScreen({super.key});
@@ -37,16 +38,49 @@ class AirtimeScreen extends GetView<AirtimeController> {
             const SizedBox(height: 30),
             _buildNetworkSection(),
             const SizedBox(height: 24),
-            _buildTopUpSection(),
-            const SizedBox(height: 40),
-            PrimaryButton(
-              text: AppStrings.buyAirtime,
-              onPressed: () => controller.buyAirtime(),
-              width: double.infinity,
+            Obx(
+              () => controller.selectedTab.value == 0
+                  ? _buildAirtimeInput()
+                  : _buildDataInput(),
             ),
+            const SizedBox(height: 40),
+            Obx(
+              () => PrimaryButton(
+                text: controller.selectedTab.value == 0
+                    ? AppStrings.buyAirtime
+                    : 'Buy Data',
+                onPressed: () => controller.selectedTab.value == 0
+                    ? controller.buyAirtime()
+                    : controller.buyData(),
+                width: double.infinity,
+              ),
+            ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildAirtimeInput() {
+    return _buildTopUpSection();
+  }
+
+  Widget _buildDataInput() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Select Data Plan',
+          style: GoogleFonts.inter(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        _buildDataPlansGrid(),
+      ],
     );
   }
 
@@ -158,26 +192,44 @@ class AirtimeScreen extends GetView<AirtimeController> {
                 child: Row(
                   children: [
                     // Network Placeholder Logo
-                    Container(
-                      width: 45,
-                      height: 45,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFFD100), // MTN Yellow
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'MTN',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue,
-                          ),
+                    GestureDetector(
+                      onTap: () => Get.bottomSheet(
+                        CountrySelectionDialog(
+                          onCountrySelected: (country) {
+                            controller.selectedCountryFlag.value = country.flag;
+                            controller.selectedDialCode.value =
+                                country.dialCode;
+                          },
                         ),
+                        isScrollControlled: true,
+                      ),
+                      child: Row(
+                        children: [
+                          Obx(
+                            () => Text(
+                              controller.selectedCountryFlag.value,
+                              style: const TextStyle(fontSize: 20),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Obx(
+                            () => Text(
+                              controller.selectedDialCode.value,
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ),
+                          const Icon(
+                            Icons.keyboard_arrow_down,
+                            size: 16,
+                            color: Colors.grey,
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 15),
                       child: VerticalDivider(width: 20, thickness: 1),
@@ -274,6 +326,63 @@ class AirtimeScreen extends GetView<AirtimeController> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildDataPlansGrid() {
+    return Obx(
+      () => GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 2.5,
+        ),
+        itemCount: controller.dataPlans.length,
+        itemBuilder: (context, index) {
+          final plan = controller.dataPlans[index];
+          final isSelected = controller.selectedDataPlan.value == plan['name'];
+
+          return GestureDetector(
+            onTap: () => controller.setDataPlan(plan['name']!, plan['price']!),
+            child: Container(
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppColors.primary.withOpacity(0.1)
+                    : AppColors.cardBackground,
+                border: Border.all(
+                  color: isSelected ? AppColors.primary : Colors.grey[300]!,
+                  width: 1.5,
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    plan['name']!,
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  Text(
+                    '₦${plan['price']}',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }

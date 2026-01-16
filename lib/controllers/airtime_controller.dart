@@ -3,13 +3,15 @@ import 'package:get/get.dart';
 import '../widgets/airtime_confirmation_dialog.dart';
 import '../widgets/data_confirmation_dialog.dart';
 import '../widgets/airtime_data_success_dialog.dart';
-import '../routes/app_routes.dart';
 
 class AirtimeController extends GetxController {
   final selectedTab = 0.obs; // 0 for Airtime, 1 for Data
   final selectedNetwork = 'MTN'.obs;
   final phoneNumberController = TextEditingController();
   final amountController = TextEditingController();
+
+  final selectedCountryFlag = '🇳🇬'.obs;
+  final selectedDialCode = '+234'.obs;
 
   final networks = ['MTN', 'Airtel', 'Glo', '9mobile'];
 
@@ -34,11 +36,6 @@ class AirtimeController extends GetxController {
 
   void switchTab(int index) {
     selectedTab.value = index;
-    if (index == 0) {
-      Get.offNamed(Routes.AIRTIME);
-    } else {
-      Get.offNamed(Routes.DATA);
-    }
   }
 
   void setNetwork(String network) {

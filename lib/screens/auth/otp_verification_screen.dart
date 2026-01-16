@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pinput/pinput.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text.dart';
 import '../../utils/app_strings.dart';
@@ -16,6 +16,25 @@ class OtpVerificationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<AuthController>();
+
+    final defaultPinTheme = PinTheme(
+      width: 56,
+      height: 56,
+      textStyle: GoogleFonts.inter(
+        fontSize: 24,
+        fontWeight: FontWeight.w600,
+        color: AppColors.textPrimary,
+      ),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey[300]!, width: 2)),
+      ),
+    );
+
+    final focusedPinTheme = defaultPinTheme.copyDecorationWith(
+      border: const Border(
+        bottom: BorderSide(color: Color(0xFF2E63F6), width: 2),
+      ),
+    );
 
     return Obx(
       () => Scaffold(
@@ -50,12 +69,19 @@ class OtpVerificationScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 50),
-                // OTP Input Boxes
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List.generate(6, (index) {
-                    return _buildOtpBox(controller, index);
-                  }),
+                // OTP Input (Pinput)
+                Center(
+                  child: Pinput(
+                    length: 6,
+                    onChanged: (value) {
+                      controller.otpValue.value = value;
+                      controller.validateOtpValue();
+                    },
+                    defaultPinTheme: defaultPinTheme,
+                    focusedPinTheme: focusedPinTheme,
+                    separatorBuilder: (index) => const SizedBox(width: 8),
+                    showCursor: true,
+                  ),
                 ),
                 const SizedBox(height: 30),
                 // Resend Link
@@ -114,46 +140,6 @@ class OtpVerificationScreen extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildOtpBox(AuthController controller, int index) {
-    return Container(
-      width: 50,
-      height: 50,
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: controller.otpControllers[index].text.isNotEmpty
-                ? const Color(0xFF2E63F6)
-                : Colors.grey[300]!,
-            width: 2,
-          ),
-        ),
-      ),
-      child: TextField(
-        controller: controller.otpControllers[index],
-        keyboardType: TextInputType.number,
-        textAlign: TextAlign.center,
-        maxLength: 1,
-        style: GoogleFonts.inter(
-          fontSize: 24,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
-        ),
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        decoration: const InputDecoration(
-          counterText: '',
-          border: InputBorder.none,
-        ),
-        onChanged: (value) {
-          if (value.isNotEmpty && index < 5) {
-            FocusScope.of(Get.context!).nextFocus();
-          } else if (value.isEmpty && index > 0) {
-            FocusScope.of(Get.context!).previousFocus();
-          }
-        },
       ),
     );
   }

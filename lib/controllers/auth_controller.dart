@@ -1,11 +1,11 @@
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class AuthController extends GetxController {
   // Text controllers
   final phoneController = TextEditingController();
   final passwordController = TextEditingController();
-  final otpControllers = List.generate(6, (_) => TextEditingController());
+  final otpValue = ''.obs;
 
   // Observable states
   final isPasswordVisible = false.obs;
@@ -14,6 +14,10 @@ class AuthController extends GetxController {
   final isLoginButtonEnabled = false.obs;
   final isOtpComplete = false.obs;
 
+  // Selected Country
+  final selectedCountryFlag = '🇳🇬'.obs;
+  final selectedCountryDialCode = '+234'.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -21,10 +25,7 @@ class AuthController extends GetxController {
     phoneController.addListener(_validateSignupFields);
     passwordController.addListener(_validateSignupFields);
 
-    // Listen to OTP changes
-    for (var controller in otpControllers) {
-      controller.addListener(_validateOtp);
-    }
+    passwordController.addListener(_validateSignupFields);
   }
 
   void _validateSignupFields() {
@@ -33,8 +34,8 @@ class AuthController extends GetxController {
     isLoginButtonEnabled.value = isSignupButtonEnabled.value;
   }
 
-  void _validateOtp() {
-    isOtpComplete.value = otpControllers.every((c) => c.text.isNotEmpty);
+  void validateOtpValue() {
+    isOtpComplete.value = otpValue.value.length == 6;
   }
 
   void togglePasswordVisibility() {
@@ -54,9 +55,8 @@ class AuthController extends GetxController {
   }
 
   void clearOtp() {
-    for (var controller in otpControllers) {
-      controller.clear();
-    }
+    otpValue.value = '';
+    isOtpComplete.value = false;
   }
 
   String getFormattedPhone() {
@@ -67,9 +67,6 @@ class AuthController extends GetxController {
   void onClose() {
     phoneController.dispose();
     passwordController.dispose();
-    for (var controller in otpControllers) {
-      controller.dispose();
-    }
     super.onClose();
   }
 }
