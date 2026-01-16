@@ -17,7 +17,7 @@ class CardListScreen extends GetView<CardManagementController> {
         backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: AppColors.textPrimary),
+          icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
           onPressed: () => Get.back(),
         ),
         title: Text(

@@ -21,7 +21,7 @@ class TransferScreen extends StatelessWidget {
           backgroundColor: AppColors.background,
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: AppColors.textPrimary),
+            icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
             onPressed: () => Get.back(),
           ),
           title: Text(
