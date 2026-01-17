@@ -15,6 +15,7 @@ class AppStrings {
       "Enter your mobile number to verify your account";
   static const String phone = "Phone";
   static const String mobileNumber = "Mobile number";
+  static const String personalInfoTitle = "Add your Personal Info";
   static const String password = "Password";
   static const String signUp = "Sign up";
   static const String alreadyHaveAccount = "Already have an Account? ";
