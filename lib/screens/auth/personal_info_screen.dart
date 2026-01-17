@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_text.dart';
+import '../../utils/app_strings.dart';
 import '../../controllers/auth_controller.dart';
 import '../../widgets/segmented_progress_bar.dart';
 import '../../widgets/custom_buttons.dart';
@@ -34,7 +35,7 @@ class PersonalInfoScreen extends StatelessWidget {
               const SizedBox(height: 40),
               // Title
               Text(
-                'Add your personal info',
+                AppStrings.personalInfoTitle,
                 style: AppText.header1.copyWith(
                   fontWeight: FontWeight.w700,
                   fontSize: 28,
