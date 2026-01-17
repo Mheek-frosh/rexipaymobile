@@ -90,8 +90,65 @@ class PersonalInfoScreen extends StatelessWidget {
                   ],
                 ),
               ),
+<<<<<<< HEAD
             ),
           ],
+=======
+              const SizedBox(height: 40),
+              // Title
+              Text(
+                AppStrings.personalInfoTitle,
+                style: AppText.header1.copyWith(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 28,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'This info needs to be accurate with your ID document.',
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 40),
+              // Full Name Field
+              _buildLabel('Full Name'),
+              const SizedBox(height: 8),
+              _buildTextField(
+                controller: controller.nameController,
+                hintText: 'Michael Usidamen',
+                icon: Icons.person_outline,
+              ),
+              const SizedBox(height: 20),
+              // Username Field
+              _buildLabel('Username'),
+              const SizedBox(height: 8),
+              _buildTextField(
+                controller: controller.usernameController,
+                hintText: 'Mheek Frosh',
+                icon: Icons.person_outline,
+              ),
+              const SizedBox(height: 20),
+              // Date of Birth Field
+              _buildLabel('Date of Birth'),
+              const SizedBox(height: 8),
+              _buildDateField(context, controller),
+              const Spacer(),
+              // Continue Button
+              PrimaryButton(
+                text: 'Continue',
+                onPressed: () {
+                  controller.nextStep();
+                  Get.toNamed('/select-country');
+                },
+                width: double.infinity,
+                backgroundColor: const Color(0xFF2E63F6),
+              ),
+              const SizedBox(height: 30),
+            ],
+          ),
+>>>>>>> 838d3a447f19534c83d2b1598deb5347a9a98ebe
         ),
       ),
     );
