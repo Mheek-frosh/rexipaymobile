@@ -11,6 +11,8 @@ class AuthController extends GetxController with WidgetsBindingObserver {
   final phoneController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final usernameController = TextEditingController();
+  final dobController = TextEditingController();
   final otpValue = ''.obs;
 
   // User details (Global state)
@@ -228,6 +230,11 @@ class AuthController extends GetxController with WidgetsBindingObserver {
     userName.value = nameController.text;
     userPhone.value = phoneController.text;
     // userEmail.value = emailController.text;
+
+    // Reset controllers for next time (optional)
+    // nameController.clear();
+    // usernameController.clear();
+    // dobController.clear();
 
     // In a real app, this would hit an API
     Get.offAllNamed('/home');

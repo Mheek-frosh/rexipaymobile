@@ -18,6 +18,8 @@ abstract class Routes {
   static const ADD_CARD_INTRO = _Paths.ADD_CARD_INTRO;
   static const DATA = _Paths.DATA;
   static const WELCOME_BACK = _Paths.WELCOME_BACK;
+  static const PERSONAL_INFO = _Paths.PERSONAL_INFO;
+  static const SELECT_COUNTRY = _Paths.SELECT_COUNTRY;
 }
 
 abstract class _Paths {
@@ -39,4 +41,6 @@ abstract class _Paths {
   static const ADD_CARD_INTRO = '/add-card-intro';
   static const DATA = '/data';
   static const WELCOME_BACK = '/welcome-back';
+  static const PERSONAL_INFO = '/personal-info';
+  static const SELECT_COUNTRY = '/select-country';
 }

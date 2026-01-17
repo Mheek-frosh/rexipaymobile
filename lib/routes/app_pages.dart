@@ -10,6 +10,8 @@ import '../screens/auth/signup_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/otp_verification_screen.dart';
 import '../screens/auth/welcome_back_screen.dart';
+import '../screens/auth/personal_info_screen.dart';
+import '../screens/auth/select_country_screen.dart';
 import '../screens/airtime_screen.dart';
 import '../screens/choose_crypto_screen.dart';
 import '../screens/transfer_crypto_screen.dart';
@@ -100,6 +102,16 @@ class AppPages {
     GetPage(
       name: Routes.WELCOME_BACK,
       page: () => const WelcomeBackScreen(),
+      binding: MainBinding(),
+    ),
+    GetPage(
+      name: Routes.PERSONAL_INFO,
+      page: () => const PersonalInfoScreen(),
+      binding: MainBinding(),
+    ),
+    GetPage(
+      name: Routes.SELECT_COUNTRY,
+      page: () => const SelectCountryScreen(),
       binding: MainBinding(),
     ),
   ];

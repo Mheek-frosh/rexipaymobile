@@ -117,8 +117,9 @@ class SuccessVerificationDialog extends StatelessWidget {
             PrimaryButton(
               text: AppStrings.continueText,
               onPressed: () {
-                Get.back();
-                Get.find<AuthController>().completeSignup();
+                Get.back(); // Close dialog
+                Get.find<AuthController>().nextStep(); // Update progress bar
+                Get.toNamed('/personal-info');
               },
               width: double.infinity,
               borderRadius: 12,
