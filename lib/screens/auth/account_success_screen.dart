@@ -29,7 +29,7 @@ class AccountSuccessScreen extends StatelessWidget {
 
               // Illustration
               Image.asset(
-                'assets/images/success_illustration.png',
+                'assets/images/congrats.png',
                 width: 250,
                 height: 250,
                 fit: BoxFit.contain,
