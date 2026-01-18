@@ -80,8 +80,7 @@ class PersonalInfoScreen extends StatelessWidget {
                     PrimaryButton(
                       text: 'Continue',
                       onPressed: () {
-                        controller.nextStep();
-                        Get.toNamed('/select-country');
+                        controller.completeSignup();
                       },
                       width: double.infinity,
                       backgroundColor: const Color(0xFF2E63F6),
@@ -137,10 +136,109 @@ class PersonalInfoScreen extends StatelessWidget {
   }
 
   Widget _buildDateField(BuildContext context, AuthController controller) {
-    return _buildTextField(
-      controller: controller.dobController,
-      hintText: 'MM/DD/YYYY',
-      icon: Icons.calendar_today_outlined,
+    return GestureDetector(
+      onTap: () {
+        _showCustomDatePicker(context, controller);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.calendar_today_outlined, color: Colors.grey[400]),
+            const SizedBox(width: 16),
+            Expanded(
+              child: ValueListenableBuilder<TextEditingValue>(
+                valueListenable: controller.dobController,
+                builder: (context, value, child) {
+                  return Text(
+                    value.text.isEmpty ? 'MM/DD/YYYY' : value.text,
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
+                      color: value.text.isEmpty
+                          ? Colors.grey[400]
+                          : AppColors.textPrimary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showCustomDatePicker(BuildContext context, AuthController controller) {
+    DateTime selectedDate = DateTime.now();
+    // Parse existing date if available
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          height: 500,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Calendar
+              Expanded(
+                child: Theme(
+                  data: Theme.of(context).copyWith(
+                    colorScheme: const ColorScheme.light(
+                      primary: Color(0xFF2E63F6),
+                      onPrimary: Colors.white,
+                      onSurface: Colors.black,
+                    ),
+                  ),
+                  child: CalendarDatePicker(
+                    initialDate: selectedDate,
+                    firstDate: DateTime(1900),
+                    lastDate: DateTime.now(),
+                    onDateChanged: (DateTime date) {
+                      selectedDate = date;
+                    },
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Continue Button
+              PrimaryButton(
+                text: 'Continue',
+                onPressed: () {
+                  controller.dobController.text =
+                      "${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.year}";
+                  Get.back();
+                },
+                width: double.infinity,
+                backgroundColor: const Color(0xFF2E63F6),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -57,7 +57,11 @@ class HomeHeader extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Icon(Icons.person, color: Colors.white, size: 28),
+                  const Icon(
+                    Icons.account_circle,
+                    color: Colors.white,
+                    size: 30,
+                  ),
                   Row(
                     children: [
                       const Icon(

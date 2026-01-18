@@ -237,6 +237,10 @@ class AuthController extends GetxController with WidgetsBindingObserver {
     // dobController.clear();
 
     // In a real app, this would hit an API
-    Get.offAllNamed('/home');
+    showSuccessAndNavigate();
+  }
+
+  void showSuccessAndNavigate() {
+    Get.offAllNamed('/account-success');
   }
 }
