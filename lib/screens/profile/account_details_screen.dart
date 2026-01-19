@@ -83,15 +83,11 @@ class AccountDetailsScreen extends StatelessWidget {
                                 children: [
                                   CircleAvatar(
                                     radius: 40,
-                                    backgroundImage: const AssetImage(
-                                      'assets/images/avatar.png',
-                                    ), // Placeholder or actual image
-                                    // fallback to icon if image fails
-                                    onForegroundImageError: (_, __) {},
+                                    backgroundColor: Colors.grey.shade800,
                                     child: const Icon(
                                       Icons.person,
-                                      size: 40,
-                                      color: Colors.grey,
+                                      size: 50,
+                                      color: Colors.white,
                                     ),
                                   ),
                                   Positioned(

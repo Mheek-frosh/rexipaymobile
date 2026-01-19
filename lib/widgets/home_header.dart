@@ -5,6 +5,7 @@ import '../utils/app_strings.dart';
 import '../controllers/main_controller.dart';
 import '../routes/app_routes.dart';
 import '../controllers/auth_controller.dart';
+import '../screens/profile/account_details_screen.dart';
 import 'custom_buttons.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -60,7 +61,12 @@ class HomeHeader extends StatelessWidget {
                   Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: () => Get.toNamed(Routes.ACCOUNT_DETAILS),
+                      onTap: () => Get.to(
+                        () => const AccountDetailsScreen(),
+                        transition: Transition.leftToRight,
+                        duration: const Duration(milliseconds: 300),
+                        opaque: false,
+                      ),
                       borderRadius: BorderRadius.circular(50),
                       child: const Padding(
                         padding: EdgeInsets.all(8.0),
