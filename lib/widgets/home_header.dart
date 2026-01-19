@@ -65,7 +65,6 @@ class HomeHeader extends StatelessWidget {
                         () => const AccountDetailsScreen(),
                         transition: Transition.leftToRight,
                         duration: const Duration(milliseconds: 300),
-                        opaque: false,
                       ),
                       borderRadius: BorderRadius.circular(50),
                       child: const Padding(

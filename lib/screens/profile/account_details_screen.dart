@@ -21,227 +21,169 @@ class AccountDetailsScreen extends StatelessWidget {
     final address = "No 112 dokaje street romi\nkaduna , Kaduna, Nigeria";
 
     return Scaffold(
-      backgroundColor:
-          Colors.transparent, // Transparent to show underlying screen
-      body: Row(
-        children: [
-          Container(
-            width: Get.width * 0.85, // "Not fully" - 85% width
-            height: double.infinity,
-            decoration: BoxDecoration(
-              color: AppColors.background,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 10,
-                  offset: const Offset(5, 0),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                AppBar(
-                  backgroundColor: Colors.transparent, // Match container
-                  elevation: 0,
-                  leading: IconButton(
-                    icon: Icon(
-                      Icons.arrow_back_ios_new,
-                      color: AppColors.textPrimary,
-                    ),
-                    onPressed: () => Get.back(),
-                  ),
-                  title: Row(
-                    mainAxisSize: MainAxisSize.min,
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
+          onPressed: () => Get.back(),
+        ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Account Details', style: AppText.header2),
+            const SizedBox(width: 8),
+            Image.asset('assets/images/ng.png', width: 20, height: 20),
+          ],
+        ),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Column(
+          children: [
+            // Profile Image & Name
+            Center(
+              child: Column(
+                children: [
+                  Stack(
                     children: [
-                      Text('Account Details', style: AppText.header2),
-                      const SizedBox(width: 8),
-                      Image.asset(
-                        'assets/images/ng.png',
-                        width: 20,
-                        height: 20,
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundColor: AppColors.surfaceVariant,
+                        child: Icon(
+                          Icons.person,
+                          size: 50,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: AppColors.cardBackground,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.edit,
+                            color: AppColors.primary,
+                            size: 16,
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                  centerTitle: true,
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 20,
-                    ),
-                    child: Column(
-                      children: [
-                        // Profile Image & Name
-                        Center(
-                          child: Column(
-                            children: [
-                              Stack(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 40,
-                                    backgroundColor: AppColors.surfaceVariant,
-                                    child: Icon(
-                                      Icons.person,
-                                      size: 50,
-                                      color: AppColors.textPrimary,
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: 0,
-                                    right: 0,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.cardBackground,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.edit,
-                                        color: AppColors.primary,
-                                        size: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Obx(
-                                () => Text(
-                                  authController.userName.value.isNotEmpty
-                                      ? authController.userName.value
-                                      : "Usidamen, Ozeluah Michael",
-                                  style: AppText.header2,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.emoji_events,
-                                    color: AppColors.textSecondary,
-                                    size: 16,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text("T2", style: AppText.body2),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 30),
-
-                        // Copyable Fields
-                        _buildCopyableField("Your Username", username),
-                        const SizedBox(height: 16),
-                        _buildCopyableField(
-                          "Your Account Number",
-                          accountNumber,
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Limits
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppColors.cardBackground,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("Balance Limit", style: AppText.body2),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    "₦500,000",
-                                    style: AppText.button.copyWith(
-                                      color: AppColors.textPrimary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("Transfer Limit", style: AppText.body2),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    "₦100,000",
-                                    style: AppText.button.copyWith(
-                                      color: AppColors.textPrimary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              ElevatedButton(
-                                onPressed: () {},
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(
-                                    0xFFFFD700,
-                                  ), // Gold color
-                                  foregroundColor: Colors.black,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 8,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  minimumSize: Size.zero,
-                                  tapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                ),
-                                child: Text(
-                                  "Upgrade",
-                                  style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 30),
-
-                        // Details List
-                        _buildDetailItem(username, "Username"),
-                        _buildDetailItem(
-                          "Usidamen, Ozeluah Michael",
-                          "Account Name",
-                        ),
-                        _buildDetailItem(
-                          address,
-                          "Address",
-                          isUnverified: true,
-                        ),
-                        _buildDetailItem(phone, "Phone Number"),
-                        _buildDetailItem(email, "Email Address"),
-                        _buildDetailItem(
-                          "123456789",
-                          "NIN",
-                          isLast: true,
-                        ), // Placeholder
-                      ],
+                  const SizedBox(height: 12),
+                  Obx(
+                    () => Text(
+                      authController.userName.value.isNotEmpty
+                          ? authController.userName.value
+                          : "Usidamen, Ozeluah Michael",
+                      style: AppText.header2,
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.emoji_events,
+                        color: AppColors.textSecondary,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 4),
+                      Text("T2", style: AppText.body2),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () => Get.back(),
-              child: Container(color: Colors.transparent),
+            const SizedBox(height: 30),
+
+            // Copyable Fields
+            _buildCopyableField("Your Username", username),
+            const SizedBox(height: 16),
+            _buildCopyableField("Your Account Number", accountNumber),
+            const SizedBox(height: 16),
+
+            // Limits
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.cardBackground,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Balance Limit", style: AppText.body2),
+                      const SizedBox(height: 4),
+                      Text(
+                        "₦500,000",
+                        style: AppText.button.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Transfer Limit", style: AppText.body2),
+                      const SizedBox(height: 4),
+                      Text(
+                        "₦100,000",
+                        style: AppText.button.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFD700), // Gold color
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: Text(
+                      "Upgrade",
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+
+            const SizedBox(height: 30),
+
+            // Details List
+            _buildDetailItem(username, "Username"),
+            _buildDetailItem("Usidamen, Ozeluah Michael", "Account Name"),
+            _buildDetailItem(address, "Address", isUnverified: true),
+            _buildDetailItem(phone, "Phone Number"),
+            _buildDetailItem(email, "Email Address"),
+            _buildDetailItem("123456789", "NIN", isLast: true), // Placeholder
+          ],
+        ),
       ),
     );
   }
