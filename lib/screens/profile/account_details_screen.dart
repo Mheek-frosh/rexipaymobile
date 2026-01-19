@@ -44,22 +44,19 @@ class AccountDetailsScreen extends StatelessWidget {
                   backgroundColor: Colors.transparent, // Match container
                   elevation: 0,
                   leading: IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.arrow_back_ios_new,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                     ),
                     onPressed: () => Get.back(),
                   ),
                   title: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        'Account Details',
-                        style: AppText.header2.copyWith(color: Colors.white),
-                      ),
+                      Text('Account Details', style: AppText.header2),
                       const SizedBox(width: 8),
                       Image.asset(
-                        'assets/images/ng.png', // Assuming this asset exists as seen in HomeHeader
+                        'assets/images/ng.png',
                         width: 20,
                         height: 20,
                       ),
@@ -83,11 +80,11 @@ class AccountDetailsScreen extends StatelessWidget {
                                 children: [
                                   CircleAvatar(
                                     radius: 40,
-                                    backgroundColor: Colors.grey.shade800,
-                                    child: const Icon(
+                                    backgroundColor: AppColors.surfaceVariant,
+                                    child: Icon(
                                       Icons.person,
                                       size: 50,
-                                      color: Colors.white,
+                                      color: AppColors.textPrimary,
                                     ),
                                   ),
                                   Positioned(
@@ -95,8 +92,8 @@ class AccountDetailsScreen extends StatelessWidget {
                                     right: 0,
                                     child: Container(
                                       padding: const EdgeInsets.all(4),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.white,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.cardBackground,
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(
@@ -114,9 +111,7 @@ class AccountDetailsScreen extends StatelessWidget {
                                   authController.userName.value.isNotEmpty
                                       ? authController.userName.value
                                       : "Usidamen, Ozeluah Michael",
-                                  style: AppText.header2.copyWith(
-                                    color: Colors.white,
-                                  ),
+                                  style: AppText.header2,
                                   textAlign: TextAlign.center,
                                 ),
                               ),
@@ -124,18 +119,13 @@ class AccountDetailsScreen extends StatelessWidget {
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.emoji_events,
-                                    color: Color(0xFFC0C0C0),
+                                    color: AppColors.textSecondary,
                                     size: 16,
-                                  ), // Silver/Metal color
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    "T2",
-                                    style: AppText.body2.copyWith(
-                                      color: Colors.white70,
-                                    ),
                                   ),
+                                  const SizedBox(width: 4),
+                                  Text("T2", style: AppText.body2),
                                 ],
                               ),
                             ],
@@ -170,7 +160,7 @@ class AccountDetailsScreen extends StatelessWidget {
                                   Text(
                                     "₦500,000",
                                     style: AppText.button.copyWith(
-                                      color: Colors.white,
+                                      color: AppColors.textPrimary,
                                     ),
                                   ),
                                 ],
@@ -183,7 +173,7 @@ class AccountDetailsScreen extends StatelessWidget {
                                   Text(
                                     "₦100,000",
                                     style: AppText.button.copyWith(
-                                      color: Colors.white,
+                                      color: AppColors.textPrimary,
                                     ),
                                   ),
                                 ],
@@ -225,7 +215,7 @@ class AccountDetailsScreen extends StatelessWidget {
                         _buildDetailItem(
                           "Usidamen, Ozeluah Michael",
                           "Account Name",
-                        ), // Hardcoded for design match
+                        ),
                         _buildDetailItem(
                           address,
                           "Address",
@@ -271,13 +261,7 @@ class AccountDetailsScreen extends StatelessWidget {
             children: [
               Text(label, style: AppText.body2),
               const SizedBox(height: 4),
-              Text(
-                value,
-                style: AppText.header2.copyWith(
-                  fontSize: 18,
-                  color: Colors.white,
-                ),
-              ),
+              Text(value, style: AppText.header2.copyWith(fontSize: 18)),
             ],
           ),
           GestureDetector(
@@ -329,10 +313,7 @@ class AccountDetailsScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: AppText.body1.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: AppText.body1.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
                 Text(subtitle, style: AppText.body2),
@@ -362,7 +343,11 @@ class AccountDetailsScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-              Icon(Icons.arrow_forward_ios, color: Colors.white30, size: 16),
+              Icon(
+                Icons.arrow_forward_ios,
+                color: AppColors.textSecondary,
+                size: 16,
+              ),
             ],
           ),
         ],
