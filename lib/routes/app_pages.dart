@@ -23,6 +23,8 @@ import '../bindings/change_limit_binding.dart';
 import '../bindings/card_binding.dart';
 import '../screens/wallet/card_list_screen.dart';
 import '../screens/wallet/add_card_intro_screen.dart';
+import '../screens/profile/account_details_screen.dart';
+import '../utils/three_d_transition.dart';
 import 'app_routes.dart';
 
 // ignore: avoid_classes_with_only_static_members
@@ -119,6 +121,14 @@ class AppPages {
       name: Routes.ACCOUNT_SUCCESS,
       page: () => const AccountSuccessScreen(),
       binding: MainBinding(),
+    ),
+    GetPage(
+      name: Routes.ACCOUNT_DETAILS,
+      page: () => const AccountDetailsScreen(),
+      binding: MainBinding(),
+      customTransition: ThreeDTransition(),
+      transitionDuration: const Duration(milliseconds: 600),
+      opaque: false,
     ),
   ];
 }

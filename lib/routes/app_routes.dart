@@ -21,6 +21,7 @@ abstract class Routes {
   static const PERSONAL_INFO = _Paths.PERSONAL_INFO;
   static const SELECT_COUNTRY = _Paths.SELECT_COUNTRY;
   static const ACCOUNT_SUCCESS = _Paths.ACCOUNT_SUCCESS;
+  static const ACCOUNT_DETAILS = _Paths.ACCOUNT_DETAILS;
 }
 
 abstract class _Paths {
@@ -45,4 +46,5 @@ abstract class _Paths {
   static const PERSONAL_INFO = '/personal-info';
   static const SELECT_COUNTRY = '/select-country';
   static const ACCOUNT_SUCCESS = '/account-success';
+  static const ACCOUNT_DETAILS = '/account-details';
 }
