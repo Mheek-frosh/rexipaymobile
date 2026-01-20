@@ -4,6 +4,10 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import '../models/user_model.dart';
 
 class AuthController extends GetxController with WidgetsBindingObserver {
   // Text controllers
@@ -32,6 +36,11 @@ class AuthController extends GetxController with WidgetsBindingObserver {
   final canCheckBiometrics = false.obs;
   final isBiometricAuthenticated = false.obs;
 
+  // Firebase Instances
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+
   // Selected Country
   final selectedCountryFlag = '🇳🇬'.obs;
   final selectedCountryDialCode = '+234'.obs;
@@ -39,6 +48,9 @@ class AuthController extends GetxController with WidgetsBindingObserver {
   // Profile Image
   final profileImage = Rxn<File>();
   final _picker = ImagePicker();
+
+  // Loading State
+  final isLoading = false.obs;
 
   Future<void> pickImage(ImageSource source) async {
     try {
@@ -225,19 +237,139 @@ class AuthController extends GetxController with WidgetsBindingObserver {
     }
   }
 
-  void completeSignup() {
-    // Update global state with entered data
-    userName.value = nameController.text;
-    userPhone.value = phoneController.text;
-    // userEmail.value = emailController.text;
+  Future<void> completeSignup() async {
+    try {
+      isLoading.value = true;
 
-    // Reset controllers for next time (optional)
-    // nameController.clear();
-    // usernameController.clear();
-    // dobController.clear();
+      // 1. Create User in Firebase Auth
+      // Note: Using a dummy email if not provided, since phone auth is more complex to set up without real phone
+      // For this implementation, we'll require an email or generate one based on phone
+      final email = emailController.text.isNotEmpty
+          ? emailController.text.trim()
+          : '${phoneController.text.trim()}@rexipay.com'; // Fallback for demo
 
-    // In a real app, this would hit an API
-    showSuccessAndNavigate();
+      final UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(
+            email: email,
+            password: passwordController.text,
+          );
+
+      final String userId = userCredential.user!.uid;
+      String? imageUrl;
+
+      // 2. Upload Profile Image if exists
+      if (profileImage.value != null) {
+        final ref = _storage.ref().child('user_images/$userId.jpg');
+        await ref.putFile(profileImage.value!);
+        imageUrl = await ref.getDownloadURL();
+      }
+
+      // 3. Create User Model
+      final newUser = UserModel(
+        id: userId,
+        email: email,
+        firstName: nameController.text.split(' ').first,
+        lastName: nameController.text.split(' ').length > 1
+            ? nameController.text.split(' ').sublist(1).join(' ')
+            : '',
+        phoneNumber: getFormattedPhone(),
+        profileImageUrl: imageUrl,
+        countryCode: selectedCountryDialCode.value,
+        createdAt: DateTime.now(),
+      );
+
+      // 4. Save to Firestore
+      await _firestore.collection('users').doc(userId).set(newUser.toJson());
+
+      // Update local state
+      userName.value = nameController.text;
+      userPhone.value = phoneController.text;
+      userEmail.value = email;
+
+      Get.snackbar(
+        'Success',
+        'Account created successfully!',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+
+      showSuccessAndNavigate();
+    } on FirebaseAuthException catch (e) {
+      Get.snackbar(
+        'Registration Failed',
+        e.message ?? 'An error occurred',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Something went wrong: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> login() async {
+    try {
+      isLoading.value = true;
+
+      // Construct email from phone number as per signup logic
+      final email = '${phoneController.text.trim()}@rexipay.com';
+
+      // 1. SignIn with Email (derived from phone) and Password
+      final UserCredential userCredential = await _auth
+          .signInWithEmailAndPassword(
+            email: email,
+            password: passwordController.text,
+          );
+
+      final String userId = userCredential.user!.uid;
+
+      // 2. Fetch User Details from Firestore
+      final DocumentSnapshot<Map<String, dynamic>> userDoc = await _firestore
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (userDoc.exists) {
+        final userData = UserModel.fromSnapshot(userDoc);
+
+        // Update local state
+        userName.value = '${userData.firstName} ${userData.lastName}'.trim();
+        userPhone.value = userData.phoneNumber;
+        userEmail.value = userData.email;
+
+        // Navigate Home
+        Get.offAllNamed('/home');
+      } else {
+        Get.snackbar(
+          'Error',
+          'User profile not found.',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      Get.snackbar(
+        'Login Failed',
+        e.message ?? 'Invalid credentials',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Something went wrong: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   void showSuccessAndNavigate() {

@@ -218,8 +218,7 @@ class LoginScreen extends StatelessWidget {
                     text: AppStrings.login,
                     onPressed: controller.isLoginButtonEnabled.value
                         ? () {
-                            // TODO: Implement login logic
-                            Get.offAllNamed('/home');
+                            controller.login();
                           }
                         : () {},
                     width: double.infinity,
