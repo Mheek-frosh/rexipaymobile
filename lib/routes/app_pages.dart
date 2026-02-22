@@ -27,6 +27,7 @@ import '../screens/profile/account_details_screen.dart';
 import '../screens/profile/support_screen.dart';
 import '../screens/profile/settings_screen.dart';
 import '../screens/profile/data_privacy_screen.dart';
+import '../screens/auth/forgot_password_screen.dart';
 import '../utils/three_d_transition.dart';
 import 'app_routes.dart';
 
@@ -146,6 +147,11 @@ class AppPages {
     GetPage(
       name: Routes.DATA_PRIVACY,
       page: () => const DataPrivacyScreen(),
+      binding: MainBinding(),
+    ),
+    GetPage(
+      name: Routes.FORGOT_PASSWORD,
+      page: () => const ForgotPasswordScreen(),
       binding: MainBinding(),
     ),
   ];

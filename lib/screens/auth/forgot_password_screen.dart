@@ -8,8 +8,8 @@ import '../../controllers/auth_controller.dart';
 import '../../widgets/custom_buttons.dart';
 import '../../widgets/country_selection_dialog.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+class ForgotPasswordScreen extends StatelessWidget {
+  const ForgotPasswordScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,39 +18,22 @@ class LoginScreen extends StatelessWidget {
     return Obx(
       () => Scaffold(
         backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: AppColors.background,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
+            onPressed: () => Get.back(),
+          ),
+        ),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 20),
-                InkWell(
-                  onTap: () => Get.back(),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.arrow_back_ios_new,
-                        color: AppColors.textPrimary,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        "Back",
-                        style: GoogleFonts.inter(
-                          color: AppColors.textPrimary,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // Title
                 Text(
-                  AppStrings.logInToRexipay,
+                  'Reset Password',
                   style: AppText.header1.copyWith(
                     fontWeight: FontWeight.w700,
                     fontSize: 28,
@@ -58,14 +41,13 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  AppStrings.enterRegisteredMobile,
+                  'Enter your phone number and we\'ll send you an OTP to reset your password.',
                   style: GoogleFonts.inter(
                     fontSize: 15,
                     color: AppColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 40),
-                // Phone Input
                 Text(
                   AppStrings.phone,
                   style: GoogleFonts.inter(
@@ -77,16 +59,13 @@ class LoginScreen extends StatelessWidget {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    // Country Code
                     GestureDetector(
                       onTap: () {
                         Get.bottomSheet(
                           CountrySelectionDialog(
                             onCountrySelected: (country) {
-                              controller.selectedCountryFlag.value =
-                                  country.flag;
-                              controller.selectedCountryDialCode.value =
-                                  country.dialCode;
+                              controller.selectedCountryFlag.value = country.flag;
+                              controller.selectedCountryDialCode.value = country.dialCode;
                             },
                           ),
                           isScrollControlled: true,
@@ -121,7 +100,6 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    // Phone Number
                     Expanded(
                       child: TextField(
                         controller: controller.phoneController,
@@ -131,7 +109,7 @@ class LoginScreen extends StatelessWidget {
                           color: AppColors.textPrimary,
                         ),
                         decoration: InputDecoration(
-                          hintText: '90 3444 8700',
+                          hintText: AppStrings.mobileNumber,
                           hintStyle: GoogleFonts.inter(color: Colors.grey[400]),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -143,9 +121,7 @@ class LoginScreen extends StatelessWidget {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF2E63F6),
-                            ),
+                            borderSide: const BorderSide(color: Color(0xFF2E63F6)),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -156,40 +132,28 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 40),
                 const Spacer(),
                 PrimaryButton(
-                  text: AppStrings.login,
-                  onPressed: () => controller.login(),
+                  text: controller.isLoading.value ? 'Sending...' : 'Send Reset OTP',
+                  onPressed: controller.isLoading.value
+                      ? null
+                      : () async {
+                          if (controller.phoneController.text.trim().isEmpty) {
+                            Get.snackbar(
+                              'Error',
+                              'Enter phone number',
+                              backgroundColor: Colors.red,
+                              colorText: Colors.white,
+                            );
+                            return;
+                          }
+                          final sent = await controller.sendOtp(isSignup: false);
+                          if (sent) {
+                            controller.clearOtp();
+                            Get.toNamed('/otp-verification', arguments: {'isLogin': true});
+                          }
+                        },
                   width: double.infinity,
-                ),
-                const SizedBox(height: 20),
-                // Sign Up Link
-                Center(
-                  child: RichText(
-                    text: TextSpan(
-                      style: GoogleFonts.inter(
-                        fontSize: 15,
-                        color: AppColors.textSecondary,
-                      ),
-                      children: [
-                        TextSpan(text: AppStrings.dontHaveAccount),
-                        WidgetSpan(
-                          child: GestureDetector(
-                            onTap: () => Get.toNamed('/signup'),
-                            child: Text(
-                              AppStrings.signUp,
-                              style: GoogleFonts.inter(
-                                fontSize: 15,
-                                color: const Color(0xFF2E63F6),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 30),
               ],

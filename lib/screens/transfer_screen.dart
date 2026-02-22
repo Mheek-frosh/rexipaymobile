@@ -95,20 +95,15 @@ class TransferScreen extends StatelessWidget {
                   borderSide: BorderSide(color: Colors.grey[300]!),
                 ),
               ),
-              items: const [
-                DropdownMenuItem(
-                  value: 'Access Bank',
-                  child: Text('Access Bank'),
-                ),
-                DropdownMenuItem(value: 'GTBank', child: Text('GTBank')),
-                DropdownMenuItem(
-                  value: 'Zenith Bank',
-                  child: Text('Zenith Bank'),
-                ),
-              ],
+              items: controller.banks
+                  .map((bank) => DropdownMenuItem<String>(
+                        value: bank.name,
+                        child: Text(bank.name),
+                      ))
+                  .toList(),
               onChanged: (val) {
                 controller.selectedBank.value = val ?? '';
-                controller.accountName.value = '$val PLC';
+                controller.accountName.value = val ?? '';
               },
               icon: const Icon(Icons.keyboard_arrow_down),
               dropdownColor: AppColors.cardBackground,

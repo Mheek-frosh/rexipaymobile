@@ -154,16 +154,24 @@ class PhoneVerificationDialog extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 30),
-            // Yes Button
-            PrimaryButton(
-              text: AppStrings.yes,
-              onPressed: () {
-                Get.back();
-                controller.nextStep(); // Move to step 2
-                Get.toNamed('/otp-verification');
-              },
-              width: double.infinity,
-              borderRadius: 12,
+            // Yes Button - Send OTP, show snackbar, navigate to OTP screen
+            Obx(
+              () => PrimaryButton(
+                text: controller.isLoading.value ? 'Sending...' : AppStrings.yes,
+                onPressed: controller.isLoading.value
+                    ? null
+                    : () async {
+                        Get.back();
+                        controller.nextStep();
+                        final sent = await controller.sendOtp(isSignup: true);
+                        if (sent) {
+                          controller.clearOtp();
+                          Get.toNamed('/otp-verification', arguments: {'isLogin': false});
+                        }
+                      },
+                width: double.infinity,
+                borderRadius: 12,
+              ),
             ),
             const SizedBox(height: 12),
             // Change Button

@@ -37,7 +37,7 @@ class AppStrings {
   // Auth - OTP
   static const String confirmYourPhone = "Confirm your phone";
   static const String sentSixDigitsCode = "We sent a 6 digits code to ";
-  static const String didntGetCode = "ADidn't get a code? ";
+  static const String didntGetCode = "Didn't get a code? ";
   static const String resend = "Resend";
   static const String verifyNumber = "Verify Number";
 

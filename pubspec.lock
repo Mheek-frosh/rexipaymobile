@@ -193,7 +193,7 @@ packages:
     source: hosted
     version: "6.3.3"
   http:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: http
       sha256: "87721a4a50b19c7f1d49001e51409bddc46303966ce89a65af4f4e6004896412"
@@ -392,6 +392,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  nigerian_banks_nuban:
+    dependency: "direct main"
+    description:
+      name: nigerian_banks_nuban
+      sha256: "11d791bbbae324444b499d1bc3aef988c7b9e3116cd0eab51e7df1d08237f191"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.4"
   path:
     dependency: transitive
     description:

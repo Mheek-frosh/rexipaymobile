@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 /// Primary filled button with customizable colors
 class PrimaryButton extends StatelessWidget {
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final Color? backgroundColor;
   final Color? textColor;
   final double? width;

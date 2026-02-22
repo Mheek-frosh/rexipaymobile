@@ -25,6 +25,7 @@ abstract class Routes {
   static const SUPPORT = _Paths.SUPPORT;
   static const SETTINGS = _Paths.SETTINGS;
   static const DATA_PRIVACY = _Paths.DATA_PRIVACY;
+  static const FORGOT_PASSWORD = _Paths.FORGOT_PASSWORD;
 }
 
 abstract class _Paths {
@@ -53,4 +54,5 @@ abstract class _Paths {
   static const SUPPORT = '/support';
   static const SETTINGS = '/settings';
   static const DATA_PRIVACY = '/data-privacy';
+  static const FORGOT_PASSWORD = '/forgot-password';
 }
