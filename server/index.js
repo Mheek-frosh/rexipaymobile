@@ -150,9 +150,62 @@ app.post('/api/auth/resend-status', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
+// Resolve Nigerian bank account name (Flutterwave API)
+app.post('/api/bank/resolve-account', async (req, res) => {
+  try {
+    const { account_number, account_bank } = req.body;
+    if (!account_number || !account_bank) {
+      return res.status(400).json({ success: false, error: 'Account number and bank code required' });
+    }
+    const cleanAccount = String(account_number).replace(/\D/g, '');
+    if (cleanAccount.length !== 10) {
+      return res.status(400).json({ success: false, error: 'Account number must be 10 digits' });
+    }
+
+    const secretKey = process.env.FLUTTERWAVE_SECRET_KEY;
+    if (!secretKey) {
+      return res.status(503).json({
+        success: false,
+        error: 'Bank resolution not configured. Add FLUTTERWAVE_SECRET_KEY to .env',
+      });
+    }
+
+    const fwRes = await fetch('https://api.flutterwave.com/v3/accounts/resolve', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${secretKey}`,
+      },
+      body: JSON.stringify({
+        account_number: cleanAccount,
+        account_bank: String(account_bank),
+      }),
+    });
+
+    const fwData = await fwRes.json();
+    if (fwData.status === 'success' && fwData.data?.account_name) {
+      return res.json({
+        success: true,
+        account_name: fwData.data.account_name,
+      });
+    }
+    return res.status(400).json({
+      success: false,
+      error: fwData.message || 'Account not found',
+    });
+  } catch (err) {
+    console.error('Resolve account error:', err);
+    res.status(500).json({ success: false, error: err.message || 'Resolution failed' });
+  }
+});
+
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`RexiPay Auth Server running on http://localhost:${PORT}`);
+  console.log(`  Also accessible at http://192.168.1.5:${PORT} (use your PC's IP for physical device)`);
   if (!process.env.TWILIO_ACCOUNT_SID) {
     console.log('⚠️  Twilio not configured - OTPs will be logged to console');
+  }
+  if (!process.env.FLUTTERWAVE_SECRET_KEY) {
+    console.log('⚠️  Flutterwave not configured - bank account resolution disabled');
   }
 });

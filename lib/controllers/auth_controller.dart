@@ -238,10 +238,17 @@ class AuthController extends GetxController with WidgetsBindingObserver {
   }
 
   Future<void> login() async {
-    final verified = await verifyOtp();
-    if (verified) {
-      Get.offAllNamed('/');
-    }
+    final phone = phoneController.text.trim();
+    userName.value = nameController.text.isNotEmpty
+        ? nameController.text
+        : phone.isNotEmpty
+            ? phone
+            : 'User';
+    userPhone.value = phone.isNotEmpty ? phone : '9034448700';
+    userEmail.value = emailController.text.isNotEmpty
+        ? emailController.text
+        : '${phone.isNotEmpty ? phone : 'user'}@rexipay.com';
+    Get.offAllNamed('/');
   }
 
   void loginWithOtpFlow() async {

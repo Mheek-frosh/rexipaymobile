@@ -96,6 +96,22 @@ flutter run
 
 ---
 
+## Bank Account Resolution (Transfer Screen)
+
+To resolve Nigerian bank account names when users enter account numbers:
+
+1. Create a [Flutterwave](https://dashboard.flutterwave.com/) account
+2. Get your **Secret Key** from the dashboard
+3. Add to `server/.env`:
+   ```
+   FLUTTERWAVE_SECRET_KEY=FLWSECK-xxxxxxxx
+   ```
+4. Restart the server
+
+The transfer screen will then fetch the account holder's name when the user enters a 10-digit account number and selects a bank.
+
+---
+
 ## Optional: Clerk Integration
 
 To add Clerk for user management:

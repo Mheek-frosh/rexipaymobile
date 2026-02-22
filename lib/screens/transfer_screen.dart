@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:nigerian_banks_nuban/nigerian_banks_nuban.dart';
 import '../utils/app_colors.dart';
 import '../utils/app_text.dart';
 import '../utils/app_strings.dart';
@@ -84,10 +85,8 @@ class TransferScreen extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Obx(
-            () => DropdownButtonFormField<String>(
-              value: controller.selectedBank.value.isEmpty
-                  ? null
-                  : controller.selectedBank.value,
+            () => DropdownButtonFormField<Bank>(
+              value: controller.selectedBank.value,
               decoration: InputDecoration(
                 hintText: AppStrings.selectBank,
                 hintStyle: GoogleFonts.inter(color: Colors.grey[400]),
@@ -96,21 +95,69 @@ class TransferScreen extends StatelessWidget {
                 ),
               ),
               items: controller.banks
-                  .map((bank) => DropdownMenuItem<String>(
-                        value: bank.name,
-                        child: Text(bank.name),
+                  .map((bank) => DropdownMenuItem<Bank>(
+                        value: bank,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            BankLogo(
+                              bank: bank,
+                              size: 28,
+                              borderRadius: 6,
+                              fallback: Icon(Icons.account_balance, size: 28, color: AppColors.primary),
+                            ),
+                            const SizedBox(width: 12),
+                            Flexible(
+                              child: Text(
+                                bank.name,
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  color: AppColors.textPrimary,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
                       ))
                   .toList(),
-              onChanged: (val) {
-                controller.selectedBank.value = val ?? '';
-                controller.accountName.value = val ?? '';
-              },
+              onChanged: (bank) => controller.onBankChanged(bank),
               icon: const Icon(Icons.keyboard_arrow_down),
               dropdownColor: AppColors.cardBackground,
               style: GoogleFonts.inter(color: AppColors.textPrimary),
+              isExpanded: true,
+              menuMaxHeight: 400,
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 20),
+          Obx(
+            () => controller.isResolving.value
+                ? Row(
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Resolving account...',
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  )
+                : controller.recipientName.value.isNotEmpty &&
+                        controller.selectedBank.value != null
+                    ? _buildResolvedAccountCard(controller)
+                    : const SizedBox.shrink(),
+          ),
+          const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
             height: 56,
@@ -146,6 +193,88 @@ class TransferScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildResolvedAccountCard(TransferController controller) {
+    final accountNum = controller.accountNumberController.text.replaceAll(RegExp(r'\D'), '');
+    final bank = controller.selectedBank.value!;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              BankLogo(
+                bank: bank,
+                size: 48,
+                borderRadius: 12,
+                fallback: Icon(Icons.account_balance, size: 48, color: AppColors.primary),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      bank.name,
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Account: $accountNum',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.check_circle, color: AppColors.green, size: 28),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            decoration: BoxDecoration(
+              color: AppColors.cardBackground,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Account Owner',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  controller.recipientName.value,
+                  style: GoogleFonts.inter(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildRecentSection(TransferController controller) {
     return Container(
       width: double.infinity,
@@ -160,7 +289,6 @@ class TransferScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Search Bar
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             decoration: BoxDecoration(
