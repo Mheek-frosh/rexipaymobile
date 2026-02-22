@@ -190,7 +190,7 @@ class ProfileScreen extends GetView<ThemeController> {
                       iconBgColor: const Color(0xFFE8F5E9), // Light Green
                       iconColor: Colors.green,
                       title: AppStrings.support,
-                      onTap: () {},
+                      onTap: () => Get.toNamed(Routes.SUPPORT),
                     ),
                     _buildDivider(),
 
@@ -199,7 +199,7 @@ class ProfileScreen extends GetView<ThemeController> {
                       iconBgColor: const Color(0xFFE8F0FE), // Light Blue
                       iconColor: AppColors.primary,
                       title: AppStrings.settings,
-                      onTap: () {},
+                      onTap: () => Get.toNamed(Routes.SETTINGS),
                     ),
                     _buildDivider(),
 
@@ -208,7 +208,7 @@ class ProfileScreen extends GetView<ThemeController> {
                       iconBgColor: const Color(0xFFE8F5E9), // Light Green
                       iconColor: Colors.green,
                       title: AppStrings.dataPrivacy,
-                      onTap: () {},
+                      onTap: () => Get.toNamed(Routes.DATA_PRIVACY),
                     ),
                     _buildDivider(),
 

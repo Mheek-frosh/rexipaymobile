@@ -4,9 +4,6 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import '../models/user_model.dart';
 
 class AuthController extends GetxController with WidgetsBindingObserver {
@@ -20,13 +17,13 @@ class AuthController extends GetxController with WidgetsBindingObserver {
   final otpValue = ''.obs;
 
   // User details (Global state)
-  final userName = 'Michael Ozeluah'.obs; // Default for demo
+  final userName = 'Michael Ozeluah'.obs;
   final userPhone = '9034448700'.obs;
   final userEmail = 'mheekfrosh@gmail.com'.obs;
 
   // Observable states
   final isPasswordVisible = false.obs;
-  final currentStep = 1.obs; // 1-4 for progress bar
+  final currentStep = 1.obs;
   final isSignupButtonEnabled = false.obs;
   final isLoginButtonEnabled = false.obs;
   final isOtpComplete = false.obs;
@@ -36,10 +33,9 @@ class AuthController extends GetxController with WidgetsBindingObserver {
   final canCheckBiometrics = false.obs;
   final isBiometricAuthenticated = false.obs;
 
-  // Firebase Instances
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  // In-memory user storage (no Firebase)
+  static final Map<String, UserModel> _users = {};
+  static final Map<String, String> _passwords = {};
 
   // Selected Country
   final selectedCountryFlag = '🇳🇬'.obs;
@@ -144,7 +140,6 @@ class AuthController extends GetxController with WidgetsBindingObserver {
   void onInit() {
     super.onInit();
     WidgetsBinding.instance.addObserver(this);
-    // Listen to fields for validation
     nameController.addListener(_validateSignupFields);
     phoneController.addListener(_validateSignupFields);
     passwordController.addListener(_validateSignupFields);
@@ -201,7 +196,6 @@ class AuthController extends GetxController with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // Only show welcome back if user is logged in (for demo, if we are not on auth screens)
       final currentRoute = Get.currentRoute;
       if (currentRoute != '/signup' &&
           currentRoute != '/login' &&
@@ -230,7 +224,7 @@ class AuthController extends GetxController with WidgetsBindingObserver {
       );
       if (authenticated) {
         isBiometricAuthenticated.value = true;
-        Get.offAllNamed('/home');
+        Get.offAllNamed('/');
       }
     } catch (e) {
       debugPrint('Biometric Error: $e');
@@ -241,30 +235,11 @@ class AuthController extends GetxController with WidgetsBindingObserver {
     try {
       isLoading.value = true;
 
-      // 1. Create User in Firebase Auth
-      // Note: Using a dummy email if not provided, since phone auth is more complex to set up without real phone
-      // For this implementation, we'll require an email or generate one based on phone
       final email = emailController.text.isNotEmpty
           ? emailController.text.trim()
-          : '${phoneController.text.trim()}@rexipay.com'; // Fallback for demo
+          : '${phoneController.text.trim()}@rexipay.com';
 
-      final UserCredential userCredential = await _auth
-          .createUserWithEmailAndPassword(
-            email: email,
-            password: passwordController.text,
-          );
-
-      final String userId = userCredential.user!.uid;
-      String? imageUrl;
-
-      // 2. Upload Profile Image if exists
-      if (profileImage.value != null) {
-        final ref = _storage.ref().child('user_images/$userId.jpg');
-        await ref.putFile(profileImage.value!);
-        imageUrl = await ref.getDownloadURL();
-      }
-
-      // 3. Create User Model
+      final userId = 'user_${phoneController.text.trim()}';
       final newUser = UserModel(
         id: userId,
         email: email,
@@ -273,15 +248,14 @@ class AuthController extends GetxController with WidgetsBindingObserver {
             ? nameController.text.split(' ').sublist(1).join(' ')
             : '',
         phoneNumber: getFormattedPhone(),
-        profileImageUrl: imageUrl,
+        profileImageUrl: null,
         countryCode: selectedCountryDialCode.value,
         createdAt: DateTime.now(),
       );
 
-      // 4. Save to Firestore
-      await _firestore.collection('users').doc(userId).set(newUser.toJson());
+      _users[userId] = newUser;
+      _passwords[userId] = passwordController.text;
 
-      // Update local state
       userName.value = nameController.text;
       userPhone.value = phoneController.text;
       userEmail.value = email;
@@ -294,13 +268,6 @@ class AuthController extends GetxController with WidgetsBindingObserver {
       );
 
       showSuccessAndNavigate();
-    } on FirebaseAuthException catch (e) {
-      Get.snackbar(
-        'Registration Failed',
-        e.message ?? 'An error occurred',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -314,62 +281,18 @@ class AuthController extends GetxController with WidgetsBindingObserver {
   }
 
   Future<void> login() async {
-    try {
-      isLoading.value = true;
-
-      // Construct email from phone number as per signup logic
-      final email = '${phoneController.text.trim()}@rexipay.com';
-
-      // 1. SignIn with Email (derived from phone) and Password
-      final UserCredential userCredential = await _auth
-          .signInWithEmailAndPassword(
-            email: email,
-            password: passwordController.text,
-          );
-
-      final String userId = userCredential.user!.uid;
-
-      // 2. Fetch User Details from Firestore
-      final DocumentSnapshot<Map<String, dynamic>> userDoc = await _firestore
-          .collection('users')
-          .doc(userId)
-          .get();
-
-      if (userDoc.exists) {
-        final userData = UserModel.fromSnapshot(userDoc);
-
-        // Update local state
-        userName.value = '${userData.firstName} ${userData.lastName}'.trim();
-        userPhone.value = userData.phoneNumber;
-        userEmail.value = userData.email;
-
-        // Navigate Home
-        Get.offAllNamed('/home');
-      } else {
-        Get.snackbar(
-          'Error',
-          'User profile not found.',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-      }
-    } on FirebaseAuthException catch (e) {
-      Get.snackbar(
-        'Login Failed',
-        e.message ?? 'Invalid credentials',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Something went wrong: $e',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-    } finally {
-      isLoading.value = false;
-    }
+    // Login with any input - no validation
+    final phone = phoneController.text.trim();
+    userName.value = nameController.text.isNotEmpty
+        ? nameController.text
+        : phone.isNotEmpty
+            ? phone
+            : 'User';
+    userPhone.value = phone.isNotEmpty ? phone : '9034448700';
+    userEmail.value = emailController.text.isNotEmpty
+        ? emailController.text
+        : '${phone.isNotEmpty ? phone : 'user'}@rexipay.com';
+    Get.offAllNamed('/');
   }
 
   void showSuccessAndNavigate() {

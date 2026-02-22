@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class UserModel {
   final String? id;
   final String email;
@@ -21,37 +19,34 @@ class UserModel {
     this.createdAt,
   });
 
-  // Create UserModel from Firestore DocumentSnapshot
-  factory UserModel.fromSnapshot(
-    DocumentSnapshot<Map<String, dynamic>> document,
-  ) {
-    final data = document.data()!;
+  factory UserModel.fromMap(Map<String, dynamic> data) {
     return UserModel(
-      id: document.id,
+      id: data['id'],
       email: data['email'] ?? '',
       firstName: data['firstName'] ?? '',
       lastName: data['lastName'] ?? '',
       phoneNumber: data['phoneNumber'] ?? '',
       profileImageUrl: data['profileImageUrl'],
       countryCode: data['countryCode'] ?? '',
-      createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
+      createdAt: data['createdAt'] != null
+          ? DateTime.tryParse(data['createdAt'].toString())
+          : null,
     );
   }
 
-  // Convert UserModel to Map for Firestore
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'email': email,
       'firstName': firstName,
       'lastName': lastName,
       'phoneNumber': phoneNumber,
       'profileImageUrl': profileImageUrl,
       'countryCode': countryCode,
-      'createdAt': createdAt ?? FieldValue.serverTimestamp(),
+      'createdAt': createdAt?.toIso8601String(),
     };
   }
 
-  // CopyWith method for immutability
   UserModel copyWith({
     String? id,
     String? email,

@@ -24,6 +24,9 @@ import '../bindings/card_binding.dart';
 import '../screens/wallet/card_list_screen.dart';
 import '../screens/wallet/add_card_intro_screen.dart';
 import '../screens/profile/account_details_screen.dart';
+import '../screens/profile/support_screen.dart';
+import '../screens/profile/settings_screen.dart';
+import '../screens/profile/data_privacy_screen.dart';
 import '../utils/three_d_transition.dart';
 import 'app_routes.dart';
 
@@ -129,6 +132,21 @@ class AppPages {
       customTransition: ThreeDTransition(),
       transitionDuration: const Duration(milliseconds: 600),
       opaque: false,
+    ),
+    GetPage(
+      name: Routes.SUPPORT,
+      page: () => const SupportScreen(),
+      binding: MainBinding(),
+    ),
+    GetPage(
+      name: Routes.SETTINGS,
+      page: () => const SettingsScreen(),
+      binding: MainBinding(),
+    ),
+    GetPage(
+      name: Routes.DATA_PRIVACY,
+      page: () => const DataPrivacyScreen(),
+      binding: MainBinding(),
     ),
   ];
 }

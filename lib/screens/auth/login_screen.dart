@@ -210,22 +210,11 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 40),
                 const Spacer(),
-                // Login Button
-                AnimatedOpacity(
-                  opacity: controller.isLoginButtonEnabled.value ? 1.0 : 0.5,
-                  duration: const Duration(milliseconds: 200),
-                  child: PrimaryButton(
-                    text: AppStrings.login,
-                    onPressed: controller.isLoginButtonEnabled.value
-                        ? () {
-                            controller.login();
-                          }
-                        : () {},
-                    width: double.infinity,
-                    backgroundColor: controller.isLoginButtonEnabled.value
-                        ? const Color(0xFF2E63F6)
-                        : Colors.grey[400],
-                  ),
+                // Login Button - accepts any input
+                PrimaryButton(
+                  text: AppStrings.login,
+                  onPressed: () => controller.login(),
+                  width: double.infinity,
                 ),
                 const SizedBox(height: 20),
                 // Sign Up Link
