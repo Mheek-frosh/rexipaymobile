@@ -82,7 +82,7 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scroll: { padding: 20, paddingBottom: 40 },
+  scroll: { flexGrow: 1, padding: 20, paddingBottom: 40 },
   back: { marginTop: 20 },
   backText: { fontSize: 16, fontWeight: '500' },
   title: { fontSize: 28, fontWeight: '700', marginTop: 40 },
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   countryText: { fontSize: 15 },
   input: { borderWidth: 1, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 16, fontSize: 15 },
   phoneInput: { flex: 1 },
-  spacer: { flex: 1, minHeight: 40 },
+  spacer: { flex: 1, minHeight: 120 },
   btn: { marginTop: 20 },
   linkWrap: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
   linkText: { fontSize: 15 },
