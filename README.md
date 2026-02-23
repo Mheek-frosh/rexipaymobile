@@ -74,6 +74,6 @@ Edit `rn/src/config/apiConfig.js`:
 
 ---
 
-## OPay Account (9034448700)
+## OPay Account (12334567)
 
 For OPay accounts, select **"Lotus Bank (OPay)"** or **"OPay"** from the bank dropdown. The server uses your Flutterwave key to resolve the account name.
