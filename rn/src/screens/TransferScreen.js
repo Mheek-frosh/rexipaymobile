@@ -18,6 +18,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import { resolveAccount } from '../services/bankService';
 import { NIGERIAN_BANKS } from '../data/nigerianBanks';
+import PinEntryModal from '../components/PinEntryModal';
 
 const RECENT_RECIPIENTS = [
   {
@@ -63,6 +64,9 @@ export default function TransferScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [transferRecipient, setTransferRecipient] = useState('');
   const [transferRecipientBank, setTransferRecipientBank] = useState('');
+  const [transferRecipientAccount, setTransferRecipientAccount] = useState('');
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
 
   const cleanAccount = accountNumber.replace(/\D/g, '');
   const canResolve = cleanAccount.length === 10 && selectedBank;
@@ -98,12 +102,23 @@ export default function TransferScreen() {
     }
     setTransferRecipient(accountName);
     setTransferRecipientBank(selectedBank?.name || '');
+    setTransferRecipientAccount(cleanAccount);
     setShowAmountModal(true);
   };
 
   const handleTransferFromAmount = () => {
     if (!amount || parseFloat(amount) <= 0) return;
     setShowAmountModal(false);
+    setShowSummaryModal(true);
+  };
+
+  const handleConfirmFromSummary = () => {
+    setShowSummaryModal(false);
+    setShowPinModal(true);
+  };
+
+  const handlePinSuccess = () => {
+    setShowPinModal(false);
     navigation.navigate('PaymentSuccess', {
       amount: amount,
       recipient: transferRecipient,
@@ -114,6 +129,7 @@ export default function TransferScreen() {
   const handleRecentTap = (item) => {
     setTransferRecipient(item.name);
     setTransferRecipientBank(item.bankName || '');
+    setTransferRecipientAccount(item.accountNumber || '');
     setShowAmountModal(true);
   };
 
@@ -337,6 +353,72 @@ export default function TransferScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
+      {/* Summary Modal */}
+      <Modal visible={showSummaryModal} transparent animationType="slide">
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowSummaryModal(false)}
+        >
+          <View
+            style={[styles.summaryModalWrap, { backgroundColor: colors.background }]}
+            onStartShouldSetResponder={() => true}
+          >
+            <Text style={[styles.summaryTitle, { color: colors.textPrimary }]}>
+              Confirm Transfer
+            </Text>
+            <View style={[styles.summaryCard, { backgroundColor: colors.cardBackground }]}>
+              <View style={[styles.summaryRow, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Recipient</Text>
+                <Text style={[styles.summaryValue, { color: colors.textPrimary }]}>
+                  {transferRecipient}
+                </Text>
+              </View>
+              <View style={[styles.summaryRow, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Bank</Text>
+                <Text style={[styles.summaryValue, { color: colors.textPrimary }]}>
+                  {transferRecipientBank}
+                </Text>
+              </View>
+              {transferRecipientAccount ? (
+                <View style={[styles.summaryRow, { borderBottomColor: colors.border }]}>
+                  <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Account</Text>
+                  <Text style={[styles.summaryValue, { color: colors.textPrimary }]}>
+                    {transferRecipientAccount}
+                  </Text>
+                </View>
+              ) : null}
+              <View style={[styles.summaryRow, styles.summaryRowLast]}>
+                <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Amount</Text>
+                <Text style={[styles.summaryAmount, { color: colors.primary }]}>
+                  ₦{amount ? Number(amount).toLocaleString() : '0'}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.summaryActions}>
+              <TouchableOpacity
+                style={[styles.cancelBtn, { borderColor: colors.border }]}
+                onPress={() => setShowSummaryModal(false)}
+              >
+                <Text style={[styles.cancelText, { color: colors.textSecondary }]}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.confirmBtn, { backgroundColor: colors.primary }]}
+                onPress={handleConfirmFromSummary}
+              >
+                <Text style={styles.confirmText}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      <PinEntryModal
+        visible={showPinModal}
+        onSuccess={handlePinSuccess}
+        onCancel={() => setShowPinModal(false)}
+        title="Enter 4-digit PIN to confirm transfer"
+      />
     </View>
   );
 }
@@ -511,4 +593,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   confirmText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
+  summaryModalWrap: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+  },
+  summaryTitle: { fontSize: 20, fontWeight: '700', marginBottom: 20 },
+  summaryCard: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: 24,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+  },
+  summaryRowLast: { borderBottomWidth: 0 },
+  summaryLabel: { fontSize: 14 },
+  summaryValue: { fontSize: 15, fontWeight: '600' },
+  summaryAmount: { fontSize: 18, fontWeight: '700' },
+  summaryActions: { flexDirection: 'row', gap: 12 },
 });
