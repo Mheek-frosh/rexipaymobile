@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "RexiPay",
+    "slug": "rexipay-rn",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#2E63F6"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rexipay.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#2E63F6"
+      },
+      "package": "com.rexipay.app"
+    }
+  }
+}

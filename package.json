@@ -1,0 +1,16 @@
+{
+  "name": "rexipaymobile",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run --prefix rn start",
+    "start": "npm run --prefix rn start",
+    "android": "npm run --prefix rn android",
+    "ios": "npm run --prefix rn ios",
+    "server": "npm run --prefix server start",
+    "server:dev": "npm run --prefix server dev"
+  },
+  "dependencies": {
+    "expo": "^54.0.33"
+  }
+}

@@ -8,7 +8,7 @@ Step-by-step instructions to get OTP authentication working with the RexiPay app
 
 The auth flow uses:
 - **Backend server** (Node.js) – sends OTP via Twilio SMS
-- **Flutter app** – calls the backend, shows snackbar when OTP is sent, countdown for resend
+- **React Native app** – calls the backend, shows snackbar when OTP is sent, countdown for resend
 
 ---
 
@@ -56,9 +56,9 @@ RexiPay Auth Server running on http://localhost:3001
 
 ---
 
-## Step 4: Configure Flutter API URL
+## Step 4: Configure React Native API URL
 
-Edit `lib/config/api_config.dart`:
+Edit `rn/src/config/apiConfig.js`:
 
 - **Android Emulator**: `http://10.0.2.2:3001` (default)
 - **iOS Simulator**: `http://localhost:3001`
@@ -66,12 +66,15 @@ Edit `lib/config/api_config.dart`:
 
 ---
 
-## Step 5: Run the Flutter App
+## Step 5: Run the React Native App
 
 ```bash
-flutter pub get
-flutter run
+cd rn
+npm install
+npx expo start
 ```
+
+Then press **`a`** for Android or **`i`** for iOS.
 
 ---
 
@@ -137,4 +140,4 @@ npm install @clerk/clerk-sdk-node
 | "Connection refused" | Ensure the server is running on port 3001 |
 | OTP not received | Check Twilio credentials; without Twilio, check server console for the OTP |
 | Android can't reach server | Use `10.0.2.2` instead of `localhost` |
-| Physical device can't reach server | Use your computer's local IP in `api_config.dart` |
+| Physical device can't reach server | Use your computer's local IP in `rn/src/config/apiConfig.js` |

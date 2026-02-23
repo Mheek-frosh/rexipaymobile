@@ -27,23 +27,19 @@ migrate_working_dir/
 # is commented out by default.
 #.vscode/
 
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
+# React Native / Node
+node_modules/
+.expo/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Flutter / Dart artifacts (not used - this is an Expo/RN project)
 .dart_tool/
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
+/android/
+/ios/
+/linux/
+/macos/
+/windows/
 /build/
-/coverage/
-
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release

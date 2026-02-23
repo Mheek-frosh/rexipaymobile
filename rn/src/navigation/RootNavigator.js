@@ -1,0 +1,72 @@
+import React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useAuth } from '../context/AuthContext';
+import SignupScreen from '../screens/auth/SignupScreen';
+import LoginScreen from '../screens/auth/LoginScreen';
+import OtpVerificationScreen from '../screens/auth/OtpVerificationScreen';
+import PersonalInfoScreen from '../screens/auth/PersonalInfoScreen';
+import AccountSuccessScreen from '../screens/auth/AccountSuccessScreen';
+import MainTabs from './MainTabs';
+import TransferScreen from '../screens/TransferScreen';
+import TransactionsScreen from '../screens/TransactionsScreen';
+import NotificationsScreen from '../screens/NotificationsScreen';
+import SettingsScreen from '../screens/SettingsScreen';
+import SupportScreen from '../screens/SupportScreen';
+import DataPrivacyScreen from '../screens/DataPrivacyScreen';
+import AccountDetailsScreen from '../screens/AccountDetailsScreen';
+import PaymentSuccessScreen from '../screens/PaymentSuccessScreen';
+import AirtimeScreen from '../screens/AirtimeScreen';
+import ChangeLimitScreen from '../screens/ChangeLimitScreen';
+import BankReceiveScreen from '../screens/BankReceiveScreen';
+import BankConvertScreen from '../screens/BankConvertScreen';
+import CryptoReceiveScreen from '../screens/CryptoReceiveScreen';
+import CryptoSellScreen from '../screens/CryptoSellScreen';
+import AddMoneyScreen from '../screens/AddMoneyScreen';
+import SendCryptoScreen from '../screens/SendCryptoScreen';
+import SendCryptoAssetScreen from '../screens/SendCryptoAssetScreen';
+import TransactionDetailScreen from '../screens/TransactionDetailScreen';
+
+const Stack = createNativeStackNavigator();
+
+export default function RootNavigator() {
+  const { isAuthenticated } = useAuth();
+
+  if (isAuthenticated) {
+    return (
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="MainTabs" component={MainTabs} />
+        <Stack.Screen name="Transfer" component={TransferScreen} />
+        <Stack.Screen name="Transactions" component={TransactionsScreen} />
+        <Stack.Screen name="Notifications" component={NotificationsScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="Support" component={SupportScreen} />
+        <Stack.Screen name="DataPrivacy" component={DataPrivacyScreen} />
+        <Stack.Screen name="AccountDetails" component={AccountDetailsScreen} />
+        <Stack.Screen name="Airtime" component={AirtimeScreen} />
+        <Stack.Screen name="ChangeLimit" component={ChangeLimitScreen} />
+        <Stack.Screen name="PaymentSuccess" component={PaymentSuccessScreen} />
+        <Stack.Screen name="BankReceive" component={BankReceiveScreen} />
+        <Stack.Screen name="BankConvert" component={BankConvertScreen} />
+        <Stack.Screen name="CryptoReceive" component={CryptoReceiveScreen} />
+        <Stack.Screen name="CryptoSell" component={CryptoSellScreen} />
+        <Stack.Screen name="AddMoney" component={AddMoneyScreen} />
+        <Stack.Screen name="SendCrypto" component={SendCryptoScreen} />
+        <Stack.Screen name="SendCryptoAsset" component={SendCryptoAssetScreen} />
+        <Stack.Screen name="TransactionDetail" component={TransactionDetailScreen} />
+      </Stack.Navigator>
+    );
+  }
+
+  return (
+    <Stack.Navigator
+      initialRoute="Signup"
+      screenOptions={{ headerShown: false }}
+    >
+      <Stack.Screen name="Signup" component={SignupScreen} />
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="OtpVerification" component={OtpVerificationScreen} />
+      <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
+      <Stack.Screen name="AccountSuccess" component={AccountSuccessScreen} />
+    </Stack.Navigator>
+  );
+}
