@@ -17,7 +17,11 @@ import { useAuth } from '../../context/AuthContext';
 import { sendOtp } from '../../services/authService';
 import PrimaryButton from '../../components/PrimaryButton';
 import SegmentedProgressBar from '../../components/SegmentedProgressBar';
+import CountryPickerSheet from '../../components/CountryPickerSheet';
 import { Eye, EyeSlash } from 'iconsax-react-native';
+import { COUNTRIES } from '../../data/countries';
+
+const defaultCountry = COUNTRIES[0];
 
 export default function SignupScreen() {
   const { colors } = useTheme();
@@ -28,8 +32,8 @@ export default function SignupScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  const countryCode = '+234';
+  const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
   const canSubmit = name.trim() && phone.trim();
 
   const handleSignUp = async () => {
@@ -41,6 +45,7 @@ export default function SignupScreen() {
         name: name.trim(),
         phone: phone.trim(),
         firstName: name.trim().split(' ')[0] || 'User',
+        countryCode: selectedCountry.dialCode,
       };
       setPendingSignupUser(userData);
       navigation.navigate('PersonalInfo', { skipOtp: true });
@@ -80,9 +85,14 @@ export default function SignupScreen() {
 
         <Text style={[styles.label, { color: colors.textPrimary }]}>Phone</Text>
         <View style={styles.phoneRow}>
-          <View style={[styles.countryBox, { borderColor: colors.border }]}>
-            <Text style={[styles.countryText, { color: colors.textPrimary }]}>🇳🇬 +234</Text>
-          </View>
+          <TouchableOpacity
+            style={[styles.countryBox, { borderColor: colors.border }]}
+            onPress={() => setShowCountryPicker(true)}
+          >
+            <Text style={[styles.countryText, { color: colors.textPrimary }]}>
+              {selectedCountry.flag} {selectedCountry.dialCode}
+            </Text>
+          </TouchableOpacity>
           <TextInput
             style={[
               styles.input,
@@ -112,9 +122,9 @@ export default function SignupScreen() {
             onPress={() => setShowPassword(!showPassword)}
           >
             {showPassword ? (
-              <EyeSlash size={22} color={colors.textSecondary} />
-            ) : (
               <Eye size={22} color={colors.textSecondary} />
+            ) : (
+              <EyeSlash size={22} color={colors.textSecondary} />
             )}
           </TouchableOpacity>
         </View>
@@ -140,6 +150,12 @@ export default function SignupScreen() {
         </TouchableOpacity>
       </ScrollView>
       </KeyboardAvoidingView>
+      <CountryPickerSheet
+        visible={showCountryPicker}
+        onClose={() => setShowCountryPicker(false)}
+        onSelect={setSelectedCountry}
+        selectedCountry={selectedCountry}
+      />
     </SafeAreaView>
   );
 }

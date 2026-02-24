@@ -13,12 +13,18 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../theme/ThemeContext';
 import PrimaryButton from '../../components/PrimaryButton';
+import CountryPickerSheet from '../../components/CountryPickerSheet';
+import { COUNTRIES } from '../../data/countries';
+
+const defaultCountry = COUNTRIES[0];
 
 export default function LoginScreen() {
   const { colors } = useTheme();
   const { login } = useAuth();
   const navigation = useNavigation();
   const [phone, setPhone] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
 
   const handleLogin = () => {
     login(phone.trim() || '9034448700', phone.trim() ? 'User' : 'User');
@@ -45,9 +51,14 @@ export default function LoginScreen() {
 
         <Text style={[styles.label, { color: colors.textPrimary }]}>Phone</Text>
         <View style={styles.phoneRow}>
-          <View style={[styles.countryBox, { borderColor: colors.border }]}>
-            <Text style={[styles.countryText, { color: colors.textPrimary }]}>🇳🇬 +234</Text>
-          </View>
+          <TouchableOpacity
+            style={[styles.countryBox, { borderColor: colors.border }]}
+            onPress={() => setShowCountryPicker(true)}
+          >
+            <Text style={[styles.countryText, { color: colors.textPrimary }]}>
+              {selectedCountry.flag} {selectedCountry.dialCode}
+            </Text>
+          </TouchableOpacity>
           <TextInput
             style={[
               styles.input,
@@ -76,6 +87,12 @@ export default function LoginScreen() {
           </Text>
         </TouchableOpacity>
       </ScrollView>
+      <CountryPickerSheet
+        visible={showCountryPicker}
+        onClose={() => setShowCountryPicker(false)}
+        onSelect={setSelectedCountry}
+        selectedCountry={selectedCountry}
+      />
     </KeyboardAvoidingView>
   );
 }

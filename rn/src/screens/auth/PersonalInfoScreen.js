@@ -55,7 +55,7 @@ export default function PersonalInfoScreen() {
       contentContainerStyle={styles.scroll}
       keyboardShouldPersistTaps="handled"
     >
-      <SegmentedProgressBar totalSteps={5} currentStep={3} />
+      <SegmentedProgressBar totalSteps={4} currentStep={2} />
       <Text style={[styles.title, { color: colors.textPrimary }]}>Personal Info</Text>
       <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
         This info needs to be accurate with your ID document.

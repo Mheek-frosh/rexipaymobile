@@ -1,25 +1,24 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import { House2 } from 'iconsax-react-native';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../theme/ThemeContext';
-import PrimaryButton from '../../components/PrimaryButton';
 import SegmentedProgressBar from '../../components/SegmentedProgressBar';
 
 export default function AccountSuccessScreen() {
   const { colors } = useTheme();
   const { signupComplete, pendingUser } = useAuth();
-  const navigation = useNavigation();
   const route = useRoute();
   const user = route.params?.user || pendingUser;
 
-  const handleContinue = () => {
+  const handleGoHome = () => {
     signupComplete(user);
   };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <SegmentedProgressBar totalSteps={5} currentStep={5} />
+      <SegmentedProgressBar totalSteps={4} currentStep={4} />
       <View style={styles.illustration}>
         <Text style={styles.emoji}>🎉</Text>
       </View>
@@ -30,7 +29,10 @@ export default function AccountSuccessScreen() {
         We are happy to have you. It's time to send, receive and track your expense.
       </Text>
       <View style={styles.spacer} />
-      <PrimaryButton text="Continue" onPress={handleContinue} style={styles.btn} />
+      <TouchableOpacity style={[styles.homeBtn, { backgroundColor: colors.cardBackground }]} onPress={handleGoHome}>
+        <House2 size={32} color="#FF8A65" />
+        <Text style={[styles.homeBtnText, { color: colors.textPrimary }]}>Navigate home</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -47,5 +49,14 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   spacer: { flex: 1 },
-  btn: { marginBottom: 30 },
+  homeBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    paddingVertical: 16,
+    borderRadius: 12,
+    marginBottom: 30,
+  },
+  homeBtnText: { fontSize: 16, fontWeight: '600' },
 });

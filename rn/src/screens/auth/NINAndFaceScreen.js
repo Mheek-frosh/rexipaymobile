@@ -64,7 +64,7 @@ export default function NINAndFaceScreen() {
       contentContainerStyle={styles.scroll}
       keyboardShouldPersistTaps="handled"
     >
-      <SegmentedProgressBar totalSteps={5} currentStep={4} />
+      <SegmentedProgressBar totalSteps={4} currentStep={3} />
       <Text style={[styles.title, { color: colors.textPrimary }]}>Verify Identity</Text>
       <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
         Upload your NIN and scan your face to complete verification.

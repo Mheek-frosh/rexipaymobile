@@ -1,7 +1,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../theme/ThemeContext';
-import { House2, Card, Chart2, More } from 'iconsax-react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Card, Chart2, More } from 'iconsax-react-native';
 import HomeScreen from '../screens/HomeScreen';
 import CardsScreen from '../screens/CardsScreen';
 import StatsScreen from '../screens/StatsScreen';
@@ -12,8 +13,18 @@ const Tab = createBottomTabNavigator();
 const TabIcon = ({ name, focused, color }) => {
   const opacity = focused ? 1 : 0.6;
   const size = 24;
+  const style = { opacity };
+  if (name === 'Home') {
+    return (
+      <MaterialCommunityIcons
+        name="home-outline"
+        size={size}
+        color={color}
+        style={style}
+      />
+    );
+  }
   const common = { size, color, style: { opacity } };
-  if (name === 'Home') return <House2 {...common} />;
   if (name === 'Cards') return <Card {...common} />;
   if (name === 'Stats') return <Chart2 {...common} />;
   if (name === 'More') return <More {...common} />;
