@@ -8,7 +8,8 @@
     "android": "npm run --prefix rn android",
     "ios": "npm run --prefix rn ios",
     "server": "npm run --prefix server start",
-    "server:dev": "npm run --prefix server dev"
+    "server:dev": "npm run --prefix server dev",
+    "share": "npm run --prefix rn share"
   },
   "dependencies": {
     "expo": "^54.0.33"
