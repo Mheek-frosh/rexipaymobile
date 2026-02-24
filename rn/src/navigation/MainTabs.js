@@ -1,8 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, StyleSheet } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
+import { House2, Card, Chart2, More } from 'iconsax-react-native';
 import HomeScreen from '../screens/HomeScreen';
 import CardsScreen from '../screens/CardsScreen';
 import StatsScreen from '../screens/StatsScreen';
@@ -11,20 +10,14 @@ import ProfileScreen from '../screens/ProfileScreen';
 const Tab = createBottomTabNavigator();
 
 const TabIcon = ({ name, focused, color }) => {
-  const iconMap = {
-    Home: 'home',
-    Cards: 'credit-card',
-    Stats: 'pie-chart',
-    Profile: 'person',
-  };
-  return (
-    <MaterialIcons
-      name={iconMap[name] || 'circle'}
-      size={24}
-      color={color}
-      style={{ opacity: focused ? 1 : 0.6 }}
-    />
-  );
+  const opacity = focused ? 1 : 0.6;
+  const size = 24;
+  const common = { size, color, style: { opacity } };
+  if (name === 'Home') return <House2 {...common} />;
+  if (name === 'Cards') return <Card {...common} />;
+  if (name === 'Stats') return <Chart2 {...common} />;
+  if (name === 'More') return <More {...common} />;
+  return null;
 };
 
 export default function MainTabs() {
@@ -48,9 +41,8 @@ export default function MainTabs() {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Cards" component={CardsScreen} />
       <Tab.Screen name="Stats" component={StatsScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="More" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }
 
-const styles = StyleSheet.create({});

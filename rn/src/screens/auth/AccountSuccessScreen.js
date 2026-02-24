@@ -19,7 +19,7 @@ export default function AccountSuccessScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <SegmentedProgressBar totalSteps={4} currentStep={4} />
+      <SegmentedProgressBar totalSteps={5} currentStep={5} />
       <View style={styles.illustration}>
         <Text style={styles.emoji}>🎉</Text>
       </View>

@@ -96,6 +96,14 @@ export default function TransferScreen() {
   }, [canResolve, selectedBank?.code]);
 
   const handleNext = () => {
+    if (!selectedBank) {
+      Alert.alert('Error', 'Please select a bank.');
+      return;
+    }
+    if (cleanAccount.length !== 10) {
+      Alert.alert('Error', 'Please input correct account number.');
+      return;
+    }
     if (!accountName) {
       Alert.alert('Error', 'Please enter account number and select bank to resolve account name');
       return;

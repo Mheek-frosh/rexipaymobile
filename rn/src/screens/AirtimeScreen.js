@@ -42,11 +42,22 @@ export default function AirtimeScreen() {
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
 
+  const phoneDigits = (phone || '').replace(/\D/g, '');
+  const isValidPhone = phoneDigits.length >= 10 && phoneDigits.length <= 11;
+
   const handleBuy = () => {
     if (selectedTab === 0) {
       if (!phone || !amount) return;
+      if (!isValidPhone) {
+        Alert.alert('Error', 'Please put correct phone number.');
+        return;
+      }
     } else {
       if (!phone || !selectedPlan) return;
+      if (!isValidPhone) {
+        Alert.alert('Error', 'Please put correct phone number.');
+        return;
+      }
     }
     setShowSummaryModal(true);
   };
@@ -159,19 +170,16 @@ export default function AirtimeScreen() {
               <MaterialIcons name="keyboard-arrow-down" size={20} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
-          <View style={styles.networkCol}>
+          <View style={styles.phoneCol}>
             <Text style={[styles.label, { color: colors.textPrimary }]}>Contact</Text>
-            <View style={[styles.phoneInput, { borderColor: colors.border }]}>
-              <Text style={styles.flag}>🇳🇬</Text>
-              <TextInput
-                style={[styles.phoneField, { color: colors.textPrimary }]}
-                placeholder="Phone number"
-                placeholderTextColor={colors.textSecondary}
-                value={phone}
-                onChangeText={setPhone}
-                keyboardType="phone-pad"
-              />
-            </View>
+            <TextInput
+              style={[styles.phoneInput, styles.phoneInputField, { color: colors.textPrimary, borderColor: colors.border }]}
+              placeholder="Phone number"
+              placeholderTextColor={colors.textSecondary}
+              value={phone}
+              onChangeText={setPhone}
+              keyboardType="phone-pad"
+            />
           </View>
         </View>
 
@@ -380,7 +388,8 @@ const styles = StyleSheet.create({
   },
   tabText: { fontSize: 14 },
   networkRow: { flexDirection: 'row', gap: 12, marginBottom: 24 },
-  networkCol: { flex: 1 },
+  networkCol: { flex: 0, width: 100, minWidth: 100 },
+  phoneCol: { flex: 1, minWidth: 0 },
   label: { fontSize: 16, fontWeight: '600', marginBottom: 12 },
   networkSelect: {
     flexDirection: 'row',
@@ -393,16 +402,13 @@ const styles = StyleSheet.create({
   },
   networkText: { fontSize: 16 },
   phoneInput: {
-    flexDirection: 'row',
-    alignItems: 'center',
     height: 56,
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     borderWidth: 1,
     borderRadius: 12,
-    gap: 8,
+    fontSize: 16,
   },
-  flag: { fontSize: 20 },
-  phoneField: { flex: 1, fontSize: 16 },
+  phoneInputField: { flex: 1 },
   amountSection: { marginBottom: 40 },
   amountInput: {
     borderWidth: 1,

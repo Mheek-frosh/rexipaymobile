@@ -9,7 +9,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#2E63F6"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.rexipay.app"
@@ -19,6 +21,9 @@
         "backgroundColor": "#2E63F6"
       },
       "package": "com.rexipay.app"
-    }
+    },
+    "plugins": [
+      "@react-native-community/datetimepicker"
+    ]
   }
 }

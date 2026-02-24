@@ -23,6 +23,20 @@ React Native version of the RexiPay mobile app, built with Expo.
 
 4. Press `a` for Android emulator or `i` for iOS simulator.
 
+## Share link (works even if your backend server is down)
+
+To share the app with friends so they can open it in Expo Go:
+
+1. From the `rn` folder run:
+   ```bash
+   npm run share
+   ```
+   This starts Expo with **tunnel** mode and gives you a shareable link/QR code.
+
+2. Your friends install **Expo Go** on their phone and scan the QR code (or open the link).
+
+3. The app bundle is served by Expo’s tunnel; the link keeps working as long as you keep `npm run share` running. Your own backend (e.g. `server/`) does not need to be running for the app to load—only API calls that hit your server will fail if it’s down.
+
 ## API Configuration
 
 - **Android Emulator**: Uses `http://10.0.2.2:3001` (localhost from emulator)

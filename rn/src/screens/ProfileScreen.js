@@ -7,11 +7,13 @@ import {
   StyleSheet,
   Switch,
 } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../theme/ThemeContext';
 import { LogoutBottomSheet } from '../components/BottomSheet';
+import Toast from '../components/Toast';
 
 const MENU_ITEMS = [
   { icon: 'account-balance', iconBg: '#FFD166', iconColor: null, title: 'Cards', route: 'CardsTab' },
@@ -32,6 +34,14 @@ export default function ProfileScreen() {
   const { userName, userPhone, logout } = useAuth();
   const navigation = useNavigation();
   const [showLogoutSheet, setShowLogoutSheet] = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
+
+  const handleCopy = async (text, label) => {
+    if (text) {
+      await Clipboard.setStringAsync(String(text));
+      setToastVisible(true);
+    }
+  };
 
   const handleMenuTap = (item) => {
     if (item.route === 'logout') {
@@ -58,18 +68,29 @@ export default function ProfileScreen() {
             <MaterialIcons name="person" size={40} color={colors.textSecondary} />
           </View>
           <View style={styles.userInfo}>
-            <View style={styles.nameRow}>
+            <TouchableOpacity
+              style={styles.nameRow}
+              onPress={() => handleCopy(userName || 'User', 'name')}
+              activeOpacity={0.7}
+            >
               <Text style={[styles.userName, { color: colors.textPrimary }]}>
                 {userName || 'User'}
               </Text>
               <MaterialIcons name="content-copy" size={20} color={colors.textSecondary} />
-            </View>
-            <Text style={[styles.userDetail, { color: colors.textSecondary }]}>
-              Account number {userPhone}
-            </Text>
-            <Text style={[styles.userDetail, { color: colors.textSecondary }]}>
-              Username @{(userName || 'user').replace(/\s/g, '').toLowerCase()}
-            </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleCopy(userPhone, 'account')} activeOpacity={0.7}>
+              <Text style={[styles.userDetail, { color: colors.textSecondary }]}>
+                Account number {userPhone}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => handleCopy('@' + (userName || 'user').replace(/\s/g, '').toLowerCase(), 'username')}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.userDetail, { color: colors.textSecondary }]}>
+                Username @{(userName || 'user').replace(/\s/g, '').toLowerCase()}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -143,6 +164,7 @@ export default function ProfileScreen() {
         onClose={() => setShowLogoutSheet(false)}
         onConfirm={logout}
       />
+      <Toast visible={toastVisible} message="Copied!" onHide={() => setToastVisible(false)} />
     </View>
   );
 }

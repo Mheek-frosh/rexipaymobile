@@ -17,6 +17,7 @@ import { useAuth } from '../../context/AuthContext';
 import { sendOtp } from '../../services/authService';
 import PrimaryButton from '../../components/PrimaryButton';
 import SegmentedProgressBar from '../../components/SegmentedProgressBar';
+import { Eye, EyeSlash } from 'iconsax-react-native';
 
 export default function SignupScreen() {
   const { colors } = useTheme();
@@ -99,7 +100,7 @@ export default function SignupScreen() {
         <Text style={[styles.label, { color: colors.textPrimary }]}>Password</Text>
         <View style={styles.passwordWrap}>
           <TextInput
-            style={[styles.input, { color: colors.textPrimary, borderColor: colors.border }]}
+            style={[styles.input, styles.passwordInput, { color: colors.textPrimary, borderColor: colors.border }]}
             placeholder="••••••••••"
             placeholderTextColor={colors.textSecondary}
             value={password}
@@ -110,7 +111,11 @@ export default function SignupScreen() {
             style={styles.eyeBtn}
             onPress={() => setShowPassword(!showPassword)}
           >
-            <Text style={{ color: colors.textSecondary }}>{showPassword ? '🙈' : '👁'}</Text>
+            {showPassword ? (
+              <EyeSlash size={22} color={colors.textSecondary} />
+            ) : (
+              <Eye size={22} color={colors.textSecondary} />
+            )}
           </TouchableOpacity>
         </View>
 
@@ -164,7 +169,8 @@ const styles = StyleSheet.create({
   countryText: { fontSize: 15 },
   phoneInput: { flex: 1 },
   passwordWrap: { position: 'relative' },
-  eyeBtn: { position: 'absolute', right: 16, top: 16 },
+  passwordInput: { paddingRight: 48 },
+  eyeBtn: { position: 'absolute', right: 14, top: 0, bottom: 0, justifyContent: 'center' },
   spacer: { flex: 1, minHeight: 40 },
   btn: { marginTop: 20 },
   linkWrap: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },

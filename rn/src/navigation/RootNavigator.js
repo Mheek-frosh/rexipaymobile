@@ -5,6 +5,7 @@ import SignupScreen from '../screens/auth/SignupScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import OtpVerificationScreen from '../screens/auth/OtpVerificationScreen';
 import PersonalInfoScreen from '../screens/auth/PersonalInfoScreen';
+import NINAndFaceScreen from '../screens/auth/NINAndFaceScreen';
 import AccountSuccessScreen from '../screens/auth/AccountSuccessScreen';
 import MainTabs from './MainTabs';
 import TransferScreen from '../screens/TransferScreen';
@@ -66,6 +67,7 @@ export default function RootNavigator() {
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="OtpVerification" component={OtpVerificationScreen} />
       <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
+      <Stack.Screen name="NINAndFace" component={NINAndFaceScreen} />
       <Stack.Screen name="AccountSuccess" component={AccountSuccessScreen} />
     </Stack.Navigator>
   );
