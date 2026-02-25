@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useRoute } from '@react-navigation/native';
-import { House2 } from 'iconsax-react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../theme/ThemeContext';
+import PrimaryButton from '../../components/PrimaryButton';
 import SegmentedProgressBar from '../../components/SegmentedProgressBar';
 
 export default function AccountSuccessScreen() {
@@ -12,7 +12,7 @@ export default function AccountSuccessScreen() {
   const route = useRoute();
   const user = route.params?.user || pendingUser;
 
-  const handleGoHome = () => {
+  const handleContinue = () => {
     signupComplete(user);
   };
 
@@ -29,10 +29,7 @@ export default function AccountSuccessScreen() {
         We are happy to have you. It's time to send, receive and track your expense.
       </Text>
       <View style={styles.spacer} />
-      <TouchableOpacity style={[styles.homeBtn, { backgroundColor: colors.cardBackground }]} onPress={handleGoHome}>
-        <House2 size={32} color="#FF8A65" />
-        <Text style={[styles.homeBtnText, { color: colors.textPrimary }]}>Navigate home</Text>
-      </TouchableOpacity>
+      <PrimaryButton text="Continue" onPress={handleContinue} style={styles.btn} />
     </View>
   );
 }
@@ -49,14 +46,5 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   spacer: { flex: 1 },
-  homeBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    paddingVertical: 16,
-    borderRadius: 12,
-    marginBottom: 30,
-  },
-  homeBtnText: { fontSize: 16, fontWeight: '600' },
+  btn: { marginBottom: 30 },
 });

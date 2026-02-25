@@ -23,8 +23,7 @@
       "package": "com.rexipay.app"
     },
     "plugins": [
-      "@react-native-community/datetimepicker",
-    "expo-updates"
+      "@react-native-community/datetimepicker"
     ]
   }
 }

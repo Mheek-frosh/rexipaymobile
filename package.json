@@ -12,6 +12,7 @@
     "share": "npm run --prefix rn share"
   },
   "dependencies": {
-    "expo": "^54.0.33"
+    "expo": "^54.0.33",
+    "expo-dev-client": "~6.0.20"
   }
 }

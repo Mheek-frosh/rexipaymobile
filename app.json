@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "ios": {
+      "bundleIdentifier": "rexiapp",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.rexipay.mobile"
+    }
+  }
+}
