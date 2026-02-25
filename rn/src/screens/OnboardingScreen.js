@@ -207,24 +207,12 @@ const styles = StyleSheet.create({
   },
   slideContainer: {
     flex: 1,
-    paddingHorizontal: 20,
+    width: SCREEN_WIDTH,
   },
   slide: {
     flex: 1,
-    borderRadius: 20,
-    overflow: 'hidden',
-    backgroundColor: '#1a1a1a',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 12,
-      },
-      android: {
-        elevation: 6,
-      },
-    }),
+    width: '100%',
+    height: '100%',
   },
   slideImage: {
     ...StyleSheet.absoluteFillObject,
