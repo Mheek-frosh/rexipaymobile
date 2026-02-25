@@ -20,6 +20,6 @@ export default function SegmentedProgressBar({ totalSteps = 4, currentStep = 1 }
 }
 
 const styles = StyleSheet.create({
-  container: { flexDirection: 'row', gap: 8 },
-  segment: { flex: 1, height: 4, borderRadius: 2 },
+  container: { flexDirection: 'row', gap: 6 },
+  segment: { flex: 1, height: 6, borderRadius: 3 },
 });

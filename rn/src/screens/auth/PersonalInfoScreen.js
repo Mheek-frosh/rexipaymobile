@@ -7,6 +7,8 @@ import {
   StyleSheet,
   ScrollView,
   Platform,
+  KeyboardAvoidingView,
+  SafeAreaView,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
@@ -50,83 +52,91 @@ export default function PersonalInfoScreen() {
   };
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={styles.scroll}
-      keyboardShouldPersistTaps="handled"
-    >
-      <SegmentedProgressBar totalSteps={4} currentStep={2} />
-      <Text style={[styles.title, { color: colors.textPrimary }]}>Personal Info</Text>
-      <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-        This info needs to be accurate with your ID document.
-      </Text>
-
-      <Text style={[styles.label, { color: colors.textPrimary }]}>Full Name</Text>
-      <TextInput
-        style={[styles.input, { color: colors.textPrimary, borderColor: colors.border }]}
-        placeholder="Michael Usidamen"
-        placeholderTextColor={colors.textSecondary}
-        value={fullName}
-        onChangeText={setFullName}
-      />
-
-      <Text style={[styles.label, { color: colors.textPrimary }]}>Username</Text>
-      <TextInput
-        style={[styles.input, { color: colors.textPrimary, borderColor: colors.border }]}
-        placeholder="Mheek Frosh"
-        placeholderTextColor={colors.textSecondary}
-        value={username}
-        onChangeText={setUsername}
-      />
-
-      <Text style={[styles.label, { color: colors.textPrimary }]}>Date of Birth</Text>
-      <TouchableOpacity
-        style={[styles.input, styles.dateTouch, { borderColor: colors.border }]}
-        onPress={() => setShowDobPicker(true)}
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Text style={[styles.dateText, { color: dobDate ? colors.textPrimary : colors.textSecondary }]}>
-          {dobDate ? formatDate(dobDate) : 'MM/DD/YYYY'}
-        </Text>
-        <MaterialIcons name="calendar-today" size={20} color={colors.textSecondary} />
-      </TouchableOpacity>
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <SegmentedProgressBar totalSteps={4} currentStep={2} />
+          <Text style={[styles.title, { color: colors.textPrimary }]}>Personal Info</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+            This info needs to be accurate with your ID document.
+          </Text>
 
-      {showDobPicker && (
-        <DateTimePicker
-          value={dobDate || new Date(2000, 0, 1)}
-          mode="date"
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          onChange={onDobChange}
-          maximumDate={new Date()}
-        />
-      )}
-      {Platform.OS === 'ios' && showDobPicker && (
-        <TouchableOpacity style={styles.iosDateDone} onPress={() => setShowDobPicker(false)}>
-          <Text style={{ color: colors.primary, fontSize: 16, fontWeight: '600' }}>Done</Text>
-        </TouchableOpacity>
-      )}
+          <Text style={[styles.label, { color: colors.textPrimary }]}>Full Name</Text>
+          <TextInput
+            style={[styles.input, { color: colors.textPrimary, borderColor: colors.border }]}
+            placeholder="Michael Usidamen"
+            placeholderTextColor={colors.textSecondary}
+            value={fullName}
+            onChangeText={setFullName}
+          />
 
-      <View style={styles.spacer} />
-      <PrimaryButton text="Continue" onPress={handleContinue} style={styles.btn} />
-    </ScrollView>
+          <Text style={[styles.label, { color: colors.textPrimary }]}>Username</Text>
+          <TextInput
+            style={[styles.input, { color: colors.textPrimary, borderColor: colors.border }]}
+            placeholder="Mheek Frosh"
+            placeholderTextColor={colors.textSecondary}
+            value={username}
+            onChangeText={setUsername}
+          />
+
+          <Text style={[styles.label, { color: colors.textPrimary }]}>Date of Birth</Text>
+          <TouchableOpacity
+            style={[styles.input, styles.dateTouch, { borderColor: colors.border }]}
+            onPress={() => setShowDobPicker(true)}
+          >
+            <Text style={[styles.dateText, { color: dobDate ? colors.textPrimary : colors.textSecondary }]}>
+              {dobDate ? formatDate(dobDate) : 'MM/DD/YYYY'}
+            </Text>
+            <MaterialIcons name="calendar-today" size={20} color={colors.textSecondary} />
+          </TouchableOpacity>
+
+          {showDobPicker && (
+            <DateTimePicker
+              value={dobDate || new Date(2000, 0, 1)}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={onDobChange}
+              maximumDate={new Date()}
+            />
+          )}
+          {Platform.OS === 'ios' && showDobPicker && (
+            <TouchableOpacity style={styles.iosDateDone} onPress={() => setShowDobPicker(false)}>
+              <Text style={{ color: colors.primary, fontSize: 16, fontWeight: '600' }}>Done</Text>
+            </TouchableOpacity>
+          )}
+
+          <View style={styles.spacer} />
+          <PrimaryButton text="Continue" onPress={handleContinue} style={styles.btn} />
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scroll: { padding: 20, paddingBottom: 40 },
-  title: { fontSize: 28, fontWeight: '700', marginTop: 40 },
+  flex: { flex: 1 },
+  scroll: { flexGrow: 1, padding: 20, paddingBottom: 40 },
+  title: { fontSize: 28, fontWeight: '700', marginTop: 24 },
   subtitle: { fontSize: 15, marginTop: 10 },
-  label: { fontSize: 14, fontWeight: '600', marginTop: 20, marginBottom: 8 },
+  label: { fontSize: 15, fontWeight: '600', marginTop: 24, marginBottom: 12 },
   input: {
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 15,
-    fontSize: 16,
+    paddingVertical: 16,
+    fontSize: 15,
   },
   dateTouch: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   dateText: { fontSize: 16 },
   iosDateDone: { marginTop: 12, alignItems: 'flex-end' },
-  spacer: { flex: 1, minHeight: 40 },
+  spacer: { flex: 1, minHeight: 120 },
   btn: { marginTop: 20 },
 });

@@ -163,8 +163,8 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   flex: { flex: 1 },
-  scroll: { padding: 20, paddingBottom: 40 },
-  title: { fontSize: 28, fontWeight: '700', marginTop: 40 },
+  scroll: { flexGrow: 1, padding: 20, paddingBottom: 40 },
+  title: { fontSize: 28, fontWeight: '700', marginTop: 24 },
   subtitle: { fontSize: 15, marginTop: 10 },
   label: { fontSize: 15, fontWeight: '600', marginTop: 24, marginBottom: 12 },
   input: {
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   passwordWrap: { position: 'relative' },
   passwordInput: { paddingRight: 48 },
   eyeBtn: { position: 'absolute', right: 14, top: 0, bottom: 0, justifyContent: 'center' },
-  spacer: { flex: 1, minHeight: 40 },
+  spacer: { flex: 1, minHeight: 120 },
   btn: { marginTop: 20 },
   linkWrap: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
   linkText: { fontSize: 15 },

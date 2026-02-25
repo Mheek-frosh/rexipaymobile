@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  SafeAreaView,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
@@ -59,71 +60,73 @@ export default function NINAndFaceScreen() {
   };
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={styles.scroll}
-      keyboardShouldPersistTaps="handled"
-    >
-      <SegmentedProgressBar totalSteps={4} currentStep={3} />
-      <Text style={[styles.title, { color: colors.textPrimary }]}>Verify Identity</Text>
-      <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-        Upload your NIN and scan your face to complete verification.
-      </Text>
-
-      <Text style={[styles.label, { color: colors.textPrimary }]}>NIN Document</Text>
-      <TouchableOpacity
-        style={[styles.uploadBox, { borderColor: colors.border, backgroundColor: colors.cardBackground }]}
-        onPress={handleUploadNIN}
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        {ninUploaded ? (
-          <View style={styles.uploaded}>
-            <MaterialIcons name="check-circle" size={40} color={colors.success} />
-            <Text style={[styles.uploadedText, { color: colors.textPrimary }]}>NIN uploaded</Text>
-          </View>
-        ) : (
-          <>
-            <MaterialIcons name="cloud-upload" size={48} color={colors.textSecondary} />
-            <Text style={[styles.uploadText, { color: colors.textPrimary }]}>Tap to upload NIN</Text>
-            <Text style={[styles.uploadHint, { color: colors.textSecondary }]}>Image or PDF</Text>
-          </>
-        )}
-      </TouchableOpacity>
+        <SegmentedProgressBar totalSteps={4} currentStep={3} />
+        <Text style={[styles.title, { color: colors.textPrimary }]}>Verify Identity</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+          Upload your NIN and scan your face to complete verification.
+        </Text>
 
-      <Text style={[styles.label, { color: colors.textPrimary }]}>Face verification</Text>
-      <TouchableOpacity
-        style={[
-          styles.uploadBox,
-          { borderColor: colors.border, backgroundColor: colors.cardBackground },
-          faceScanned && { borderColor: colors.success },
-        ]}
-        onPress={handleScanFace}
-      >
-        {faceScanned ? (
-          <View style={styles.uploaded}>
-            <MaterialIcons name="face-retouching-natural" size={40} color={colors.success} />
-            <Text style={[styles.uploadedText, { color: colors.textPrimary }]}>Face verified</Text>
-          </View>
-        ) : (
-          <>
-            <MaterialIcons name="face" size={48} color={colors.textSecondary} />
-            <Text style={[styles.uploadText, { color: colors.textPrimary }]}>Tap to scan face</Text>
-            <Text style={[styles.uploadHint, { color: colors.textSecondary }]}>Uses device camera / Face ID</Text>
-          </>
-        )}
-      </TouchableOpacity>
+        <Text style={[styles.label, { color: colors.textPrimary }]}>NIN Document</Text>
+        <TouchableOpacity
+          style={[styles.uploadBox, { borderColor: colors.border, backgroundColor: colors.cardBackground }]}
+          onPress={handleUploadNIN}
+        >
+          {ninUploaded ? (
+            <View style={styles.uploaded}>
+              <MaterialIcons name="check-circle" size={40} color={colors.success} />
+              <Text style={[styles.uploadedText, { color: colors.textPrimary }]}>NIN uploaded</Text>
+            </View>
+          ) : (
+            <>
+              <MaterialIcons name="cloud-upload" size={48} color={colors.textSecondary} />
+              <Text style={[styles.uploadText, { color: colors.textPrimary }]}>Tap to upload NIN</Text>
+              <Text style={[styles.uploadHint, { color: colors.textSecondary }]}>Image or PDF</Text>
+            </>
+          )}
+        </TouchableOpacity>
 
-      <View style={styles.spacer} />
-      <PrimaryButton text="Continue" onPress={handleContinue} style={styles.btn} />
-    </ScrollView>
+        <Text style={[styles.label, { color: colors.textPrimary }]}>Face verification</Text>
+        <TouchableOpacity
+          style={[
+            styles.uploadBox,
+            { borderColor: colors.border, backgroundColor: colors.cardBackground },
+            faceScanned && { borderColor: colors.success },
+          ]}
+          onPress={handleScanFace}
+        >
+          {faceScanned ? (
+            <View style={styles.uploaded}>
+              <MaterialIcons name="face-retouching-natural" size={40} color={colors.success} />
+              <Text style={[styles.uploadedText, { color: colors.textPrimary }]}>Face verified</Text>
+            </View>
+          ) : (
+            <>
+              <MaterialIcons name="face" size={48} color={colors.textSecondary} />
+              <Text style={[styles.uploadText, { color: colors.textPrimary }]}>Tap to scan face</Text>
+              <Text style={[styles.uploadHint, { color: colors.textSecondary }]}>Uses device camera / Face ID</Text>
+            </>
+          )}
+        </TouchableOpacity>
+
+        <View style={styles.spacer} />
+        <PrimaryButton text="Continue" onPress={handleContinue} style={styles.btn} />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scroll: { padding: 20, paddingBottom: 40 },
-  title: { fontSize: 28, fontWeight: '700', marginTop: 40 },
+  scroll: { flexGrow: 1, padding: 20, paddingBottom: 40 },
+  title: { fontSize: 28, fontWeight: '700', marginTop: 24 },
   subtitle: { fontSize: 15, marginTop: 10 },
-  label: { fontSize: 14, fontWeight: '600', marginTop: 24, marginBottom: 8 },
+  label: { fontSize: 15, fontWeight: '600', marginTop: 24, marginBottom: 12 },
   uploadBox: {
     borderWidth: 2,
     borderRadius: 16,
@@ -136,6 +139,6 @@ const styles = StyleSheet.create({
   uploadHint: { fontSize: 13, marginTop: 4 },
   uploaded: { alignItems: 'center' },
   uploadedText: { fontSize: 15, fontWeight: '600', marginTop: 8 },
-  spacer: { flex: 1, minHeight: 40 },
+  spacer: { flex: 1, minHeight: 120 },
   btn: { marginTop: 20 },
 });
