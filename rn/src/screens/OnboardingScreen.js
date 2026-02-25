@@ -3,168 +3,169 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   Dimensions,
-  SafeAreaView,
-  Platform,
-  Animated,
   TouchableOpacity,
+  Platform,
+  ScrollView,
+  Image,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import LottieView from 'lottie-react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import PrimaryButton from '../components/PrimaryButton';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const LOTTIE_SIZE = Math.min(SCREEN_WIDTH * 0.75, 320);
+const ACCENT = '#007AFF';
 
-const SLIDES = [
+export const carouselItems = [
   {
     id: '1',
-    title: 'Send money in seconds',
-    subtitle: 'Transfer to any bank or RexiPay user instantly. No hidden fees, no waiting.',
-    lottie: require('../../assets/lottie/onboarding-send.json'),
+    imageUri:
+      'https://plus.unsplash.com/premium_photo-1663088910348-ec43f3e595e2?q=80&w=2409&auto=format&fit=crop',
+    icon: 'security',
+    headerHighlight: 'Your Security',
+    headerRest: 'Comes First',
+    subHeader: 'Bank-Grade Protection',
+    description:
+      'We use military-grade encryption to keep your money and personal information completely safe. Your trust is our top priority.',
   },
   {
     id: '2',
-    title: 'Bank securely',
-    subtitle: 'Your money is protected with bank-level security and biometric verification.',
-    lottie: require('../../assets/lottie/onboarding-secure.json'),
+    imageUri:
+      'https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?q=80&w=987&auto=format&fit=crop',
+    icon: 'phone-iphone',
+    headerHighlight: 'Financial Control',
+    headerRest: 'In Your Hands',
+    subHeader: 'Access Your Money Anytime',
+    description:
+      'Send money, pay bills, and manage investments even without internet. We keep essential services available offline when you need them most.',
   },
   {
     id: '3',
-    title: 'Track every transaction',
-    subtitle: 'See your spending at a glance. Stay in control with real-time updates.',
-    lottie: require('../../assets/lottie/onboarding-track.json'),
+    imageUri:
+      'https://images.unsplash.com/photo-1553877522-43269d4ea984?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+    icon: 'people',
+    headerHighlight: "We're Here",
+    headerRest: 'For You',
+    subHeader: '24/7 Human Support',
+    description:
+      "Real people ready to help whenever you need assistance. From account questions to investment advice, we're just a tap away.",
   },
 ];
+
+function CarouselSlide({ item }) {
+  return (
+    <View style={styles.slide}>
+      <Image source={{ uri: item.imageUri }} style={styles.slideImage} resizeMode="cover" />
+      <View style={styles.imageOverlay} />
+      <View style={styles.content}>
+        <View style={styles.iconWrap}>
+          <MaterialIcons name={item.icon} size={36} color={ACCENT} />
+        </View>
+        <Text style={styles.header}>
+          <Text style={styles.headerHighlight}>{item.headerHighlight}</Text>
+          <Text style={styles.headerRest}> {item.headerRest}</Text>
+        </Text>
+        <Text style={styles.subHeader}>{item.subHeader}</Text>
+        <Text style={styles.description}>{item.description}</Text>
+      </View>
+    </View>
+  );
+}
 
 export default function OnboardingScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation();
-  const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef(null);
-  const lottieRefs = useRef([]);
-  const fadeAnim = useRef(new Animated.Value(1)).current;
-  const scaleAnim = useRef(new Animated.Value(0.96)).current;
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  // Infinite loop: render [last, ...items, first] so we have 5 pages
+  const loopData = [carouselItems[2], carouselItems[0], carouselItems[1], carouselItems[2], carouselItems[0]];
 
   useEffect(() => {
-    const ref = lottieRefs.current[activeIndex];
-    if (ref) {
-      ref.play?.();
-    }
-  }, [activeIndex]);
+    const t = setTimeout(() => {
+      scrollRef.current?.scrollTo({ x: SCREEN_WIDTH, animated: false });
+    }, 50);
+    return () => clearTimeout(t);
+  }, []);
 
-  const onScroll = (e) => {
-    const offsetX = e.nativeEvent.contentOffset.x;
-    const index = Math.round(offsetX / SCREEN_WIDTH);
-    if (index >= 0 && index < SLIDES.length && index !== activeIndex) {
-      setActiveIndex(index);
+  const handleScroll = (e) => {
+    const x = e.nativeEvent.contentOffset.x;
+    const page = Math.round(x / SCREEN_WIDTH);
+    const realIndex = page === 0 ? 2 : page === 4 ? 0 : page - 1;
+    setActiveIndex(realIndex);
+  };
+
+  const handleMomentumScrollEnd = (e) => {
+    const x = e.nativeEvent.contentOffset.x;
+    const page = Math.round(x / SCREEN_WIDTH);
+    if (page === 0) {
+      scrollRef.current?.scrollTo({ x: SCREEN_WIDTH * 3, animated: false });
+      setActiveIndex(2);
+    } else if (page === 4) {
+      scrollRef.current?.scrollTo({ x: SCREEN_WIDTH, animated: false });
+      setActiveIndex(0);
     }
   };
 
   const handleGetStarted = () => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 1.02,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start(() => navigation.replace('Signup'));
+    navigation.replace('Signup');
+  };
+
+  const handleSkip = () => {
+    navigation.replace('Signup');
   };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <SafeAreaView style={styles.safe}>
-        <TouchableOpacity
-          style={styles.skipWrap}
-          onPress={() => navigation.replace('Signup')}
-          activeOpacity={0.7}
-        >
-          <Text style={[styles.skipText, { color: colors.textSecondary }]}>Skip</Text>
+      <SafeAreaView style={styles.topSafe} edges={['top']}>
+        <TouchableOpacity style={styles.skipBtn} onPress={handleSkip} activeOpacity={0.8}>
+          <Text style={styles.skipText}>Skip</Text>
         </TouchableOpacity>
-        <ScrollView
-          ref={scrollRef}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={onScroll}
-          onScroll={onScroll}
-          scrollEventThrottle={16}
-          decelerationRate="fast"
-          contentContainerStyle={styles.carousel}
-          bounces={false}
-        >
-          {SLIDES.map((slide, index) => (
-            <View key={slide.id} style={[styles.slide, { width: SCREEN_WIDTH }]}>
-              <View style={[styles.lottieGlow, { backgroundColor: colors.primaryLight }]}>
-                <View
-                  style={[
-                    styles.lottieCard,
-                    {
-                      backgroundColor: colors.cardBackground,
-                      shadowColor: colors.textPrimary,
-                    },
-                  ]}
-                >
-                <LottieView
-                  ref={(el) => (lottieRefs.current[index] = el)}
-                  source={slide.lottie}
-                  style={styles.lottie}
-                  loop
-                  autoPlay
-                />
-                </View>
-              </View>
-              <View style={styles.textWrap}>
-                <Text style={[styles.title, { color: colors.textPrimary }]}>
-                  {slide.title}
-                </Text>
-                <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                  {slide.subtitle}
-                </Text>
-              </View>
-            </View>
-          ))}
-        </ScrollView>
-
-        <Animated.View
-          style={[
-            styles.footer,
-            {
-              opacity: fadeAnim,
-              transform: [{ scale: scaleAnim }],
-            },
-          ]}
-        >
-          <View style={styles.dots}>
-            {SLIDES.map((_, i) => (
-              <View
-                key={i}
-                style={[
-                  styles.dot,
-                  {
-                    backgroundColor: i === activeIndex ? colors.primary : colors.border,
-                    width: i === activeIndex ? 28 : 10,
-                    opacity: i === activeIndex ? 1 : 0.5,
-                  },
-                ]}
-              />
-            ))}
-          </View>
-          <PrimaryButton
-            text="Get started"
-            onPress={handleGetStarted}
-            style={styles.getStartedBtn}
-          />
-        </Animated.View>
       </SafeAreaView>
+
+      <ScrollView
+        ref={scrollRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onScroll={handleScroll}
+        onMomentumScrollEnd={handleMomentumScrollEnd}
+        scrollEventThrottle={16}
+        contentContainerStyle={styles.carousel}
+        bounces={false}
+        decelerationRate="fast"
+      >
+        {loopData.map((item, index) => (
+          <View key={`${item.id}-${index}`} style={[styles.slideContainer, { width: SCREEN_WIDTH }]}>
+            <CarouselSlide item={item} />
+          </View>
+        ))}
+      </ScrollView>
+
+      <View style={styles.footer}>
+        <View style={styles.dots}>
+          {carouselItems.map((_, i) => (
+            <View
+              key={i}
+              style={[
+                styles.dot,
+                {
+                  backgroundColor: i === activeIndex ? colors.primary : colors.border,
+                  width: i === activeIndex ? 24 : 8,
+                },
+              ]}
+            />
+          ))}
+        </View>
+        <PrimaryButton
+          text="Get started"
+          onPress={handleGetStarted}
+          style={styles.getStartedBtn}
+        />
+      </View>
     </View>
   );
 }
@@ -173,97 +174,121 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  safe: {
-    flex: 1,
+  topSafe: {
+    alignSelf: 'stretch',
+    alignItems: 'flex-end',
   },
-  skipWrap: {
-    position: 'absolute',
-    top: Platform.OS === 'ios' ? 56 : 44,
-    right: 28,
-    zIndex: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-  },
-  skipText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  carousel: {
-    flexGrow: 1,
-    paddingBottom: 8,
-  },
-  slide: {
-    flex: 1,
-    paddingHorizontal: 28,
-    paddingTop: Platform.OS === 'ios' ? 16 : 28,
-    paddingBottom: 20,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-  },
-  lottieGlow: {
-    width: LOTTIE_SIZE + 24,
-    height: LOTTIE_SIZE + 24,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 4,
-  },
-  lottieCard: {
-    width: LOTTIE_SIZE,
-    height: LOTTIE_SIZE,
-    borderRadius: 28,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
+  skipBtn: {
+    marginRight: 24,
+    marginTop: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    borderRadius: 24,
     ...Platform.select({
       ios: {
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.06,
-        shadowRadius: 24,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
       },
       android: {
-        elevation: 8,
+        elevation: 4,
       },
     }),
   },
-  lottie: {
-    width: LOTTIE_SIZE * 1.1,
-    height: LOTTIE_SIZE * 1.1,
-  },
-  textWrap: {
-    paddingTop: 32,
-    paddingHorizontal: 8,
-    alignItems: 'center',
-    maxWidth: 320,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: '800',
-    marginBottom: 14,
-    letterSpacing: 0.2,
-    textAlign: 'center',
-  },
-  subtitle: {
+  skipText: {
     fontSize: 16,
-    lineHeight: 26,
-    opacity: 0.9,
-    textAlign: 'center',
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  carousel: {
+    flexGrow: 1,
+  },
+  slideContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  slide: {
+    flex: 1,
+    borderRadius: 20,
+    overflow: 'hidden',
+    backgroundColor: '#1a1a1a',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
+      },
+      android: {
+        elevation: 6,
+      },
+    }),
+  },
+  slideImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
+  },
+  imageOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    padding: 24,
+    paddingBottom: 28,
+  },
+  iconWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(0,122,255,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: '700',
+    marginBottom: 8,
+    lineHeight: 32,
+  },
+  headerHighlight: {
+    color: ACCENT,
+  },
+  headerRest: {
+    color: '#FFF',
+  },
+  subHeader: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: 'rgba(255,255,255,0.9)',
+    marginBottom: 10,
+  },
+  description: {
+    fontSize: 14,
+    lineHeight: 22,
+    color: 'rgba(255,255,255,0.75)',
   },
   footer: {
-    paddingHorizontal: 28,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 28,
+    paddingHorizontal: 24,
     paddingTop: 20,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 28,
+    backgroundColor: 'transparent',
   },
   dots: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 28,
+    marginBottom: 24,
   },
   dot: {
-    height: 10,
-    borderRadius: 5,
-    marginHorizontal: 5,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 4,
   },
   getStartedBtn: {
     borderRadius: 16,
@@ -276,7 +301,7 @@ const styles = StyleSheet.create({
         shadowRadius: 12,
       },
       android: {
-        elevation: 4,
+        elevation: 6,
       },
     }),
   },
