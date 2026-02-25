@@ -65,12 +65,28 @@ export default function RootNavigator() {
       screenOptions={{ headerShown: false }}
     >
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-      <Stack.Screen name="Signup" component={SignupScreen} />
+      <Stack.Screen
+        name="Signup"
+        component={SignupScreen}
+        options={{ animation: 'fade', animationDuration: 300 }}
+      />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="OtpVerification" component={OtpVerificationScreen} />
-      <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
-      <Stack.Screen name="NINAndFace" component={NINAndFaceScreen} />
-      <Stack.Screen name="AccountSuccess" component={AccountSuccessScreen} />
+      <Stack.Screen
+        name="PersonalInfo"
+        component={PersonalInfoScreen}
+        options={{ animation: 'fade', animationDuration: 300 }}
+      />
+      <Stack.Screen
+        name="NINAndFace"
+        component={NINAndFaceScreen}
+        options={{ animation: 'fade', animationDuration: 300 }}
+      />
+      <Stack.Screen
+        name="AccountSuccess"
+        component={AccountSuccessScreen}
+        options={{ animation: 'fade', animationDuration: 300 }}
+      />
     </Stack.Navigator>
   );
 }
