@@ -8,6 +8,9 @@ import OtpVerificationScreen from '../screens/auth/OtpVerificationScreen';
 import PersonalInfoScreen from '../screens/auth/PersonalInfoScreen';
 import NINAndFaceScreen from '../screens/auth/NINAndFaceScreen';
 import AccountSuccessScreen from '../screens/auth/AccountSuccessScreen';
+import ForgotPasswordPhoneScreen from '../screens/auth/ForgotPasswordPhoneScreen';
+import ForgotPasswordOtpScreen from '../screens/auth/ForgotPasswordOtpScreen';
+import ForgotPasswordSetPasswordScreen from '../screens/auth/ForgotPasswordSetPasswordScreen';
 import MainTabs from './MainTabs';
 import TransferScreen from '../screens/TransferScreen';
 import TransactionsScreen from '../screens/TransactionsScreen';
@@ -27,6 +30,9 @@ import AddMoneyScreen from '../screens/AddMoneyScreen';
 import SendCryptoScreen from '../screens/SendCryptoScreen';
 import SendCryptoAssetScreen from '../screens/SendCryptoAssetScreen';
 import TransactionDetailScreen from '../screens/TransactionDetailScreen';
+import ForgotPinPhoneScreen from '../screens/ForgotPinPhoneScreen';
+import ForgotPinOtpScreen from '../screens/ForgotPinOtpScreen';
+import ForgotPinSetPinScreen from '../screens/ForgotPinSetPinScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -55,6 +61,9 @@ export default function RootNavigator() {
         <Stack.Screen name="SendCrypto" component={SendCryptoScreen} />
         <Stack.Screen name="SendCryptoAsset" component={SendCryptoAssetScreen} />
         <Stack.Screen name="TransactionDetail" component={TransactionDetailScreen} />
+        <Stack.Screen name="ForgotPinPhone" component={ForgotPinPhoneScreen} />
+        <Stack.Screen name="ForgotPinOtp" component={ForgotPinOtpScreen} />
+        <Stack.Screen name="ForgotPinSetPin" component={ForgotPinSetPinScreen} />
       </Stack.Navigator>
     );
   }
@@ -87,6 +96,9 @@ export default function RootNavigator() {
         component={AccountSuccessScreen}
         options={{ animation: 'fade', animationDuration: 300 }}
       />
+      <Stack.Screen name="ForgotPasswordPhone" component={ForgotPasswordPhoneScreen} />
+      <Stack.Screen name="ForgotPasswordOtp" component={ForgotPasswordOtpScreen} />
+      <Stack.Screen name="ForgotPasswordSetPassword" component={ForgotPasswordSetPasswordScreen} />
     </Stack.Navigator>
   );
 }

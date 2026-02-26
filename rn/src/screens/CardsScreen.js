@@ -11,6 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import PinEntryModal from '../components/PinEntryModal';
+import { CardDetailsBottomSheet } from '../components/BottomSheet';
 
 const { width } = Dimensions.get('window');
 
@@ -20,6 +21,7 @@ export default function CardsScreen() {
   const [selectedTab, setSelectedTab] = useState(0);
   const [showCardDetails, setShowCardDetails] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
+  const [showCardDetailsSheet, setShowCardDetailsSheet] = useState(false);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -107,7 +109,16 @@ export default function CardsScreen() {
           onSuccess={() => {
             setShowPinModal(false);
             setShowCardDetails(true);
+            setShowCardDetailsSheet(true);
           }}
+        />
+
+        <CardDetailsBottomSheet
+          visible={showCardDetailsSheet}
+          onClose={() => setShowCardDetailsSheet(false)}
+          cardNumber="5355  4200  1234  5678"
+          validThru="**/**"
+          cardName="USIDAMEN OZELUAH MIKE"
         />
 
         {/* Limit Settings */}

@@ -1,16 +1,31 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Modal, StyleSheet, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, StyleSheet, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as LocalAuthentication from 'expo-local-authentication';
 import { useTheme } from '../theme/ThemeContext';
 
-export default function PinEntryModal({ visible, onSuccess, onCancel, title = 'Enter PIN' }) {
+export default function PinEntryModal({
+  visible,
+  onSuccess,
+  onCancel,
+  onForgotPin,
+  title = 'Enter PIN',
+}) {
   const { colors } = useTheme();
   const [pin, setPin] = useState('');
-  const shakeAnim = useRef(new Animated.Value(0)).current;
-  const KEYS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 'face', 0, 'back'];
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const KEYS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 'bio', 0, 'back'];
 
   useEffect(() => {
     if (!visible) setPin('');
+  }, [visible]);
+
+  useEffect(() => {
+    let mounted = true;
+    LocalAuthentication.getEnrolledLevelAsync().then((level) => {
+      if (mounted) setBiometricAvailable(level !== LocalAuthentication.SecurityLevel.NONE);
+    });
+    return () => { mounted = false; };
   }, [visible]);
 
   const handleDigit = (d) => {
@@ -18,37 +33,36 @@ export default function PinEntryModal({ visible, onSuccess, onCancel, title = 'E
     const newPin = pin + d;
     setPin(newPin);
     if (newPin.length === 4) {
-      // Simulate PIN verification - in real app would verify
       setTimeout(() => onSuccess(), 300);
     }
   };
 
   const handleBackspace = () => setPin((p) => p.slice(0, -1));
 
-  const handleKeyPress = (d) => {
-    if (d === 'back') {
-      handleBackspace();
-    } else if (d === 'face') {
-      // In a real app this would trigger biometric auth
-      onSuccess();
-    } else if (typeof d === 'number') {
-      handleDigit(String(d));
-    }
+  const handleBiometric = async () => {
+    try {
+      const { success } = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Authenticate to continue',
+      });
+      if (success) onSuccess();
+    } catch (_) {}
   };
 
-  const handleShake = () => {
-    Animated.sequence([
-      Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: -10, duration: 50, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: 5, duration: 50, useNativeDriver: true }),
-      Animated.timing(shakeAnim, { toValue: 0, duration: 50, useNativeDriver: true }),
-    ]).start();
+  const handleKeyPress = (d) => {
+    if (d === 'back') handleBackspace();
+    else if (d === 'bio' && biometricAvailable) handleBiometric();
+    else if (typeof d === 'number') handleDigit(String(d));
+  };
+
+  const handleForgotPin = () => {
+    onCancel?.();
+    onForgotPin?.();
   };
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
+    <Modal visible={visible} transparent animationType="slide">
       <View style={styles.overlay}>
-        <View style={[styles.modal, { backgroundColor: colors.background }]}>
+        <View style={[styles.modal, { backgroundColor: colors.cardBackground }]}>
           <View style={styles.headerRow}>
             <Text style={[styles.title, { color: colors.textPrimary }]}>{title}</Text>
             <TouchableOpacity
@@ -65,9 +79,7 @@ export default function PinEntryModal({ visible, onSuccess, onCancel, title = 'E
                 key={i}
                 style={[
                   styles.pinBox,
-                  {
-                    borderColor: i < pin.length ? colors.primary : colors.border,
-                  },
+                  { borderColor: i < pin.length ? colors.primary : colors.border },
                 ]}
               >
                 {i < pin.length && (
@@ -77,31 +89,39 @@ export default function PinEntryModal({ visible, onSuccess, onCancel, title = 'E
             ))}
           </View>
 
-          <TouchableOpacity style={styles.forgot} onPress={onCancel}>
-            <Text style={[styles.forgotText, { color: colors.primary }]}>Forgot PIN?</Text>
-          </TouchableOpacity>
+          {onForgotPin != null ? (
+            <TouchableOpacity style={styles.forgot} onPress={handleForgotPin}>
+              <Text style={[styles.forgotText, { color: colors.primary }]}>Forgot PIN?</Text>
+            </TouchableOpacity>
+          ) : null}
 
           <View style={styles.keypad}>
             {KEYS.map((d, i) => (
               <TouchableOpacity
                 key={i}
-                style={[styles.key, { backgroundColor: colors.surfaceVariant }]}
+                style={[
+                  styles.key,
+                  { backgroundColor: colors.surfaceVariant },
+                  d === 'bio' && !biometricAvailable && styles.keyDisabled,
+                ]}
                 onPress={() => handleKeyPress(d)}
                 activeOpacity={0.8}
+                disabled={d === 'bio' && !biometricAvailable}
               >
                 {d === 'back' ? (
-                  <MaterialIcons name="backspace" size={28} color={colors.textPrimary} />
-                ) : d === 'face' ? (
-                  <MaterialIcons name="tag-faces" size={32} color={colors.textPrimary} />
+                  <MaterialIcons name="backspace" size={26} color={colors.textPrimary} />
+                ) : d === 'bio' ? (
+                  Platform.OS === 'ios' ? (
+                    <MaterialIcons name="face" size={28} color={colors.textPrimary} />
+                  ) : (
+                    <MaterialIcons name="fingerprint" size={32} color={colors.textPrimary} />
+                  )
                 ) : (
                   <Text style={[styles.keyText, { color: colors.textPrimary }]}>{d}</Text>
                 )}
               </TouchableOpacity>
             ))}
           </View>
-          <TouchableOpacity onPress={onCancel} style={styles.cancel}>
-            <Text style={[styles.cancelText, { color: colors.textSecondary }]}>Cancel</Text>
-          </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -161,6 +181,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   keyText: { fontSize: 24, fontWeight: '600' },
-  cancel: { alignItems: 'center', marginTop: 24 },
-  cancelText: { fontSize: 16 },
+  keyDisabled: { opacity: 0.4 },
 });
