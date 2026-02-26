@@ -15,7 +15,8 @@ const MOCK_TRANSACTIONS = [
 
 function getTransactionIcon(type) {
   if (type === 'airtime') return 'phone-android';
-  return 'call-received';
+  if (type === 'sent') return 'arrow-upward';
+  return 'arrow-downward';
 }
 
 function getIconColor(type, colors) {
@@ -36,7 +37,7 @@ export default function TransactionsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+      <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
         </TouchableOpacity>
@@ -101,7 +102,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 50,
     paddingBottom: 16,
-    borderBottomWidth: 1,
   },
   backBtn: { width: 40 },
   title: { fontSize: 18, fontWeight: '700' },
