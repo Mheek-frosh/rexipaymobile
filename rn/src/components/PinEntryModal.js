@@ -1,13 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Modal,
-  StyleSheet,
-  Animated,
-} from 'react-native';
+import { View, Text, TouchableOpacity, Modal, StyleSheet, Animated } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 
@@ -15,6 +7,7 @@ export default function PinEntryModal({ visible, onSuccess, onCancel, title = 'E
   const { colors } = useTheme();
   const [pin, setPin] = useState('');
   const shakeAnim = useRef(new Animated.Value(0)).current;
+  const KEYS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 'face', 0, 'back'];
 
   useEffect(() => {
     if (!visible) setPin('');
@@ -32,6 +25,17 @@ export default function PinEntryModal({ visible, onSuccess, onCancel, title = 'E
 
   const handleBackspace = () => setPin((p) => p.slice(0, -1));
 
+  const handleKeyPress = (d) => {
+    if (d === 'back') {
+      handleBackspace();
+    } else if (d === 'face') {
+      // In a real app this would trigger biometric auth
+      onSuccess();
+    } else if (typeof d === 'number') {
+      handleDigit(String(d));
+    }
+  };
+
   const handleShake = () => {
     Animated.sequence([
       Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
@@ -45,32 +49,50 @@ export default function PinEntryModal({ visible, onSuccess, onCancel, title = 'E
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={[styles.modal, { backgroundColor: colors.background }]}>
-          <Text style={[styles.title, { color: colors.textPrimary }]}>{title}</Text>
-          <View style={styles.dots}>
+          <View style={styles.headerRow}>
+            <Text style={[styles.title, { color: colors.textPrimary }]}>{title}</Text>
+            <TouchableOpacity
+              onPress={onCancel}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            >
+              <MaterialIcons name="close" size={24} color={colors.textPrimary} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.pinRow}>
             {[0, 1, 2, 3].map((i) => (
               <View
                 key={i}
                 style={[
-                  styles.dot,
+                  styles.pinBox,
                   {
-                    backgroundColor: i < pin.length ? colors.primary : colors.border,
+                    borderColor: i < pin.length ? colors.primary : colors.border,
                   },
                 ]}
-              />
+              >
+                {i < pin.length && (
+                  <View style={[styles.pinDot, { backgroundColor: colors.primary }]} />
+                )}
+              </View>
             ))}
           </View>
+
+          <TouchableOpacity style={styles.forgot} onPress={onCancel}>
+            <Text style={[styles.forgotText, { color: colors.primary }]}>Forgot PIN?</Text>
+          </TouchableOpacity>
+
           <View style={styles.keypad}>
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, '', 0, 'back'].map((d, i) => (
+            {KEYS.map((d, i) => (
               <TouchableOpacity
                 key={i}
                 style={[styles.key, { backgroundColor: colors.surfaceVariant }]}
-                onPress={() =>
-                  d === 'back' ? handleBackspace() : d !== '' ? handleDigit(String(d)) : null
-                }
-                disabled={d === ''}
+                onPress={() => handleKeyPress(d)}
+                activeOpacity={0.8}
               >
                 {d === 'back' ? (
                   <MaterialIcons name="backspace" size={28} color={colors.textPrimary} />
+                ) : d === 'face' ? (
+                  <MaterialIcons name="tag-faces" size={32} color={colors.textPrimary} />
                 ) : (
                   <Text style={[styles.keyText, { color: colors.textPrimary }]}>{d}</Text>
                 )}
@@ -98,18 +120,33 @@ const styles = StyleSheet.create({
     padding: 24,
     paddingBottom: 40,
   },
-  title: { fontSize: 18, fontWeight: '700', textAlign: 'center', marginBottom: 24 },
-  dots: {
+  headerRow: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 16,
-    marginBottom: 32,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 24,
   },
-  dot: {
+  title: { fontSize: 18, fontWeight: '700' },
+  pinRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  pinBox: {
+    width: 56,
+    height: 56,
+    borderRadius: 10,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pinDot: {
     width: 14,
     height: 14,
     borderRadius: 7,
   },
+  forgot: { alignItems: 'center', marginBottom: 24 },
+  forgotText: { fontSize: 14, fontWeight: '500' },
   keypad: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -117,9 +154,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   key: {
-    width: '30%',
-    aspectRatio: 1.5,
-    borderRadius: 12,
+    width: '28%',
+    aspectRatio: 1,
+    borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
   },

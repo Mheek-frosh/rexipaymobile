@@ -10,6 +10,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
+import PinEntryModal from '../components/PinEntryModal';
 
 const { width } = Dimensions.get('window');
 
@@ -18,6 +19,7 @@ export default function CardsScreen() {
   const navigation = useNavigation();
   const [selectedTab, setSelectedTab] = useState(0);
   const [showCardDetails, setShowCardDetails] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -92,14 +94,21 @@ export default function CardsScreen() {
           </View>
         </View>
 
-        <TouchableOpacity
-          style={styles.tapHint}
-          onPress={() => setShowCardDetails(!showCardDetails)}
-        >
-          <Text style={[styles.tapHintText, { color: colors.textSecondary }]}>
+        <TouchableOpacity style={styles.tapHint} onPress={() => setShowPinModal(true)}>
+          <Text style={[styles.tapHintText, { color: colors.primary }]}>
             Tap to see card details
           </Text>
         </TouchableOpacity>
+
+        <PinEntryModal
+          visible={showPinModal}
+          title="Enter Transaction PIN"
+          onCancel={() => setShowPinModal(false)}
+          onSuccess={() => {
+            setShowPinModal(false);
+            setShowCardDetails(true);
+          }}
+        />
 
         {/* Limit Settings */}
         <View style={[styles.limitCard, { backgroundColor: colors.cardBackground }]}>

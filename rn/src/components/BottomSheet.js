@@ -184,6 +184,95 @@ export function LogoutBottomSheet({ visible, onClose, onConfirm }) {
   );
 }
 
+export function CardDetailsBottomSheet({
+  visible,
+  onClose,
+  cardNumber = '5355  4200  1234  5678',
+  validThru = '**/**',
+  cardName = 'USIDAMEN OZELUAH MIKE',
+}) {
+  const { colors } = useTheme();
+  const slideAnim = React.useRef(new Animated.Value(height)).current;
+
+  React.useEffect(() => {
+    if (visible) {
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 65,
+        friction: 11,
+      }).start();
+    } else {
+      Animated.timing(slideAnim, {
+        toValue: height,
+        duration: 250,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [visible]);
+
+  return (
+    <Modal visible={visible} transparent animationType="fade">
+      <TouchableOpacity
+        style={styles.overlay}
+        activeOpacity={1}
+        onPress={onClose}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => {}}
+          style={{ width: '100%' }}
+        >
+          <Animated.View
+            style={[
+              styles.sheet,
+              { backgroundColor: colors.cardBackground },
+              { transform: [{ translateY: slideAnim }] },
+            ]}
+          >
+            <View style={[styles.handle, { backgroundColor: colors.border }]} />
+            <View style={styles.cardSheetHeader}>
+              <Text style={[styles.cardSheetTitle, { color: colors.textPrimary }]}>
+                Card Details
+              </Text>
+              <TouchableOpacity
+                onPress={onClose}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              >
+                <MaterialIcons name="close" size={24} color={colors.textPrimary} />
+              </TouchableOpacity>
+            </View>
+            <View style={[styles.detailRow, { borderBottomColor: colors.primary }]}>
+              <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>
+                Card number
+              </Text>
+              <Text style={[styles.detailValue, { color: colors.textPrimary }]}>
+                {cardNumber}
+              </Text>
+            </View>
+            <View style={[styles.detailRow, { borderBottomColor: colors.border }]}>
+              <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>
+                Valid thru
+              </Text>
+              <Text style={[styles.detailValue, { color: colors.textPrimary }]}>
+                {validThru}
+              </Text>
+            </View>
+            <View style={[styles.detailRow, { borderBottomColor: colors.border }]}>
+              <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>
+                Cardholder
+              </Text>
+              <Text style={[styles.detailValue, { color: colors.textPrimary }]}>
+                {cardName}
+              </Text>
+            </View>
+          </Animated.View>
+        </TouchableOpacity>
+      </TouchableOpacity>
+    </Modal>
+  );
+}
+
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
@@ -246,4 +335,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoutConfirmText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
+  cardSheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+  },
+  cardSheetTitle: { fontSize: 18, fontWeight: '700' },
+  detailRow: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    marginBottom: 8,
+  },
+  detailLabel: { fontSize: 12, marginBottom: 4 },
+  detailValue: { fontSize: 16, fontWeight: '600', letterSpacing: 1 },
 });
