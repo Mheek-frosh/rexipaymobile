@@ -8,7 +8,6 @@ import {
   Modal,
   Animated,
 } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
@@ -18,18 +17,22 @@ const PENDING_ORANGE_LIGHT = 'rgba(245, 158, 11, 0.15)';
 
 const PERIOD_OPTIONS = ['This Week', 'This Month', 'Last 3 Months', 'This Year'];
 
-const CHART_SIZE = 200;
-const STROKE_WIDTH = 28;
-const RADIUS = (CHART_SIZE - STROKE_WIDTH) / 2;
-const CENTER = CHART_SIZE / 2;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+// Monthly spending (for bar chart)
+const BAR_DATA = [
+  { month: 'Jan', total: 82000 },
+  { month: 'Feb', total: 64000 },
+  { month: 'Mar', total: 95500 },
+  { month: 'Apr', total: 73000 },
+  { month: 'May', total: 118000 },
+  { month: 'Jun', total: 90500 },
+];
 
-const SPENDING_DATA = [
-  { label: 'Food & Drink', color: '#FF6B6B', percent: 28, amount: '₦35,440' },
-  { label: 'Shopping', color: '#FFD166', percent: 22, amount: '₦27,845' },
-  { label: 'Transport', color: '#5B86FC', percent: 18, amount: '₦22,783' },
-  { label: 'Bills & Utilities', color: '#2EC4B6', percent: 16, amount: '₦20,251' },
-  { label: 'Others', color: '#7B61FF', percent: 16, amount: '₦20,251' },
+// Category legend for what money was spent on
+const CATEGORY_LEGEND = [
+  { label: 'Transfers', color: '#5B86FC', percent: 42 },
+  { label: 'Airtimes', color: '#FFD166', percent: 26 },
+  { label: 'ATM card debit', color: '#FF6B6B', percent: 20 },
+  { label: 'Others', color: '#7B61FF', percent: 12 },
 ];
 
 const RECENT_TRANSACTIONS = [
@@ -56,68 +59,55 @@ function getIconBg(type, colors) {
   return colors.primaryLight;
 }
 
-function AnimatedDonutChart({ data, colors }) {
-  const scaleAnim = useRef(new Animated.Value(0)).current;
-  const opacityAnim = useRef(new Animated.Value(0)).current;
+function AnimatedBarChart({ data, colors }) {
+  const MAX_BAR_HEIGHT = 160;
+  const maxValue = Math.max(...data.map((d) => d.total));
+  const animValues = useRef(data.map(() => new Animated.Value(0))).current;
 
   useEffect(() => {
-    Animated.parallel([
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        useNativeDriver: true,
-        tension: 50,
-        friction: 8,
-      }),
-      Animated.timing(opacityAnim, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, []);
+    Animated.stagger(
+      120,
+      animValues.map((v) =>
+        Animated.timing(v, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: false,
+        }),
+      ),
+    ).start();
+  }, [animValues]);
 
-  const startOffset = CIRCUMFERENCE * 0.25;
-  let offset = startOffset;
-  const segments = data.map((item) => {
-    const segmentLength = (item.percent / 100) * CIRCUMFERENCE;
-    const dashArray = `${segmentLength} ${CIRCUMFERENCE}`;
-    const dashOffset = -offset;
-    offset += segmentLength;
-    return { ...item, dashArray, dashOffset };
-  });
+  const maxIndex = data.reduce(
+    (idx, item, i) => (item.total > data[idx].total ? i : idx),
+    0,
+  );
 
   return (
-    <Animated.View
-      style={{
-        opacity: opacityAnim,
-        transform: [{ scale: scaleAnim }],
-      }}
-    >
-      <Svg width={CHART_SIZE} height={CHART_SIZE} style={styles.chartSvg}>
-        <Circle
-          cx={CENTER}
-          cy={CENTER}
-          r={RADIUS}
-          stroke={colors.border}
-          strokeWidth={STROKE_WIDTH}
-          fill="transparent"
-        />
-        {segments.map((seg, i) => (
-          <Circle
-            key={i}
-            cx={CENTER}
-            cy={CENTER}
-            r={RADIUS}
-            stroke={seg.color}
-            strokeWidth={STROKE_WIDTH}
-            fill="transparent"
-            strokeDasharray={seg.dashArray}
-            strokeDashoffset={seg.dashOffset}
-            strokeLinecap="round"
-          />
-        ))}
-      </Svg>
-    </Animated.View>
+    <View style={styles.barChartContainer}>
+      {data.map((item, index) => {
+        const height = animValues[index].interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, (item.total / maxValue) * MAX_BAR_HEIGHT],
+        });
+        const isMax = index === maxIndex;
+        return (
+          <View key={item.month} style={styles.barWrapper}>
+            <Animated.View
+              style={[
+                styles.bar,
+                {
+                  height,
+                  backgroundColor: isMax ? colors.primary : colors.primaryLight,
+                },
+              ]}
+            />
+            <Text style={[styles.barMonth, { color: colors.textSecondary }]}>
+              {item.month}
+            </Text>
+          </View>
+        );
+      })}
+    </View>
   );
 }
 
@@ -168,26 +158,32 @@ export default function StatsScreen() {
           </View>
         </View>
 
-        {/* Spending this month - animated donut */}
+        {/* Spending by month - animated bar chart */}
         <View style={[styles.chartBlock, { backgroundColor: colors.cardBackground }]}>
-          <Text style={[styles.chartBlockTitle, { color: colors.textPrimary }]}>Spending this month</Text>
-          <View style={styles.donutWrap}>
-            <AnimatedDonutChart data={SPENDING_DATA} colors={colors} />
-            <View style={[styles.donutCenter, { backgroundColor: colors.cardBackground }]}>
-              <Text style={[styles.chartCenterValue, { color: colors.textPrimary }]}>₦126.6K</Text>
-              <Text style={[styles.chartCenterLabel, { color: colors.textSecondary }]}>Total spent</Text>
-            </View>
-          </View>
+          <Text style={[styles.chartBlockTitle, { color: colors.textPrimary }]}>
+            Spending by month
+          </Text>
+          <AnimatedBarChart data={BAR_DATA} colors={colors} />
           <View style={styles.legend}>
-            {SPENDING_DATA.map((item, i) => (
-              <View key={i} style={[styles.legendItem, { borderBottomColor: colors.border }, i === SPENDING_DATA.length - 1 && styles.legendItemLast]}>
+            {CATEGORY_LEGEND.map((item, i) => (
+              <View
+                key={item.label}
+                style={[
+                  styles.legendItem,
+                  { borderBottomColor: colors.border },
+                  i === CATEGORY_LEGEND.length - 1 && styles.legendItemLast,
+                ]}
+              >
                 <View style={styles.legendLeft}>
                   <View style={[styles.legendDot, { backgroundColor: item.color }]} />
-                  <Text style={[styles.legendLabel, { color: colors.textPrimary }]}>{item.label}</Text>
+                  <Text style={[styles.legendLabel, { color: colors.textPrimary }]}>
+                    {item.label}
+                  </Text>
                 </View>
                 <View style={styles.legendRight}>
-                  <Text style={[styles.legendPercent, { color: colors.textSecondary }]}>{item.percent}%</Text>
-                  <Text style={[styles.legendAmount, { color: colors.textPrimary }]}>{item.amount}</Text>
+                  <Text style={[styles.legendPercent, { color: colors.textSecondary }]}>
+                    {item.percent}%
+                  </Text>
                 </View>
               </View>
             ))}
@@ -330,25 +326,25 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   chartBlockTitle: { fontSize: 16, fontWeight: '700', marginBottom: 20 },
-  donutWrap: {
-    width: CHART_SIZE,
-    height: CHART_SIZE,
-    position: 'relative',
-    marginBottom: 24,
+  barChartContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    width: '100%',
+    height: 180,
+    marginBottom: 16,
   },
-  chartSvg: { position: 'absolute', left: 0, top: 0 },
-  donutCenter: {
-    position: 'absolute',
-    left: STROKE_WIDTH,
-    top: STROKE_WIDTH,
-    width: CHART_SIZE - STROKE_WIDTH * 2,
-    height: CHART_SIZE - STROKE_WIDTH * 2,
-    borderRadius: (CHART_SIZE - STROKE_WIDTH * 2) / 2,
+  barWrapper: {
+    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
+    marginHorizontal: 4,
   },
-  chartCenterValue: { fontSize: 18, fontWeight: '700' },
-  chartCenterLabel: { fontSize: 12, marginTop: 4 },
+  bar: {
+    width: 18,
+    borderRadius: 999,
+  },
+  barMonth: { fontSize: 11, marginTop: 6 },
   legend: { width: '100%' },
   legendItem: {
     flexDirection: 'row',
