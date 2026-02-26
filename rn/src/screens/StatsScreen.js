@@ -9,7 +9,7 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
-import Svg, { Line, Polygon } from 'react-native-svg';
+import Svg, { Line } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
@@ -70,14 +70,11 @@ const CATEGORY_LEGEND = [
   { label: 'Others', color: '#7B61FF', percent: 12 },
 ];
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 // Chart spans most of width and ~half visible height (image proportions)
 const CONTENT_PADDING = 40;
 const CHART_BLOCK_PADDING = 32; // 16 each side
 const CHART_WIDTH = SCREEN_WIDTH - CONTENT_PADDING - CHART_BLOCK_PADDING;
-const CHART_HEIGHT = Math.round(Math.min(380, Math.max(280, SCREEN_HEIGHT * 0.42)));
-const GRID_LINES = 4;
-const BAR_GAP = 14; // noticeable spacing between bars (image)
 
 const RECENT_TRANSACTIONS = [
   { id: '1', name: 'Divine Chiamaka', amount: '25,000', type: 'sent', dateTime: 'Today | 2:30 PM', statusDisplay: 'Success' },
@@ -110,61 +107,37 @@ function formatNaira(value, withDecimals = false) {
   });
 }
 
-function AnimatedBarChart({ data, colors, legendColors }) {
-  // Room for tooltip, arrow, dot, and labels (image proportions)
-  const TOOLTIP_LABELS_HEIGHT = 58;
-  const MONTH_LABEL_HEIGHT = 28;
-  const MAX_BAR_HEIGHT = CHART_HEIGHT - TOOLTIP_LABELS_HEIGHT - MONTH_LABEL_HEIGHT;
+// Professional spending chart: clean bars, no tooltip, single theme color
+function SpendingChart({ data, colors }) {
+  const CHART_AREA_HEIGHT = 200;
+  const LABEL_HEIGHT = 24;
   const maxValue = Math.max(...data.map((d) => d.total), 1);
   const maxBars = 7;
   const animValues = useRef(Array.from({ length: maxBars }, () => new Animated.Value(0))).current;
 
   useEffect(() => {
     Animated.stagger(
-      100,
+      80,
       animValues.slice(0, data.length).map((v) =>
         Animated.timing(v, {
           toValue: 1,
-          duration: 550,
+          duration: 480,
           useNativeDriver: false,
         }),
       ),
     ).start();
   }, []);
 
-  const maxIndex = data.reduce(
-    (idx, item, i) => (item.total > data[idx].total ? i : idx),
-    0,
-  );
-
-  // Thick bars with noticeable spacing (image: "relatively thick with noticeable spacing")
   const chartWidth = CHART_WIDTH;
   const barGroupWidth = chartWidth / data.length;
-  // So gap between bars = BAR_GAP: barWidth = barGroupWidth - BAR_GAP/2 (each side BAR_GAP/2)
-  const barWidth = Math.max(28, barGroupWidth - BAR_GAP / 2);
-
-  // Tooltip dimensions for layout (image)
-  const TOOLTIP_HEIGHT = 36;
-  const ARROW_HEIGHT = 8;
-  const DOT_SIZE = 10;
+  const barWidth = Math.max(20, barGroupWidth - 10);
 
   return (
     <View style={[styles.chartOuter, { width: chartWidth }]}>
-      {/* Dashed horizontal grid lines across full chart */}
-      <View
-        style={[
-          styles.gridWrap,
-          {
-            width: chartWidth,
-            height: MAX_BAR_HEIGHT,
-            top: TOOLTIP_HEIGHT + ARROW_HEIGHT + DOT_SIZE,
-          },
-        ]}
-        pointerEvents="none"
-      >
-        <Svg width={chartWidth} height={MAX_BAR_HEIGHT} style={StyleSheet.absoluteFill}>
-          {Array.from({ length: GRID_LINES }).map((_, i) => {
-            const y = (i / (GRID_LINES - 1)) * (MAX_BAR_HEIGHT - 4);
+      <View style={[styles.chartGridWrap, { width: chartWidth, height: CHART_AREA_HEIGHT }]} pointerEvents="none">
+        <Svg width={chartWidth} height={CHART_AREA_HEIGHT} style={StyleSheet.absoluteFill}>
+          {[0, 1, 2, 3].map((i) => {
+            const y = 8 + (i / 3) * (CHART_AREA_HEIGHT - 16);
             return (
               <Line
                 key={i}
@@ -174,80 +147,40 @@ function AnimatedBarChart({ data, colors, legendColors }) {
                 y2={y}
                 stroke={colors.border}
                 strokeWidth={1}
-                strokeDasharray="4 5"
-                strokeOpacity={0.7}
+                strokeDasharray="3 4"
+                strokeOpacity={0.6}
               />
             );
           })}
         </Svg>
       </View>
 
-      {/* Bar chart */}
-      <View style={[styles.barChartContainer, { height: CHART_HEIGHT }]}>
+      <View style={[styles.chartBarsRow, { height: CHART_AREA_HEIGHT + LABEL_HEIGHT }]}>
         {data.map((item, index) => {
-          const barHeight = (item.total / maxValue) * MAX_BAR_HEIGHT;
+          const barHeight = (item.total / maxValue) * (CHART_AREA_HEIGHT - 12);
           const height = animValues[index].interpolate({
             inputRange: [0, 1],
             outputRange: [0, barHeight],
           });
-          const isMax = index === maxIndex;
-          // Each bar uses a legend color so the infographic is clear (cycles Transfers, Airtimes, ATM, Others)
-          const barColor = (legendColors && legendColors[index % legendColors.length]) || (isMax ? colors.primary : colors.primaryLight);
-
           return (
-            <View key={`${item.label}-${index}`} style={[styles.barWrapper, { width: barGroupWidth }]}>
-              {/* Tooltip above the highest bar */}
-              <View style={styles.barColumn}>
-                {isMax ? (
-                  <View style={styles.tooltipContainer}>
-                    {/* Tooltip: dark bubble with pointer from bottom-right (image) */}
-                    <View style={[styles.tooltipBubbleWrap, { marginRight: barGroupWidth / 2 - 22 }]}>
-                      <View style={[styles.tooltipBubble, { backgroundColor: colors.textPrimary }]}>
-                        <Text style={styles.tooltipText}>{formatNaira(item.total, true)}</Text>
-                      </View>
-                      {/* Triangular pointer from bottom-right edge, pointing to indicator */}
-                      <View style={styles.tooltipPointerWrap}>
-                        <Svg width={12} height={7} viewBox="0 0 12 7" style={styles.tooltipPointerSvg}>
-                          <Polygon points="0,0 12,0 6,7" fill={colors.textPrimary} />
-                        </Svg>
-                      </View>
-                    </View>
-                    {/* Circular indicator on bar – solid, no white ring */}
-                    <View
-                      style={[
-                        styles.tooltipDot,
-                        {
-                          width: DOT_SIZE,
-                          height: DOT_SIZE,
-                          borderRadius: DOT_SIZE / 2,
-                          backgroundColor: colors.textPrimary,
-                        },
-                      ]}
-                    />
-                  </View>
-                ) : (
-                  // Spacer so all bars align to the same bottom
-                  <View style={styles.tooltipSpacer} />
-                )}
-
-                {/* The actual bar – no figure inside */}
-                <View style={[styles.barBase, { height: MAX_BAR_HEIGHT, justifyContent: 'flex-end' }]}>
-                  <Animated.View
-                    style={[
-                      {
-                        width: barWidth,
-                        height,
-                        backgroundColor: barColor,
-                        borderTopLeftRadius: 10,
-                        borderTopRightRadius: 10,
-                      },
-                    ]}
-                  />
-                </View>
+            <View key={`${item.label}-${index}`} style={[styles.chartBarCol, { width: barGroupWidth }]}>
+              <View style={[styles.chartBarSlot, { height: CHART_AREA_HEIGHT }]}>
+                <Animated.View
+                  style={[
+                    styles.chartBar,
+                    {
+                      width: barWidth,
+                      height,
+                      backgroundColor: colors.primary,
+                      borderTopLeftRadius: 8,
+                      borderTopRightRadius: 8,
+                    },
+                  ]}
+                />
               </View>
-
-              {/* X-axis label */}
-              <Text style={[styles.barMonth, { color: colors.textSecondary }]}>{item.label}</Text>
+              <Text style={[styles.chartBarLabel, { color: colors.textSecondary }]} numberOfLines={1}>
+                {item.label}
+              </Text>
             </View>
           );
         })}
@@ -309,29 +242,26 @@ export default function StatsScreen() {
           })}
         </View>
 
-        {/* Bar chart block – data changes by Today / 7D / 3M / 6M / Custom */}
+        {/* Spending overview – professional chart section */}
         <View style={[styles.chartBlock, { backgroundColor: colors.cardBackground }]}>
-          <AnimatedBarChart
-            key={selectedTimeRange}
-            data={chartData}
-            colors={colors}
-            legendColors={CATEGORY_LEGEND.map((c) => c.color)}
-          />
-          <View style={[styles.legend, { borderTopColor: colors.border }]}>
-            {CATEGORY_LEGEND.map((item, i) => (
-              <View
-                key={item.label}
-                style={[
-                  styles.legendItem,
-                  { borderBottomColor: colors.border },
-                  i === CATEGORY_LEGEND.length - 1 && styles.legendItemLast,
-                ]}
-              >
-                <View style={styles.legendLeft}>
-                  <View style={[styles.legendDot, { backgroundColor: item.color }]} />
-                  <Text style={[styles.legendLabel, { color: colors.textPrimary }]}>{item.label}</Text>
-                </View>
-                <Text style={[styles.legendPercent, { color: colors.textSecondary }]}>{item.percent}%</Text>
+          <Text style={[styles.chartSectionTitle, { color: colors.textPrimary }]}>Spending overview</Text>
+          <View style={styles.chartTimeRow}>
+            <Text style={[styles.chartTimeLabel, { color: colors.textSecondary }]}>
+              {selectedTimeRange === 'today' && 'Today'}
+              {selectedTimeRange === '7d' && 'Last 7 days'}
+              {selectedTimeRange === '3m' && 'Last 3 months'}
+              {(selectedTimeRange === '6m' || selectedTimeRange === 'custom') && 'Last 6 months'}
+            </Text>
+            <Text style={[styles.chartTotalLabel, { color: colors.textPrimary }]}>
+              Total spent: {formatNaira(chartData.reduce((sum, d) => sum + d.total, 0))}
+            </Text>
+          </View>
+          <SpendingChart key={selectedTimeRange} data={chartData} colors={colors} />
+          <View style={[styles.legendRow, { borderTopColor: colors.border }]}>
+            {CATEGORY_LEGEND.map((item) => (
+              <View key={item.label} style={styles.legendChip}>
+                <View style={[styles.legendChipDot, { backgroundColor: item.color }]} />
+                <Text style={[styles.legendChipText, { color: colors.textSecondary }]}>{item.label} {item.percent}%</Text>
               </View>
             ))}
           </View>
@@ -460,97 +390,83 @@ const styles = StyleSheet.create({
   },
   timeRangePillText: { fontSize: 13, fontWeight: '600' },
 
-  // Chart – full width, enough vertical space (image proportions)
+  // Chart – professional spending overview
   chartBlock: {
-    borderRadius: 20,
-    paddingVertical: 24,
-    paddingHorizontal: 16,
-    marginBottom: 32,
-    alignItems: 'center',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 28,
+  },
+  chartSectionTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+  chartTimeRow: {
+    marginBottom: 16,
+  },
+  chartTimeLabel: {
+    fontSize: 13,
+    marginBottom: 2,
+  },
+  chartTotalLabel: {
+    fontSize: 15,
+    fontWeight: '600',
   },
   chartOuter: {
     position: 'relative',
     alignSelf: 'stretch',
   },
-  gridWrap: {
+  chartGridWrap: {
     position: 'absolute',
     left: 0,
-    right: 0,
+    top: 0,
   },
-  barChartContainer: {
+  chartBarsRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     width: '100%',
   },
-  barWrapper: {
+  chartBarCol: {
     alignItems: 'center',
   },
-  barColumn: {
-    alignItems: 'center',
-  },
-
-  // Tooltip – bubble with pointer from bottom-right (image)
-  tooltipContainer: {
-    alignItems: 'center',
-    marginBottom: 2,
-  },
-  tooltipBubbleWrap: {
-    position: 'relative',
-    alignSelf: 'flex-end',
-  },
-  tooltipBubble: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    paddingRight: 18,
-    borderRadius: 10,
-  },
-  tooltipText: {
-    color: '#FFF',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  tooltipPointerWrap: {
-    position: 'absolute',
-    right: 10,
-    bottom: -6,
-  },
-  tooltipPointerSvg: {},
-  tooltipDot: {
-    marginTop: 4,
-  },
-  // Spacer to align non-max bars (bubble + pointer + dot + gap)
-  tooltipSpacer: {
-    height: 36 + 7 + 10 + 6,
-  },
-  barBase: {
-    alignItems: 'center',
-  },
-  barMonth: {
-    fontSize: 13,
-    marginTop: 10,
-    fontWeight: '500',
-  },
-
-  // Legend under chart – infographics (Transfers, Airtimes, ATM, Others)
-  legend: {
+  chartBarSlot: {
     width: '100%',
-    marginTop: 20,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  chartBar: {
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+  },
+  chartBarLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+    marginTop: 6,
+  },
+
+  // Legend – compact horizontal chips
+  legendRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginTop: 18,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: 'transparent',
   },
-  legendItem: {
+  legendChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
+    gap: 6,
   },
-  legendLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  legendDot: { width: 12, height: 12, borderRadius: 6 },
-  legendLabel: { fontSize: 14, fontWeight: '600' },
-  legendPercent: { fontSize: 13 },
-  legendItemLast: { borderBottomWidth: 0 },
+  legendChipDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  legendChipText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
 
   // Transactions
   transactionsSection: { marginTop: 8 },
