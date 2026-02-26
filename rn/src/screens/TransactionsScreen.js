@@ -4,11 +4,39 @@ import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 
+const PENDING_ORANGE = '#F59E0B';
+const PENDING_ORANGE_LIGHT = 'rgba(245, 158, 11, 0.15)';
+
 const MOCK_TRANSACTIONS = [
-  { id: '1', name: 'Divine Chiamaka', amount: '25,000', type: 'sent', date: 'Today', time: '2:30 PM', ref: 'RXP' + Date.now(), status: 'Completed', bank: 'GTBank', account: '0123456789' },
-  { id: '2', name: 'John Doe', amount: '50,000', type: 'received', date: 'Yesterday', time: '10:15 AM', ref: 'RXP' + (Date.now() - 86400000), status: 'Completed', bank: 'Access Bank', account: '0987654321' },
-  { id: '3', name: 'Airtime Purchase', amount: '1,000', type: 'sent', date: '2 days ago', time: '4:45 PM', ref: 'RXP' + (Date.now() - 172800000), status: 'Completed' },
+  { id: '1', name: 'Divine Chiamaka', amount: '25,000', type: 'sent', date: 'Today', time: '2:30 PM', dateTime: 'Today | 2:30 PM', ref: 'RXP' + Date.now(), status: 'Completed', statusDisplay: 'Success', bank: 'GTBank', account: '0123456789' },
+  { id: '2', name: 'John Doe', amount: '50,000', type: 'received', date: 'Yesterday', time: '10:15 AM', dateTime: 'Yesterday | 10:15 AM', ref: 'RXP' + (Date.now() - 86400000), status: 'Completed', statusDisplay: 'Success', bank: 'Access Bank', account: '0987654321' },
+  { id: '3', name: 'Airtime Purchase', amount: '1,000', type: 'airtime', date: '2 days ago', time: '4:45 PM', dateTime: '2 days ago | 4:45 PM', ref: 'RXP' + (Date.now() - 172800000), status: 'Pending', statusDisplay: 'Pending' },
 ];
+
+function getTransactionIcon(type) {
+  switch (type) {
+    case 'sent':
+      return 'send';
+    case 'received':
+      return 'call-received';
+    case 'airtime':
+      return 'phone-android';
+    default:
+      return type === 'sent' ? 'send' : 'call-received';
+  }
+}
+
+function getIconColor(type, colors) {
+  if (type === 'sent') return colors.primary;
+  if (type === 'received') return colors.success;
+  return colors.primary;
+}
+
+function getIconBg(type, colors) {
+  if (type === 'sent') return colors.primaryLight;
+  if (type === 'received') return colors.success + '20';
+  return colors.primaryLight;
+}
 
 export default function TransactionsScreen() {
   const { colors } = useTheme();
@@ -16,37 +44,57 @@ export default function TransactionsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={[styles.title, { color: colors.textPrimary }]}>Transactions</Text>
-        <View style={{ width: 24 }} />
+        <Text style={[styles.title, { color: colors.textPrimary }]}>Transaction History</Text>
+        <View style={styles.backBtn} />
+      </View>
+      <View style={styles.sectionHeader}>
+        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>This Month</Text>
       </View>
       <FlatList
         data={MOCK_TRANSACTIONS}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.item, { backgroundColor: colors.cardBackground }]}
-            onPress={() => navigation.navigate('TransactionDetail', { transaction: item })}
-            activeOpacity={0.8}
-          >
-            <View>
-              <Text style={[styles.itemName, { color: colors.textPrimary }]}>{item.name}</Text>
-              <Text style={[styles.itemDate, { color: colors.textSecondary }]}>{item.date}</Text>
-            </View>
-            <Text
-              style={[
-                styles.itemAmount,
-                { color: item.type === 'sent' ? colors.error : colors.success },
-              ]}
+        renderItem={({ item: tx }) => {
+          const isSuccess = tx.statusDisplay === 'Success';
+          const amountColor = isSuccess ? colors.success : PENDING_ORANGE;
+          const pillBg = isSuccess ? colors.success + '20' : PENDING_ORANGE_LIGHT;
+          const pillColor = isSuccess ? colors.success : PENDING_ORANGE;
+          return (
+            <TouchableOpacity
+              style={[styles.card, { backgroundColor: colors.cardBackground }]}
+              onPress={() => navigation.navigate('TransactionDetail', { transaction: tx })}
+              activeOpacity={0.7}
             >
-              {item.type === 'sent' ? '-' : '+'}₦{item.amount}
-            </Text>
-          </TouchableOpacity>
-        )}
+              <View style={[styles.iconWrap, { backgroundColor: getIconBg(tx.type, colors) }]}>
+                <MaterialIcons
+                  name={getTransactionIcon(tx.type)}
+                  size={24}
+                  color={getIconColor(tx.type, colors)}
+                />
+              </View>
+              <View style={styles.rowContent}>
+                <Text style={[styles.itemName, { color: colors.textPrimary }]} numberOfLines={1}>
+                  {tx.name}
+                </Text>
+                <Text style={[styles.itemMeta, { color: colors.textSecondary }]}>
+                  {tx.dateTime || `${tx.date} | ${tx.time}`}
+                </Text>
+              </View>
+              <View style={styles.rightCol}>
+                <Text style={[styles.itemAmount, { color: amountColor }]}>
+                  {tx.type === 'sent' ? '-' : '+'}₦{tx.amount}
+                </Text>
+                <View style={[styles.pill, { backgroundColor: pillBg }]}>
+                  <Text style={[styles.pillText, { color: pillColor }]}>{tx.statusDisplay}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          );
+        }}
       />
     </View>
   );
@@ -58,21 +106,42 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingTop: 50,
     paddingBottom: 16,
+    borderBottomWidth: 1,
   },
+  backBtn: { width: 40 },
   title: { fontSize: 18, fontWeight: '700' },
-  list: { padding: 20 },
-  item: {
+  sectionHeader: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 10 },
+  sectionTitle: { fontSize: 14, fontWeight: '600' },
+  list: { paddingHorizontal: 20, paddingBottom: 40 },
+  card: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 16,
     marginBottom: 12,
   },
+  iconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  rowContent: { flex: 1 },
   itemName: { fontSize: 16, fontWeight: '600' },
-  itemDate: { fontSize: 12, marginTop: 4 },
-  itemAmount: { fontSize: 16, fontWeight: '600' },
+  itemMeta: { fontSize: 13, marginTop: 4 },
+  rightCol: { alignItems: 'flex-end' },
+  itemAmount: { fontSize: 16, fontWeight: '700' },
+  pill: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    marginTop: 6,
+  },
+  pillText: { fontSize: 12, fontWeight: '600' },
 });

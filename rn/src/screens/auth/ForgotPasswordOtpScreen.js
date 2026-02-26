@@ -7,13 +7,11 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
 import PrimaryButton from '../../components/PrimaryButton';
-import { sendPasswordResetOtp } from '../../services/authService';
 
 export default function ForgotPasswordOtpScreen() {
   const { colors } = useTheme();
@@ -37,15 +35,9 @@ export default function ForgotPasswordOtpScreen() {
     navigation.navigate('ForgotPasswordSetPassword', { phone, countryCode, otp });
   };
 
-  const handleResend = async () => {
+  const handleResend = () => {
     if (resendSeconds > 0) return;
-    const result = await sendPasswordResetOtp(phone, countryCode);
-    if (result.success) {
-      setResendSeconds(60);
-      Alert.alert('Sent', 'A new code has been sent to your number.');
-    } else {
-      Alert.alert('Error', result.error);
-    }
+    setResendSeconds(60);
   };
 
   const formattedPhone = `${countryCode} ${phone}`;

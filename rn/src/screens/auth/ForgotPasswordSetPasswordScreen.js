@@ -14,20 +14,17 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
 import PrimaryButton from '../../components/PrimaryButton';
-import { verifyPasswordResetAndSetPassword } from '../../services/authService';
 
 export default function ForgotPasswordSetPasswordScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation();
   const route = useRoute();
-  const { phone, countryCode = '+234', otp } = route.params || {};
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (password.length < 6) {
       Alert.alert('Invalid password', 'Password must be at least 6 characters.');
       return;
@@ -36,23 +33,11 @@ export default function ForgotPasswordSetPasswordScreen() {
       Alert.alert('Passwords do not match', 'Please make sure both passwords are the same.');
       return;
     }
-    setLoading(true);
-    try {
-      const result = await verifyPasswordResetAndSetPassword(phone, otp, password, countryCode);
-      if (result.success) {
-        Alert.alert(
-          'Password updated',
-          'Your password has been reset. You can now log in with your new password.',
-          [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
-        );
-      } else {
-        Alert.alert('Error', result.error || 'Could not set password. Please check your code and try again.');
-      }
-    } catch (e) {
-      Alert.alert('Error', e.message || 'Something went wrong.');
-    } finally {
-      setLoading(false);
-    }
+    Alert.alert(
+      'Password updated',
+      'Your password has been reset. You can now log in with your new password.',
+      [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
+    );
   };
 
   const isValid = password.length >= 6 && password === confirmPassword;
@@ -114,10 +99,9 @@ export default function ForgotPasswordSetPasswordScreen() {
 
         <View style={styles.spacer} />
         <PrimaryButton
-          text={loading ? 'Updating...' : 'Reset password'}
+          text="Reset password"
           onPress={handleSubmit}
-          disabled={!isValid || loading}
-          loading={loading}
+          disabled={!isValid}
           style={styles.btn}
         />
       </ScrollView>

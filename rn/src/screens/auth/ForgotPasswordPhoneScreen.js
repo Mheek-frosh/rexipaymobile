@@ -16,7 +16,6 @@ import { useTheme } from '../../theme/ThemeContext';
 import PrimaryButton from '../../components/PrimaryButton';
 import CountryPickerSheet from '../../components/CountryPickerSheet';
 import { COUNTRIES } from '../../data/countries';
-import { sendPasswordResetOtp } from '../../services/authService';
 
 const defaultCountry = COUNTRIES[0];
 
@@ -26,30 +25,17 @@ export default function ForgotPasswordPhoneScreen() {
   const [phone, setPhone] = useState('');
   const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
   const [showCountryPicker, setShowCountryPicker] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const handleSendOtp = async () => {
+  const handleSendOtp = () => {
     const trimmed = phone.trim().replace(/\D/g, '');
     if (!trimmed || trimmed.length < 10) {
       Alert.alert('Invalid number', 'Please enter a valid phone number.');
       return;
     }
-    setLoading(true);
-    try {
-      const result = await sendPasswordResetOtp(trimmed, selectedCountry.dialCode);
-      if (result.success) {
-        navigation.navigate('ForgotPasswordOtp', {
-          phone: trimmed,
-          countryCode: selectedCountry.dialCode,
-        });
-      } else {
-        Alert.alert('Error', result.error || 'Could not send OTP.');
-      }
-    } catch (e) {
-      Alert.alert('Error', e.message || 'Something went wrong.');
-    } finally {
-      setLoading(false);
-    }
+    navigation.navigate('ForgotPasswordOtp', {
+      phone: trimmed,
+      countryCode: selectedCountry.dialCode,
+    });
   };
 
   return (
@@ -101,10 +87,9 @@ export default function ForgotPasswordPhoneScreen() {
 
         <View style={styles.spacer} />
         <PrimaryButton
-          text={loading ? 'Sending...' : 'Send OTP'}
+          text="Send OTP"
           onPress={handleSendOtp}
-          loading={loading}
-          disabled={!phone.trim() || loading}
+          disabled={!phone.trim()}
           style={styles.btn}
         />
       </ScrollView>

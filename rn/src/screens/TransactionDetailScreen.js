@@ -6,7 +6,6 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
-  Platform,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -14,6 +13,8 @@ import { captureRef } from 'react-native-view-shot';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { useTheme } from '../theme/ThemeContext';
+
+const SUCCESS_GREEN = '#10B981';
 
 export default function TransactionDetailScreen() {
   const { colors } = useTheme();
@@ -81,29 +82,37 @@ export default function TransactionDetailScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
           <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={[styles.title, { color: colors.textPrimary }]}>Transaction Details</Text>
-        <View style={{ width: 24 }} />
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Transaction Details</Text>
+        <View style={styles.headerBtn} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
-        <View ref={viewRef} collapsable={false} style={[styles.receiptCard, { backgroundColor: colors.cardBackground }]}>
-          <View style={[styles.statusBadge, { backgroundColor: colors.success + '20' }]}>
-            <Text style={[styles.statusText, { color: colors.success }]}>{tx.status}</Text>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <View ref={viewRef} collapsable={false} style={[styles.card, { backgroundColor: colors.cardBackground }]}>
+          <View style={styles.doneWrap}>
+            <View style={[styles.doneCircle, { backgroundColor: SUCCESS_GREEN }]}>
+              <MaterialIcons name="check" size={48} color="#FFFFFF" />
+            </View>
           </View>
-          <Text style={[styles.amount, { color: tx.type === 'sent' ? colors.error : colors.success }]}>
+          <Text style={[styles.statusLabel, { color: colors.success }]}>{tx.status}</Text>
+          <Text style={[styles.amount, { color: colors.textPrimary }]}>
             {tx.type === 'sent' ? '-' : '+'}₦{tx.amount}
           </Text>
+          <Text style={[styles.recipientLabel, { color: colors.textSecondary }]}>
+            {tx.type === 'sent' ? 'To' : 'From'}
+          </Text>
           <Text style={[styles.recipient, { color: colors.textPrimary }]}>{tx.name}</Text>
-          <View style={styles.divider} />
-          <DetailRow label="Reference" value={tx.ref} colors={colors} />
-          <DetailRow label="Date" value={tx.date} colors={colors} />
-          {tx.time && <DetailRow label="Time" value={tx.time} colors={colors} />}
-          {tx.bank && <DetailRow label="Bank" value={tx.bank} colors={colors} />}
-          {tx.account && <DetailRow label="Account" value={tx.account} colors={colors} />}
+
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+          <DetailRow label="Reference" value={tx.ref} colors={colors} last={false} />
+          <DetailRow label="Date" value={tx.date} colors={colors} last={!tx.time && !tx.bank && !tx.account} />
+          {tx.time ? <DetailRow label="Time" value={tx.time} colors={colors} last={!tx.bank && !tx.account} /> : null}
+          {tx.bank ? <DetailRow label="Bank" value={tx.bank} colors={colors} last={!tx.account} /> : null}
+          {tx.account ? <DetailRow label="Account" value={tx.account} colors={colors} last /> : null}
         </View>
 
         <View style={styles.actions}>
@@ -111,14 +120,14 @@ export default function TransactionDetailScreen() {
             style={[styles.actionBtn, { backgroundColor: colors.primaryLight }]}
             onPress={handleSavePNG}
           >
-            <MaterialIcons name="image" size={24} color={colors.primary} />
-            <Text style={[styles.actionText, { color: colors.primary }]}>Save as PNG</Text>
+            <MaterialIcons name="image" size={22} color={colors.primary} />
+            <Text style={[styles.actionText, { color: colors.primary }]}>Save as image</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.actionBtn, { backgroundColor: colors.primaryLight }]}
             onPress={handleSavePDF}
           >
-            <MaterialIcons name="picture-as-pdf" size={24} color={colors.primary} />
+            <MaterialIcons name="picture-as-pdf" size={22} color={colors.primary} />
             <Text style={[styles.actionText, { color: colors.primary }]}>Save as PDF</Text>
           </TouchableOpacity>
         </View>
@@ -127,9 +136,9 @@ export default function TransactionDetailScreen() {
   );
 }
 
-function DetailRow({ label, value, colors }) {
+function DetailRow({ label, value, colors, last }) {
   return (
-    <View style={[styles.detailRow, { borderBottomColor: colors.border }]}>
+    <View style={[styles.detailRow, { borderBottomColor: colors.border }, last && styles.detailRowLast]}>
       <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>{label}</Text>
       <Text style={[styles.detailValue, { color: colors.textPrimary }]}>{value}</Text>
     </View>
@@ -142,36 +151,48 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingTop: 50,
     paddingBottom: 16,
+    borderBottomWidth: 1,
   },
-  title: { fontSize: 18, fontWeight: '700' },
-  content: { padding: 20, paddingBottom: 40 },
-  receiptCard: {
+  headerBtn: { width: 40 },
+  headerTitle: { fontSize: 18, fontWeight: '700' },
+  scroll: { padding: 20, paddingBottom: 40 },
+  card: {
     borderRadius: 20,
     padding: 24,
     marginBottom: 24,
+    alignItems: 'center',
   },
-  statusBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    marginBottom: 16,
+  doneWrap: { marginBottom: 16 },
+  doneCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  statusText: { fontSize: 14, fontWeight: '600' },
-  amount: { fontSize: 32, fontWeight: '700' },
-  recipient: { fontSize: 18, fontWeight: '600', marginTop: 8 },
-  divider: { height: 1, backgroundColor: 'rgba(0,0,0,0.1)', marginVertical: 20 },
+  statusLabel: { fontSize: 14, fontWeight: '600', marginBottom: 8 },
+  amount: { fontSize: 28, fontWeight: '700', marginBottom: 4 },
+  recipientLabel: { fontSize: 13, marginTop: 8 },
+  recipient: { fontSize: 18, fontWeight: '600' },
+  divider: {
+    width: '100%',
+    height: 1,
+    marginVertical: 20,
+  },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    alignItems: 'center',
+    paddingVertical: 14,
     borderBottomWidth: 1,
+    width: '100%',
   },
   detailLabel: { fontSize: 14 },
   detailValue: { fontSize: 14, fontWeight: '600' },
+  detailRowLast: { borderBottomWidth: 0 },
   actions: { flexDirection: 'row', gap: 12 },
   actionBtn: {
     flex: 1,
@@ -179,7 +200,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    padding: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     borderRadius: 12,
   },
   actionText: { fontSize: 14, fontWeight: '600' },
