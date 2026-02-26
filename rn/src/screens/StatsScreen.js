@@ -7,7 +7,9 @@ import {
   StyleSheet,
   Modal,
   Animated,
+  Dimensions,
 } from 'react-native';
+import Svg, { Line } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
@@ -15,9 +17,17 @@ import { useTheme } from '../theme/ThemeContext';
 const PENDING_ORANGE = '#F59E0B';
 const PENDING_ORANGE_LIGHT = 'rgba(245, 158, 11, 0.15)';
 
+const TIME_RANGE_OPTIONS = [
+  { key: 'today', label: 'Today' },
+  { key: '7d', label: '7D' },
+  { key: '3m', label: '3M' },
+  { key: '6m', label: '6M' },
+  { key: 'custom', label: 'Custom' },
+];
+
 const PERIOD_OPTIONS = ['This Week', 'This Month', 'Last 3 Months', 'This Year'];
 
-// Monthly spending (for bar chart)
+// Monthly spending (for bar chart) – values in Naira
 const BAR_DATA = [
   { month: 'Jan', total: 82000 },
   { month: 'Feb', total: 64000 },
@@ -26,6 +36,10 @@ const BAR_DATA = [
   { month: 'May', total: 118000 },
   { month: 'Jun', total: 90500 },
 ];
+
+const CHART_HEIGHT = 180;
+const CHART_WIDTH = Dimensions.get('window').width - 88; // padding + margins
+const GRID_LINES = 4;
 
 // Category legend for what money was spent on
 const CATEGORY_LEGEND = [
@@ -59,8 +73,12 @@ function getIconBg(type, colors) {
   return colors.primaryLight;
 }
 
+function formatNaira(value) {
+  return '₦' + Number(value).toLocaleString('en-NG', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
 function AnimatedBarChart({ data, colors }) {
-  const MAX_BAR_HEIGHT = 160;
+  const MAX_BAR_HEIGHT = CHART_HEIGHT - 36;
   const maxValue = Math.max(...data.map((d) => d.total));
   const animValues = useRef(data.map(() => new Animated.Value(0))).current;
 
@@ -82,31 +100,72 @@ function AnimatedBarChart({ data, colors }) {
     0,
   );
 
+  const barWidth = 20;
+  const chartWidth = CHART_WIDTH - 40;
+  const barGroupWidth = chartWidth / data.length;
+
   return (
-    <View style={styles.barChartContainer}>
-      {data.map((item, index) => {
-        const height = animValues[index].interpolate({
-          inputRange: [0, 1],
-          outputRange: [0, (item.total / maxValue) * MAX_BAR_HEIGHT],
-        });
-        const isMax = index === maxIndex;
-        return (
-          <View key={item.month} style={styles.barWrapper}>
-            <Animated.View
-              style={[
-                styles.bar,
-                {
-                  height,
-                  backgroundColor: isMax ? colors.primary : colors.primaryLight,
-                },
-              ]}
-            />
-            <Text style={[styles.barMonth, { color: colors.textSecondary }]}>
-              {item.month}
-            </Text>
-          </View>
-        );
-      })}
+    <View style={styles.chartOuter}>
+      {/* Dashed horizontal grid lines */}
+      <View style={[styles.gridWrap, { height: CHART_HEIGHT - 28 }]} pointerEvents="none">
+        <Svg width={chartWidth + 24} height={CHART_HEIGHT - 28} style={styles.gridSvg}>
+          {Array.from({ length: GRID_LINES }).map((_, i) => {
+            const y = 12 + (i / (GRID_LINES - 1)) * (CHART_HEIGHT - 28 - 24);
+            return (
+              <Line
+                key={i}
+                x1={0}
+                y1={y}
+                x2={chartWidth + 24}
+                y2={y}
+                stroke={colors.border}
+                strokeWidth={1}
+                strokeDasharray="4 4"
+              />
+            );
+          })}
+        </Svg>
+      </View>
+
+      <View style={[styles.barChartContainer, { height: CHART_HEIGHT }]}>
+        {data.map((item, index) => {
+          const barHeight = (item.total / maxValue) * MAX_BAR_HEIGHT;
+          const height = animValues[index].interpolate({
+            inputRange: [0, 1],
+            outputRange: [0, barHeight],
+          });
+          const isMax = index === maxIndex;
+          return (
+            <View key={item.month} style={[styles.barWrapper, { width: barGroupWidth }]}>
+              <View style={[styles.barColumn, { height: MAX_BAR_HEIGHT }]}>
+                {isMax && (
+                  <View style={styles.tooltipWrap}>
+                    <View style={[styles.tooltip, { backgroundColor: colors.textPrimary }]}>
+                      <Text style={styles.tooltipText}>{formatNaira(item.total)}</Text>
+                    </View>
+                    <View style={[styles.tooltipDot, { backgroundColor: colors.textPrimary }]} />
+                  </View>
+                )}
+                <Animated.View
+                  style={[
+                    styles.bar,
+                    {
+                      width: barWidth,
+                      height,
+                      backgroundColor: isMax ? colors.primary : colors.primaryLight,
+                      borderTopLeftRadius: 8,
+                      borderTopRightRadius: 8,
+                    },
+                  ]}
+                />
+              </View>
+              <Text style={[styles.barMonth, { color: colors.textSecondary }]}>
+                {item.month}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
     </View>
   );
 }
@@ -115,6 +174,7 @@ export default function StatsScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation();
   const [selectedPeriod, setSelectedPeriod] = useState('This Week');
+  const [selectedTimeRange, setSelectedTimeRange] = useState('6m');
   const [showPeriodModal, setShowPeriodModal] = useState(false);
 
   return (
@@ -126,39 +186,38 @@ export default function StatsScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Period filter - compact pill */}
-        <View style={styles.filterRow}>
-          <TouchableOpacity
-            style={[
-              styles.periodPill,
-              { backgroundColor: colors.cardBackground, borderColor: colors.border },
-            ]}
-            onPress={() => setShowPeriodModal(true)}
-          >
-            <Text style={[styles.periodPillText, { color: colors.textPrimary }]}>{selectedPeriod}</Text>
-            <MaterialIcons name="keyboard-arrow-down" size={20} color={colors.textSecondary} />
-          </TouchableOpacity>
+        {/* Current Balance */}
+        <Text style={[styles.currentBalanceLabel, { color: colors.textSecondary }]}>Current Balance</Text>
+        <Text style={[styles.currentBalanceAmount, { color: colors.textPrimary }]}>₦250,000</Text>
+
+        {/* Time range pills: Today, 7D, 3M, 6M, Custom */}
+        <View style={styles.timeRangeRow}>
+          {TIME_RANGE_OPTIONS.map((opt) => {
+            const isSelected = selectedTimeRange === opt.key;
+            return (
+              <TouchableOpacity
+                key={opt.key}
+                style={[
+                  styles.timeRangePill,
+                  isSelected && { backgroundColor: colors.textPrimary },
+                  !isSelected && { backgroundColor: colors.surfaceVariant || colors.cardBackground },
+                ]}
+                onPress={() => setSelectedTimeRange(opt.key)}
+              >
+                <Text
+                  style={[
+                    styles.timeRangePillText,
+                    { color: isSelected ? '#FFF' : colors.textPrimary },
+                  ]}
+                >
+                  {opt.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
-        {/* Summary cards - modern horizontal */}
-        <View style={styles.summaryRow}>
-          <View style={[styles.summaryCard, { backgroundColor: colors.cardBackground }]}>
-            <View style={[styles.summaryIconWrap, { backgroundColor: colors.success + '18' }]}>
-              <MaterialIcons name="arrow-downward" size={22} color={colors.success} />
-            </View>
-            <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Income</Text>
-            <Text style={[styles.summaryAmount, { color: colors.textPrimary }]}>₦267,040</Text>
-          </View>
-          <View style={[styles.summaryCard, { backgroundColor: colors.cardBackground }]}>
-            <View style={[styles.summaryIconWrap, { backgroundColor: colors.error + '18' }]}>
-              <MaterialIcons name="arrow-upward" size={22} color={colors.error} />
-            </View>
-            <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Expense</Text>
-            <Text style={[styles.summaryAmount, { color: colors.textPrimary }]}>₦126,570</Text>
-          </View>
-        </View>
-
-        {/* Spending by month - animated bar chart */}
+        {/* Spending by month - animated bar chart with grid & tooltip */}
         <View style={[styles.chartBlock, { backgroundColor: colors.cardBackground }]}>
           <Text style={[styles.chartBlockTitle, { color: colors.textPrimary }]}>
             Spending by month
@@ -326,25 +385,65 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   chartBlockTitle: { fontSize: 16, fontWeight: '700', marginBottom: 20 },
+  chartOuter: { width: '100%', marginBottom: 16, position: 'relative' },
+  gridWrap: {
+    position: 'absolute',
+    left: 20,
+    right: 20,
+    top: 0,
+  },
+  gridSvg: { position: 'absolute', left: 0, top: 0 },
   barChartContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
     width: '100%',
-    height: 180,
-    marginBottom: 16,
+    paddingHorizontal: 4,
   },
   barWrapper: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-end',
-    marginHorizontal: 4,
+  },
+  barColumn: {
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    width: '100%',
+  },
+  tooltipWrap: {
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  tooltip: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  tooltipText: { color: '#FFF', fontSize: 12, fontWeight: '700' },
+  tooltipDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginTop: 4,
   },
   bar: {
-    width: 18,
-    borderRadius: 999,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
   },
   barMonth: { fontSize: 11, marginTop: 6 },
+  currentBalanceLabel: { fontSize: 14, fontWeight: '500', marginBottom: 4 },
+  currentBalanceAmount: { fontSize: 28, fontWeight: '700', marginBottom: 20 },
+  timeRangeRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 24,
+  },
+  timeRangePill: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  timeRangePillText: { fontSize: 13, fontWeight: '600' },
   legend: { width: '100%' },
   legendItem: {
     flexDirection: 'row',

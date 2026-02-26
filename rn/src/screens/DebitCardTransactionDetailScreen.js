@@ -10,6 +10,7 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { captureRef } from 'react-native-view-shot';
+import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { useTheme } from '../theme/ThemeContext';
 
@@ -18,7 +19,7 @@ const PENDING_ORANGE = '#F59E0B';
 
 function getStatusColor(status, colors) {
   const s = (status || '').toLowerCase();
-  if (s === 'success' || s === 'completed' || s === 'done') return colors.success;
+  if (s === 'success' || s === 'completed' || s === 'done' || s === 'successful') return colors.success;
   if (s === 'pending') return PENDING_ORANGE;
   return colors.textSecondary;
 }
@@ -51,11 +52,10 @@ export default function DebitCardTransactionDetailScreen() {
     status: 'Successful',
   };
 
-  const isSuccess = ['success', 'completed', 'done', 'successful'].includes((tx.status || '').toLowerCase());
   const isPending = (tx.status || '').toLowerCase() === 'pending';
   const statusColor = getStatusColor(tx.status, colors);
 
-  const handleSaveImage = async () => {
+  const handleSavePNG = async () => {
     try {
       if (!viewRef.current) return;
       const uri = await captureRef(viewRef, { format: 'png', quality: 1, result: 'tmpfile' });
@@ -63,10 +63,34 @@ export default function DebitCardTransactionDetailScreen() {
       if (canShare) {
         await Sharing.shareAsync(uri, { mimeType: 'image/png' });
       } else {
-        Alert.alert('Saved', 'Receipt saved.');
+        Alert.alert('Saved', 'Receipt saved to gallery');
       }
     } catch (e) {
       Alert.alert('Error', e.message || 'Could not save');
+    }
+  };
+
+  const handleSavePDF = async () => {
+    try {
+      await Print.printAsync({
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head><meta charset="utf-8"><title>Debit Transaction Receipt</title></head>
+          <body style="font-family:sans-serif;padding:24px;">
+            <h2>Debit Transaction Receipt</h2>
+            <p><strong>Reference:</strong> ${tx.ref}</p>
+            <p><strong>Status:</strong> ${tx.status}</p>
+            <p><strong>Terminal / Merchant:</strong> ${tx.terminal || tx.title}</p>
+            <p><strong>Amount:</strong> -₦${tx.amount}</p>
+            <p><strong>Date:</strong> ${tx.date} ${tx.time || ''}</p>
+            <p><strong>Channel:</strong> ${tx.channel || '—'}</p>
+          </body>
+          </html>
+        `,
+      });
+    } catch (e) {
+      Alert.alert('Error', e.message || 'Could not create PDF');
     }
   };
 
@@ -76,7 +100,7 @@ export default function DebitCardTransactionDetailScreen() {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
           <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Debit transaction</Text>
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Transaction Details</Text>
         <View style={styles.headerBtn} />
       </View>
 
@@ -106,13 +130,22 @@ export default function DebitCardTransactionDetailScreen() {
           <DetailRow label="Status" value={tx.status} colors={colors} last />
         </View>
 
-        <TouchableOpacity
-          style={[styles.actionBtn, { backgroundColor: colors.primaryLight }]}
-          onPress={handleSaveImage}
-        >
-          <MaterialIcons name="image" size={22} color={colors.primary} />
-          <Text style={[styles.actionText, { color: colors.primary }]}>Save as image</Text>
-        </TouchableOpacity>
+        <View style={styles.actions}>
+          <TouchableOpacity
+            style={[styles.actionBtn, { backgroundColor: colors.primaryLight }]}
+            onPress={handleSavePNG}
+          >
+            <MaterialIcons name="image" size={22} color={colors.primary} />
+            <Text style={[styles.actionText, { color: colors.primary }]}>Save as image</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionBtn, { backgroundColor: colors.primaryLight }]}
+            onPress={handleSavePDF}
+          >
+            <MaterialIcons name="picture-as-pdf" size={22} color={colors.primary} />
+            <Text style={[styles.actionText, { color: colors.primary }]}>Save as PDF</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
@@ -148,8 +181,12 @@ const styles = StyleSheet.create({
   statusLabel: { fontSize: 14, fontWeight: '600', marginBottom: 8 },
   amount: { fontSize: 28, fontWeight: '700', marginBottom: 4 },
   recipientLabel: { fontSize: 13, marginTop: 8 },
-  recipient: { fontSize: 16, fontWeight: '600', textAlign: 'center' },
-  divider: { width: '100%', height: 1, marginVertical: 20 },
+  recipient: { fontSize: 18, fontWeight: '600', textAlign: 'center' },
+  divider: {
+    width: '100%',
+    height: 1,
+    marginVertical: 20,
+  },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -161,7 +198,9 @@ const styles = StyleSheet.create({
   detailRowLast: { borderBottomWidth: 0 },
   detailLabel: { fontSize: 14 },
   detailValue: { fontSize: 14, fontWeight: '600' },
+  actions: { flexDirection: 'row', gap: 12 },
   actionBtn: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
