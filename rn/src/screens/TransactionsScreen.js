@@ -14,26 +14,18 @@ const MOCK_TRANSACTIONS = [
 ];
 
 function getTransactionIcon(type) {
-  switch (type) {
-    case 'sent':
-      return 'send';
-    case 'received':
-      return 'call-received';
-    case 'airtime':
-      return 'phone-android';
-    default:
-      return type === 'sent' ? 'send' : 'call-received';
-  }
+  if (type === 'airtime') return 'phone-android';
+  return 'call-received';
 }
 
 function getIconColor(type, colors) {
-  if (type === 'sent') return colors.primary;
+  if (type === 'sent') return colors.error;
   if (type === 'received') return colors.success;
   return colors.primary;
 }
 
 function getIconBg(type, colors) {
-  if (type === 'sent') return colors.primaryLight;
+  if (type === 'sent') return colors.error + '20';
   if (type === 'received') return colors.success + '20';
   return colors.primaryLight;
 }

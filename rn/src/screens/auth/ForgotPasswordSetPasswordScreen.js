@@ -23,6 +23,7 @@ export default function ForgotPasswordSetPasswordScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleSubmit = () => {
     if (password.length < 6) {
@@ -33,14 +34,29 @@ export default function ForgotPasswordSetPasswordScreen() {
       Alert.alert('Passwords do not match', 'Please make sure both passwords are the same.');
       return;
     }
-    Alert.alert(
-      'Password updated',
-      'Your password has been reset. You can now log in with your new password.',
-      [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
-    );
+    setShowSuccess(true);
   };
 
   const isValid = password.length >= 6 && password === confirmPassword;
+
+  if (showSuccess) {
+    return (
+      <View style={[styles.container, styles.successContainer, { backgroundColor: colors.background }]}>
+        <View style={[styles.successIconWrap, { backgroundColor: colors.success + '20' }]}>
+          <MaterialIcons name="check-circle" size={72} color={colors.success} />
+        </View>
+        <Text style={[styles.successTitle, { color: colors.textPrimary }]}>Password updated</Text>
+        <Text style={[styles.successSubtitle, { color: colors.textSecondary }]}>
+          Your password has been reset. You can now log in with your new password.
+        </Text>
+        <PrimaryButton
+          text="Back to Login"
+          onPress={() => navigation.navigate('Login')}
+          style={styles.successBtn}
+        />
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -86,16 +102,25 @@ export default function ForgotPasswordSetPasswordScreen() {
         </View>
 
         <Text style={[styles.label, { color: colors.textPrimary }]}>Confirm password</Text>
-        <TextInput
-          style={[styles.input, styles.inputFull, { color: colors.textPrimary, borderColor: colors.border }]}
-          placeholder="Confirm password"
-          placeholderTextColor={colors.textSecondary}
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry={!showPassword}
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
+        <View style={[styles.inputWrap, { borderColor: colors.border }]}>
+          <TextInput
+            style={[styles.input, { color: colors.textPrimary }]}
+            placeholder="Confirm password"
+            placeholderTextColor={colors.textSecondary}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry={!showPassword}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          <TouchableOpacity onPress={() => setShowPassword((p) => !p)}>
+            <MaterialIcons
+              name={showPassword ? 'visibility-off' : 'visibility'}
+              size={22}
+              color={colors.textSecondary}
+            />
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.spacer} />
         <PrimaryButton
@@ -134,7 +159,18 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   input: { flex: 1, paddingVertical: 14, fontSize: 16 },
-  inputFull: { borderWidth: 1, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 16 },
   spacer: { flex: 1, minHeight: 60 },
   btn: { marginTop: 20 },
+  successContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
+  successIconWrap: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
+  successTitle: { fontSize: 24, fontWeight: '700', textAlign: 'center', marginBottom: 12 },
+  successSubtitle: { fontSize: 15, textAlign: 'center', lineHeight: 22, marginBottom: 32 },
+  successBtn: { minWidth: 200 },
 });
