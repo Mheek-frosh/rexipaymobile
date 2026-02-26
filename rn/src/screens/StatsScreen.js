@@ -9,7 +9,7 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
-import Svg, { Line, Polygon, Circle } from 'react-native-svg';
+import Svg, { Line, Polygon } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
@@ -109,11 +109,10 @@ function AnimatedBarChart({ data, colors }) {
   // So gap between bars = BAR_GAP: barWidth = barGroupWidth - BAR_GAP/2 (each side BAR_GAP/2)
   const barWidth = Math.max(28, barGroupWidth - BAR_GAP / 2);
 
-  // Tooltip dimensions for layout
+  // Tooltip dimensions for layout (image)
   const TOOLTIP_HEIGHT = 36;
   const ARROW_HEIGHT = 8;
   const DOT_SIZE = 10;
-  const DOT_BORDER = 3;
 
   return (
     <View style={[styles.chartOuter, { width: chartWidth }]}>
@@ -176,7 +175,7 @@ function AnimatedBarChart({ data, colors }) {
                     <Svg width={12} height={ARROW_HEIGHT} viewBox="0 0 12 8" style={styles.tooltipArrow}>
                       <Polygon points="0,0 12,0 6,8" fill={colors.textPrimary} />
                     </Svg>
-                    {/* Connector dot */}
+                    {/* Solid circular indicator at top of bar (image) */}
                     <View
                       style={[
                         styles.tooltipDot,
@@ -184,9 +183,7 @@ function AnimatedBarChart({ data, colors }) {
                           width: DOT_SIZE,
                           height: DOT_SIZE,
                           borderRadius: DOT_SIZE / 2,
-                          backgroundColor: colors.cardBackground,
-                          borderColor: colors.textPrimary,
-                          borderWidth: DOT_BORDER,
+                          backgroundColor: colors.textPrimary,
                         },
                       ]}
                     />
@@ -398,16 +395,17 @@ const styles = StyleSheet.create({
   },
   timeRangePillText: { fontSize: 13, fontWeight: '600' },
 
-  // Chart
+  // Chart – full width, enough vertical space (image proportions)
   chartBlock: {
     borderRadius: 20,
-    paddingVertical: 20,
+    paddingVertical: 24,
     paddingHorizontal: 16,
     marginBottom: 32,
+    alignItems: 'center',
   },
   chartOuter: {
-    width: '100%',
     position: 'relative',
+    alignSelf: 'stretch',
   },
   gridWrap: {
     position: 'absolute',
@@ -455,8 +453,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   barMonth: {
-    fontSize: 11,
-    marginTop: 8,
+    fontSize: 13,
+    marginTop: 10,
     fontWeight: '500',
   },
 
