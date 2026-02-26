@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,9 @@ import {
   ScrollView,
   StyleSheet,
   Modal,
+  Animated,
 } from 'react-native';
+import Svg, { Circle } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
@@ -16,12 +18,18 @@ const PENDING_ORANGE_LIGHT = 'rgba(245, 158, 11, 0.15)';
 
 const PERIOD_OPTIONS = ['This Week', 'This Month', 'Last 3 Months', 'This Year'];
 
-const LEGEND_ITEMS = [
-  { label: 'Salary', color: '#5B86FC' },
-  { label: 'Food & Drink', color: '#FF6B6B' },
-  { label: 'E-Wallet', color: '#7B61FF' },
-  { label: 'Internet', color: '#2EC4B6' },
-  { label: 'Shopping', color: '#FFD166' },
+const CHART_SIZE = 200;
+const STROKE_WIDTH = 28;
+const RADIUS = (CHART_SIZE - STROKE_WIDTH) / 2;
+const CENTER = CHART_SIZE / 2;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+const SPENDING_DATA = [
+  { label: 'Food & Drink', color: '#FF6B6B', percent: 28, amount: '₦35,440' },
+  { label: 'Shopping', color: '#FFD166', percent: 22, amount: '₦27,845' },
+  { label: 'Transport', color: '#5B86FC', percent: 18, amount: '₦22,783' },
+  { label: 'Bills & Utilities', color: '#2EC4B6', percent: 16, amount: '₦20,251' },
+  { label: 'Others', color: '#7B61FF', percent: 16, amount: '₦20,251' },
 ];
 
 const RECENT_TRANSACTIONS = [
@@ -46,6 +54,71 @@ function getIconBg(type, colors) {
   if (type === 'sent') return colors.error + '20';
   if (type === 'received') return colors.success + '20';
   return colors.primaryLight;
+}
+
+function AnimatedDonutChart({ data, colors }) {
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+        tension: 50,
+        friction: 8,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
+  const startOffset = CIRCUMFERENCE * 0.25;
+  let offset = startOffset;
+  const segments = data.map((item) => {
+    const segmentLength = (item.percent / 100) * CIRCUMFERENCE;
+    const dashArray = `${segmentLength} ${CIRCUMFERENCE}`;
+    const dashOffset = -offset;
+    offset += segmentLength;
+    return { ...item, dashArray, dashOffset };
+  });
+
+  return (
+    <Animated.View
+      style={{
+        opacity: opacityAnim,
+        transform: [{ scale: scaleAnim }],
+      }}
+    >
+      <Svg width={CHART_SIZE} height={CHART_SIZE} style={styles.chartSvg}>
+        <Circle
+          cx={CENTER}
+          cy={CENTER}
+          r={RADIUS}
+          stroke={colors.border}
+          strokeWidth={STROKE_WIDTH}
+          fill="transparent"
+        />
+        {segments.map((seg, i) => (
+          <Circle
+            key={i}
+            cx={CENTER}
+            cy={CENTER}
+            r={RADIUS}
+            stroke={seg.color}
+            strokeWidth={STROKE_WIDTH}
+            fill="transparent"
+            strokeDasharray={seg.dashArray}
+            strokeDashoffset={seg.dashOffset}
+            strokeLinecap="round"
+          />
+        ))}
+      </Svg>
+    </Animated.View>
+  );
 }
 
 export default function StatsScreen() {
@@ -95,19 +168,27 @@ export default function StatsScreen() {
           </View>
         </View>
 
-        {/* Donut + legend - clean block */}
+        {/* Spending this month - animated donut */}
         <View style={[styles.chartBlock, { backgroundColor: colors.cardBackground }]}>
-          <View style={[styles.donutOuter, { borderColor: colors.border }]}>
-            <View style={[styles.donutInner, { backgroundColor: colors.background }]}>
-              <Text style={[styles.chartCenterValue, { color: colors.textPrimary }]}>40%</Text>
-              <Text style={[styles.chartCenterLabel, { color: colors.textSecondary }]}>Salary</Text>
+          <Text style={[styles.chartBlockTitle, { color: colors.textPrimary }]}>Spending this month</Text>
+          <View style={styles.donutWrap}>
+            <AnimatedDonutChart data={SPENDING_DATA} colors={colors} />
+            <View style={[styles.donutCenter, { backgroundColor: colors.cardBackground }]}>
+              <Text style={[styles.chartCenterValue, { color: colors.textPrimary }]}>₦126.6K</Text>
+              <Text style={[styles.chartCenterLabel, { color: colors.textSecondary }]}>Total spent</Text>
             </View>
           </View>
           <View style={styles.legend}>
-            {LEGEND_ITEMS.map((item, i) => (
-              <View key={i} style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: item.color }]} />
-                <Text style={[styles.legendLabel, { color: colors.textSecondary }]}>{item.label}</Text>
+            {SPENDING_DATA.map((item, i) => (
+              <View key={i} style={[styles.legendItem, { borderBottomColor: colors.border }, i === SPENDING_DATA.length - 1 && styles.legendItemLast]}>
+                <View style={styles.legendLeft}>
+                  <View style={[styles.legendDot, { backgroundColor: item.color }]} />
+                  <Text style={[styles.legendLabel, { color: colors.textPrimary }]}>{item.label}</Text>
+                </View>
+                <View style={styles.legendRight}>
+                  <Text style={[styles.legendPercent, { color: colors.textSecondary }]}>{item.percent}%</Text>
+                  <Text style={[styles.legendAmount, { color: colors.textPrimary }]}>{item.amount}</Text>
+                </View>
               </View>
             ))}
           </View>
@@ -248,28 +329,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 32,
   },
-  donutOuter: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    borderWidth: 24,
+  chartBlockTitle: { fontSize: 16, fontWeight: '700', marginBottom: 20 },
+  donutWrap: {
+    width: CHART_SIZE,
+    height: CHART_SIZE,
+    position: 'relative',
+    marginBottom: 24,
+  },
+  chartSvg: { position: 'absolute', left: 0, top: 0 },
+  donutCenter: {
+    position: 'absolute',
+    left: STROKE_WIDTH,
+    top: STROKE_WIDTH,
+    width: CHART_SIZE - STROKE_WIDTH * 2,
+    height: CHART_SIZE - STROKE_WIDTH * 2,
+    borderRadius: (CHART_SIZE - STROKE_WIDTH * 2) / 2,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
   },
-  donutInner: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
+  chartCenterValue: { fontSize: 18, fontWeight: '700' },
+  chartCenterLabel: { fontSize: 12, marginTop: 4 },
+  legend: { width: '100%' },
+  legendItem: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
   },
-  chartCenterValue: { fontSize: 20, fontWeight: '700' },
-  chartCenterLabel: { fontSize: 12, marginTop: 2 },
-  legend: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 16 },
-  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  legendDot: { width: 10, height: 10, borderRadius: 5 },
-  legendLabel: { fontSize: 12, fontWeight: '500' },
+  legendLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  legendDot: { width: 12, height: 12, borderRadius: 6 },
+  legendLabel: { fontSize: 14, fontWeight: '600' },
+  legendRight: { alignItems: 'flex-end' },
+  legendPercent: { fontSize: 12 },
+  legendAmount: { fontSize: 14, fontWeight: '700', marginTop: 2 },
+  legendItemLast: { borderBottomWidth: 0 },
   transactionsSection: { marginTop: 8 },
   transactionsHeader: {
     flexDirection: 'row',

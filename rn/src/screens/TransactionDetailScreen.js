@@ -82,7 +82,7 @@ export default function TransactionDetailScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+      <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
           <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
         </TouchableOpacity>
@@ -154,7 +154,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 50,
     paddingBottom: 16,
-    borderBottomWidth: 1,
   },
   headerBtn: { width: 40 },
   headerTitle: { fontSize: 18, fontWeight: '700' },
