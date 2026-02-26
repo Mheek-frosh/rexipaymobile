@@ -30,6 +30,7 @@ import AddMoneyScreen from '../screens/AddMoneyScreen';
 import SendCryptoScreen from '../screens/SendCryptoScreen';
 import SendCryptoAssetScreen from '../screens/SendCryptoAssetScreen';
 import TransactionDetailScreen from '../screens/TransactionDetailScreen';
+import DebitCardTransactionDetailScreen from '../screens/DebitCardTransactionDetailScreen';
 import ForgotPinPhoneScreen from '../screens/ForgotPinPhoneScreen';
 import ForgotPinOtpScreen from '../screens/ForgotPinOtpScreen';
 import ForgotPinSetPinScreen from '../screens/ForgotPinSetPinScreen';
@@ -61,6 +62,7 @@ export default function RootNavigator() {
         <Stack.Screen name="SendCrypto" component={SendCryptoScreen} />
         <Stack.Screen name="SendCryptoAsset" component={SendCryptoAssetScreen} />
         <Stack.Screen name="TransactionDetail" component={TransactionDetailScreen} />
+        <Stack.Screen name="DebitCardTransactionDetail" component={DebitCardTransactionDetailScreen} />
         <Stack.Screen name="ForgotPinPhone" component={ForgotPinPhoneScreen} />
         <Stack.Screen name="ForgotPinOtp" component={ForgotPinOtpScreen} />
         <Stack.Screen name="ForgotPinSetPin" component={ForgotPinSetPinScreen} />

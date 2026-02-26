@@ -8,9 +8,20 @@ import {
   Dimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 
 const { width } = Dimensions.get('window');
+
+const PENDING_ORANGE = '#F59E0B';
+const PENDING_ORANGE_LIGHT = 'rgba(245, 158, 11, 0.15)';
+
+const DEBIT_CARD_TRANSACTIONS = [
+  { id: '1', title: 'POS Purchase', terminal: 'Shoprite Ikeja', channel: 'POS', amount: '15,500', date: 'Today', time: '2:30 PM', dateTime: 'Today | 2:30 PM', ref: 'RXP' + Date.now(), status: 'Successful', statusDisplay: 'Success' },
+  { id: '2', title: 'ATM Withdrawal', terminal: 'GTBank ATM Ajah', channel: 'ATM', amount: '20,000', date: 'Yesterday', time: '10:15 AM', dateTime: 'Yesterday | 10:15 AM', ref: 'RXP' + (Date.now() - 86400000), status: 'Successful', statusDisplay: 'Success' },
+  { id: '3', title: 'POS Purchase', terminal: 'Fill Station Lekki', channel: 'POS', amount: '8,200', date: '2 days ago', time: '4:45 PM', dateTime: '2 days ago | 4:45 PM', ref: 'RXP' + (Date.now() - 172800000), status: 'Pending', statusDisplay: 'Pending' },
+  { id: '4', title: 'ATM Withdrawal', terminal: 'Access Bank ATM VI', channel: 'ATM', amount: '50,000', date: '3 days ago', time: '9:00 AM', dateTime: '3 days ago | 9:00 AM', ref: 'RXP' + (Date.now() - 259200000), status: 'Done', statusDisplay: 'Success' },
+];
 
 export default function CardsScreen() {
   const { colors } = useTheme();
@@ -26,7 +37,11 @@ export default function CardsScreen() {
         <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         {/* Tab Switch */}
         <View style={[styles.tabSwitch, { backgroundColor: colors.cardBackground }]}>
           <TouchableOpacity
@@ -67,64 +82,114 @@ export default function CardsScreen() {
 
         <Text style={[styles.balance, { color: colors.textPrimary }]}>Bal: ₦250,000</Text>
 
-        {/* Virtual Card */}
-        <View style={styles.cardContainer}>
-          <View style={[styles.virtualCard, { backgroundColor: '#2E63F6' }]}>
-            <View style={styles.cardTop}>
-              <Text style={styles.cardDebit}>Debit.</Text>
-              <Text style={styles.cardBrand}>Rexipay</Text>
-            </View>
-            <View style={styles.cardChip}>
-              <View style={styles.chipRect} />
-            </View>
-            <Text style={styles.cardNumber}>
-              {showCardDetails ? '5355  4200  1234  5678' : '5355  ****  ****  ****'}
-            </Text>
-            <View style={styles.cardBottom}>
-              <View>
-                <Text style={styles.validLabel}>VALID{'\n'}THRU</Text>
+        {selectedTab === 0 ? (
+          <>
+            {/* Virtual Card */}
+            <View style={styles.cardContainer}>
+              <View style={[styles.virtualCard, { backgroundColor: '#2E63F6' }]}>
+                <View style={styles.cardTop}>
+                  <Text style={styles.cardDebit}>Debit.</Text>
+                  <Text style={styles.cardBrand}>Rexipay</Text>
+                </View>
+                <View style={styles.cardChip}>
+                  <View style={styles.chipRect} />
+                </View>
+                <Text style={styles.cardNumber}>
+                  {showCardDetails ? '5355  4200  1234  5678' : '5355  ****  ****  ****'}
+                </Text>
+                <View style={styles.cardBottom}>
+                  <View>
+                    <Text style={styles.validLabel}>VALID{'\n'}THRU</Text>
+                  </View>
+                  <Text style={styles.validValue}>**/**</Text>
+                  <Text style={styles.cardName}>USIDAMEN OZELUAH MIKE</Text>
+                  <Text style={styles.verve}>Verve</Text>
+                </View>
               </View>
-              <Text style={styles.validValue}>**/**</Text>
-              <Text style={styles.cardName}>USIDAMEN OZELUAH MIKE</Text>
-              <Text style={styles.verve}>Verve</Text>
             </View>
-          </View>
-        </View>
 
-        <TouchableOpacity
-          style={styles.tapHint}
-          onPress={() => setShowCardDetails((prev) => !prev)}
-        >
-          <Text style={[styles.tapHintText, { color: colors.primary }]}>
-            Tap to see card details
-          </Text>
-        </TouchableOpacity>
-
-        {/* Limit Settings */}
-        <View style={[styles.limitCard, { backgroundColor: colors.cardBackground }]}>
-          <View style={styles.limitHeader}>
-            <Text style={[styles.limitTitle, { color: colors.textPrimary }]}>Limit Settings</Text>
             <TouchableOpacity
-              style={[styles.editBtn, { backgroundColor: colors.primary }]}
-              onPress={() => navigation.navigate('ChangeLimit')}
+              style={styles.tapHint}
+              onPress={() => setShowCardDetails((prev) => !prev)}
             >
-              <Text style={styles.editBtnText}>Edit</Text>
+              <Text style={[styles.tapHintText, { color: colors.primary }]}>
+                Tap to see card details
+              </Text>
             </TouchableOpacity>
-          </View>
-          <View style={[styles.limitDivider, { backgroundColor: colors.border }]} />
-          <View style={[styles.limitRow, { borderBottomColor: colors.border }]}>
-            <Text style={[styles.limitLabel, { color: colors.textSecondary }]}>
-              Limit Per Transaction
-            </Text>
-            <Text style={[styles.limitValue, { color: colors.textPrimary }]}>₦10M</Text>
-          </View>
-          <View style={styles.limitRow}>
-            <Text style={[styles.limitLabel, { color: colors.textSecondary }]}>
-              Cash Withdrawal Limit
-            </Text>
-            <Text style={[styles.limitValue, { color: colors.textPrimary }]}>₦5M</Text>
-          </View>
-        </View>
+
+            {/* Limit Settings */}
+            <View style={[styles.limitCard, { backgroundColor: colors.cardBackground }]}>
+              <View style={styles.limitHeader}>
+                <Text style={[styles.limitTitle, { color: colors.textPrimary }]}>Limit Settings</Text>
+                <TouchableOpacity
+                  style={[styles.editBtn, { backgroundColor: colors.primary }]}
+                  onPress={() => navigation.navigate('ChangeLimit')}
+                >
+                  <Text style={styles.editBtnText}>Edit</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={[styles.limitDivider, { backgroundColor: colors.border }]} />
+              <View style={[styles.limitRow, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.limitLabel, { color: colors.textSecondary }]}>
+                  Limit Per Transaction
+                </Text>
+                <Text style={[styles.limitValue, { color: colors.textPrimary }]}>₦10M</Text>
+              </View>
+              <View style={styles.limitRow}>
+                <Text style={[styles.limitLabel, { color: colors.textSecondary }]}>
+                  Cash Withdrawal Limit
+                </Text>
+                <Text style={[styles.limitValue, { color: colors.textPrimary }]}>₦5M</Text>
+              </View>
+            </View>
+          </>
+        ) : (
+          <>
+            <View style={styles.debitSectionHeader}>
+              <Text style={[styles.debitSectionTitle, { color: colors.textSecondary }]}>Debits from this card</Text>
+            </View>
+            <View style={[styles.debitListCard, { backgroundColor: colors.cardBackground }]}>
+              {DEBIT_CARD_TRANSACTIONS.map((tx, index) => (
+                <React.Fragment key={tx.id}>
+                  <TouchableOpacity
+                    style={styles.debitRowTouch}
+                    onPress={() => navigation.navigate('DebitCardTransactionDetail', { transaction: tx })}
+                    activeOpacity={0.7}
+                  >
+                    <View style={[styles.debitIconWrap, { backgroundColor: colors.primaryLight }]}>
+                      <MaterialIcons
+                        name={tx.channel === 'ATM' ? 'atm' : 'credit-card'}
+                        size={24}
+                        color={colors.primary}
+                      />
+                    </View>
+                    <View style={styles.debitRowContent}>
+                      <Text style={[styles.debitTitle, { color: colors.textPrimary }]} numberOfLines={1}>
+                        {tx.terminal || tx.title}
+                      </Text>
+                      <Text style={[styles.debitMeta, { color: colors.textSecondary }]}>
+                        {tx.dateTime} · {tx.channel}
+                      </Text>
+                    </View>
+                    <View style={styles.debitRightCol}>
+                      <Text style={[styles.debitAmount, { color: tx.statusDisplay === 'Success' ? colors.error : PENDING_ORANGE }]}>
+                        -₦{tx.amount}
+                      </Text>
+                      <View style={[styles.pill, { backgroundColor: tx.statusDisplay === 'Success' ? colors.success + '20' : PENDING_ORANGE_LIGHT }]}>
+                        <Text style={[styles.pillText, { color: tx.statusDisplay === 'Success' ? colors.success : PENDING_ORANGE }]}>
+                          {tx.statusDisplay}
+                        </Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                  {index < DEBIT_CARD_TRANSACTIONS.length - 1 ? (
+                    <View style={[styles.debitDivider, { backgroundColor: colors.border }]} />
+                  ) : null}
+                </React.Fragment>
+              ))}
+            </View>
+          </>
+        )}
       </ScrollView>
     </View>
   );
@@ -232,4 +297,40 @@ const styles = StyleSheet.create({
   },
   limitLabel: { fontSize: 14 },
   limitValue: { fontSize: 14, fontWeight: '700' },
+  debitSectionHeader: { marginTop: 20, marginBottom: 12 },
+  debitSectionTitle: { fontSize: 14, fontWeight: '600' },
+  debitListCard: {
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    overflow: 'hidden',
+  },
+  debitRowTouch: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 4,
+  },
+  debitIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  debitRowContent: { flex: 1, minWidth: 0 },
+  debitTitle: { fontSize: 15, fontWeight: '600' },
+  debitMeta: { fontSize: 12, marginTop: 2 },
+  debitRightCol: { alignItems: 'flex-end' },
+  debitAmount: { fontSize: 15, fontWeight: '700' },
+  pill: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    marginTop: 4,
+    alignSelf: 'flex-end',
+  },
+  pillText: { fontSize: 11, fontWeight: '600' },
+  debitDivider: { height: 1, marginLeft: 60 },
 });
