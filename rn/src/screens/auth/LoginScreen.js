@@ -73,14 +73,15 @@ export default function LoginScreen() {
           />
         </View>
 
-        <View style={styles.spacer} />
-        <PrimaryButton text="Login" onPress={handleLogin} style={styles.btn} />
         <TouchableOpacity
           style={styles.forgotWrap}
           onPress={() => navigation.navigate('ForgotPasswordPhone')}
         >
           <Text style={[styles.forgotText, { color: colors.primary }]}>Forgot password?</Text>
         </TouchableOpacity>
+
+        <View style={styles.spacer} />
+        <PrimaryButton text="Login" onPress={handleLogin} style={styles.btn} />
         <TouchableOpacity
           style={styles.linkWrap}
           onPress={() => navigation.navigate('Signup')}
@@ -124,7 +125,7 @@ const styles = StyleSheet.create({
   phoneInput: { flex: 1 },
   spacer: { flex: 1, minHeight: 120 },
   btn: { marginTop: 20 },
-  forgotWrap: { alignItems: 'center', marginTop: 16 },
+  forgotWrap: { alignSelf: 'flex-end', marginTop: 8 },
   forgotText: { fontSize: 15, fontWeight: '500' },
   linkWrap: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
   linkText: { fontSize: 15 },
