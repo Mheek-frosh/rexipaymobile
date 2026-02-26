@@ -148,46 +148,44 @@ export default function CardsScreen() {
             <View style={styles.debitSectionHeader}>
               <Text style={[styles.debitSectionTitle, { color: colors.textSecondary }]}>Debits from this card</Text>
             </View>
-            <View style={[styles.debitListCard, { backgroundColor: colors.cardBackground }]}>
-              {DEBIT_CARD_TRANSACTIONS.map((tx, index) => (
-                <React.Fragment key={tx.id}>
-                  <TouchableOpacity
-                    style={styles.debitRowTouch}
-                    onPress={() => navigation.navigate('DebitCardTransactionDetail', { transaction: tx })}
-                    activeOpacity={0.7}
-                  >
-                    <View style={[styles.debitIconWrap, { backgroundColor: colors.primaryLight }]}>
-                      <MaterialIcons
-                        name={tx.channel === 'ATM' ? 'atm' : 'credit-card'}
-                        size={24}
-                        color={colors.primary}
-                      />
+            {DEBIT_CARD_TRANSACTIONS.map((tx) => {
+              const isSuccess = tx.statusDisplay === 'Success';
+              const amountColor = isSuccess ? colors.error : PENDING_ORANGE;
+              const pillBg = isSuccess ? colors.success + '20' : PENDING_ORANGE_LIGHT;
+              const pillColor = isSuccess ? colors.success : PENDING_ORANGE;
+              return (
+                <TouchableOpacity
+                  key={tx.id}
+                  style={[styles.debitCard, { backgroundColor: colors.cardBackground }]}
+                  onPress={() => navigation.navigate('DebitCardTransactionDetail', { transaction: tx })}
+                  activeOpacity={0.7}
+                >
+                  <View style={[styles.debitIconWrap, { backgroundColor: colors.primaryLight }]}>
+                    <MaterialIcons
+                      name={tx.channel === 'ATM' ? 'atm' : 'credit-card'}
+                      size={24}
+                      color={colors.primary}
+                    />
+                  </View>
+                  <View style={styles.debitRowContent}>
+                    <Text style={[styles.debitItemName, { color: colors.textPrimary }]} numberOfLines={1}>
+                      {tx.terminal || tx.title}
+                    </Text>
+                    <Text style={[styles.debitItemMeta, { color: colors.textSecondary }]}>
+                      {tx.dateTime} · {tx.channel}
+                    </Text>
+                  </View>
+                  <View style={styles.debitRightCol}>
+                    <Text style={[styles.debitItemAmount, { color: amountColor }]}>
+                      -₦{tx.amount}
+                    </Text>
+                    <View style={[styles.debitPill, { backgroundColor: pillBg }]}>
+                      <Text style={[styles.debitPillText, { color: pillColor }]}>{tx.statusDisplay}</Text>
                     </View>
-                    <View style={styles.debitRowContent}>
-                      <Text style={[styles.debitTitle, { color: colors.textPrimary }]} numberOfLines={1}>
-                        {tx.terminal || tx.title}
-                      </Text>
-                      <Text style={[styles.debitMeta, { color: colors.textSecondary }]}>
-                        {tx.dateTime} · {tx.channel}
-                      </Text>
-                    </View>
-                    <View style={styles.debitRightCol}>
-                      <Text style={[styles.debitAmount, { color: tx.statusDisplay === 'Success' ? colors.error : PENDING_ORANGE }]}>
-                        -₦{tx.amount}
-                      </Text>
-                      <View style={[styles.pill, { backgroundColor: tx.statusDisplay === 'Success' ? colors.success + '20' : PENDING_ORANGE_LIGHT }]}>
-                        <Text style={[styles.pillText, { color: tx.statusDisplay === 'Success' ? colors.success : PENDING_ORANGE }]}>
-                          {tx.statusDisplay}
-                        </Text>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                  {index < DEBIT_CARD_TRANSACTIONS.length - 1 ? (
-                    <View style={[styles.debitDivider, { backgroundColor: colors.border }]} />
-                  ) : null}
-                </React.Fragment>
-              ))}
-            </View>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
           </>
         )}
       </ScrollView>
@@ -297,40 +295,34 @@ const styles = StyleSheet.create({
   },
   limitLabel: { fontSize: 14 },
   limitValue: { fontSize: 14, fontWeight: '700' },
-  debitSectionHeader: { marginTop: 20, marginBottom: 12 },
+  debitSectionHeader: { marginTop: 20, marginBottom: 10 },
   debitSectionTitle: { fontSize: 14, fontWeight: '600' },
-  debitListCard: {
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    overflow: 'hidden',
-  },
-  debitRowTouch: {
+  debitCard: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 14,
-    paddingHorizontal: 4,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    marginBottom: 12,
   },
   debitIconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 14,
   },
   debitRowContent: { flex: 1, minWidth: 0 },
-  debitTitle: { fontSize: 15, fontWeight: '600' },
-  debitMeta: { fontSize: 12, marginTop: 2 },
+  debitItemName: { fontSize: 16, fontWeight: '600' },
+  debitItemMeta: { fontSize: 13, marginTop: 4 },
   debitRightCol: { alignItems: 'flex-end' },
-  debitAmount: { fontSize: 15, fontWeight: '700' },
-  pill: {
-    paddingHorizontal: 8,
+  debitItemAmount: { fontSize: 16, fontWeight: '700' },
+  debitPill: {
+    paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
-    marginTop: 4,
-    alignSelf: 'flex-end',
+    marginTop: 6,
   },
-  pillText: { fontSize: 11, fontWeight: '600' },
-  debitDivider: { height: 1, marginLeft: 60 },
+  debitPillText: { fontSize: 12, fontWeight: '600' },
 });
