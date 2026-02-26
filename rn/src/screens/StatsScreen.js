@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -27,14 +27,47 @@ const TIME_RANGE_OPTIONS = [
 
 const PERIOD_OPTIONS = ['This Week', 'This Month', 'Last 3 Months', 'This Year'];
 
-// Monthly spending (for bar chart) – values in Naira
-const BAR_DATA = [
-  { month: 'Jan', total: 82000 },
-  { month: 'Feb', total: 64000 },
-  { month: 'Mar', total: 95500 },
-  { month: 'Apr', total: 73000 },
-  { month: 'May', total: 118000 },
-  { month: 'Jun', total: 90500 },
+// Chart: spending per period. Today=1, 7D=7 days, 3M=3 months, 6M=6 months, Custom=6 months.
+const CHART_DATA_BY_RANGE = {
+  today: [{ label: 'Today', total: 150000 }],
+  '7d': [
+    { label: 'Mon', total: 45000 },
+    { label: 'Tue', total: 62000 },
+    { label: 'Wed', total: 38000 },
+    { label: 'Thu', total: 71000 },
+    { label: 'Fri', total: 89000 },
+    { label: 'Sat', total: 54000 },
+    { label: 'Sun', total: 31000 },
+  ],
+  '3m': [
+    { label: 'Apr', total: 73000 },
+    { label: 'May', total: 118000 },
+    { label: 'Jun', total: 90500 },
+  ],
+  '6m': [
+    { label: 'Jan', total: 82000 },
+    { label: 'Feb', total: 64000 },
+    { label: 'Mar', total: 95500 },
+    { label: 'Apr', total: 73000 },
+    { label: 'May', total: 118000 },
+    { label: 'Jun', total: 90500 },
+  ],
+  custom: [
+    { label: 'Jan', total: 82000 },
+    { label: 'Feb', total: 64000 },
+    { label: 'Mar', total: 95500 },
+    { label: 'Apr', total: 73000 },
+    { label: 'May', total: 118000 },
+    { label: 'Jun', total: 90500 },
+  ],
+};
+
+// Legend: categories with colors for infographics
+const CATEGORY_LEGEND = [
+  { label: 'Transfers', color: '#5B86FC', percent: 42 },
+  { label: 'Airtimes', color: '#FFD166', percent: 26 },
+  { label: 'ATM card debit', color: '#FF6B6B', percent: 20 },
+  { label: 'Others', color: '#7B61FF', percent: 12 },
 ];
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -77,18 +110,19 @@ function formatNaira(value, withDecimals = false) {
   });
 }
 
-function AnimatedBarChart({ data, colors }) {
-  // Room for tooltip, arrow, dot, and month labels (image proportions)
+function AnimatedBarChart({ data, colors, legendColors }) {
+  // Room for tooltip, arrow, dot, and labels (image proportions)
   const TOOLTIP_LABELS_HEIGHT = 58;
   const MONTH_LABEL_HEIGHT = 28;
   const MAX_BAR_HEIGHT = CHART_HEIGHT - TOOLTIP_LABELS_HEIGHT - MONTH_LABEL_HEIGHT;
-  const maxValue = Math.max(...data.map((d) => d.total));
-  const animValues = useRef(data.map(() => new Animated.Value(0))).current;
+  const maxValue = Math.max(...data.map((d) => d.total), 1);
+  const maxBars = 7;
+  const animValues = useRef(Array.from({ length: maxBars }, () => new Animated.Value(0))).current;
 
   useEffect(() => {
     Animated.stagger(
       100,
-      animValues.map((v) =>
+      animValues.slice(0, data.length).map((v) =>
         Animated.timing(v, {
           toValue: 1,
           duration: 550,
@@ -96,7 +130,7 @@ function AnimatedBarChart({ data, colors }) {
         }),
       ),
     ).start();
-  }, [animValues]);
+  }, []);
 
   const maxIndex = data.reduce(
     (idx, item, i) => (item.total > data[idx].total ? i : idx),
@@ -157,25 +191,28 @@ function AnimatedBarChart({ data, colors }) {
             outputRange: [0, barHeight],
           });
           const isMax = index === maxIndex;
-
-          // Colors matching the image: highlighted bar is solid primary, others are light purple/tinted
-          const barColor = isMax ? colors.primary : colors.primaryLight;
+          // Each bar uses a legend color so the infographic is clear (cycles Transfers, Airtimes, ATM, Others)
+          const barColor = (legendColors && legendColors[index % legendColors.length]) || (isMax ? colors.primary : colors.primaryLight);
 
           return (
-            <View key={item.month} style={[styles.barWrapper, { width: barGroupWidth }]}>
+            <View key={`${item.label}-${index}`} style={[styles.barWrapper, { width: barGroupWidth }]}>
               {/* Tooltip above the highest bar */}
               <View style={styles.barColumn}>
                 {isMax ? (
                   <View style={styles.tooltipContainer}>
-                    {/* Tooltip bubble */}
-                    <View style={[styles.tooltipBubble, { backgroundColor: colors.textPrimary }]}>
-                      <Text style={styles.tooltipText}>{formatNaira(item.total, true)}</Text>
+                    {/* Tooltip: dark bubble with pointer from bottom-right (image) */}
+                    <View style={[styles.tooltipBubbleWrap, { marginRight: barGroupWidth / 2 - 22 }]}>
+                      <View style={[styles.tooltipBubble, { backgroundColor: colors.textPrimary }]}>
+                        <Text style={styles.tooltipText}>{formatNaira(item.total, true)}</Text>
+                      </View>
+                      {/* Triangular pointer from bottom-right edge, pointing to indicator */}
+                      <View style={styles.tooltipPointerWrap}>
+                        <Svg width={12} height={7} viewBox="0 0 12 7" style={styles.tooltipPointerSvg}>
+                          <Polygon points="0,0 12,0 6,7" fill={colors.textPrimary} />
+                        </Svg>
+                      </View>
                     </View>
-                    {/* Downward arrow */}
-                    <Svg width={12} height={ARROW_HEIGHT} viewBox="0 0 12 8" style={styles.tooltipArrow}>
-                      <Polygon points="0,0 12,0 6,8" fill={colors.textPrimary} />
-                    </Svg>
-                    {/* Solid circular indicator at top of bar (image) */}
+                    {/* Circular indicator on bar – solid, no white ring */}
                     <View
                       style={[
                         styles.tooltipDot,
@@ -193,7 +230,7 @@ function AnimatedBarChart({ data, colors }) {
                   <View style={styles.tooltipSpacer} />
                 )}
 
-                {/* The actual bar */}
+                {/* The actual bar – no figure inside */}
                 <View style={[styles.barBase, { height: MAX_BAR_HEIGHT, justifyContent: 'flex-end' }]}>
                   <Animated.View
                     style={[
@@ -201,16 +238,16 @@ function AnimatedBarChart({ data, colors }) {
                         width: barWidth,
                         height,
                         backgroundColor: barColor,
-                        borderTopLeftRadius: 7,
-                        borderTopRightRadius: 7,
+                        borderTopLeftRadius: 10,
+                        borderTopRightRadius: 10,
                       },
                     ]}
                   />
                 </View>
               </View>
 
-              {/* Month label */}
-              <Text style={[styles.barMonth, { color: colors.textSecondary }]}>{item.month}</Text>
+              {/* X-axis label */}
+              <Text style={[styles.barMonth, { color: colors.textSecondary }]}>{item.label}</Text>
             </View>
           );
         })}
@@ -225,6 +262,11 @@ export default function StatsScreen() {
   const [selectedPeriod, setSelectedPeriod] = useState('This Week');
   const [selectedTimeRange, setSelectedTimeRange] = useState('6m');
   const [showPeriodModal, setShowPeriodModal] = useState(false);
+
+  const chartData = useMemo(
+    () => CHART_DATA_BY_RANGE[selectedTimeRange] || CHART_DATA_BY_RANGE['6m'],
+    [selectedTimeRange],
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -267,9 +309,32 @@ export default function StatsScreen() {
           })}
         </View>
 
-        {/* Bar chart block */}
+        {/* Bar chart block – data changes by Today / 7D / 3M / 6M / Custom */}
         <View style={[styles.chartBlock, { backgroundColor: colors.cardBackground }]}>
-          <AnimatedBarChart data={BAR_DATA} colors={colors} />
+          <AnimatedBarChart
+            key={selectedTimeRange}
+            data={chartData}
+            colors={colors}
+            legendColors={CATEGORY_LEGEND.map((c) => c.color)}
+          />
+          <View style={[styles.legend, { borderTopColor: colors.border }]}>
+            {CATEGORY_LEGEND.map((item, i) => (
+              <View
+                key={item.label}
+                style={[
+                  styles.legendItem,
+                  { borderBottomColor: colors.border },
+                  i === CATEGORY_LEGEND.length - 1 && styles.legendItemLast,
+                ]}
+              >
+                <View style={styles.legendLeft}>
+                  <View style={[styles.legendDot, { backgroundColor: item.color }]} />
+                  <Text style={[styles.legendLabel, { color: colors.textPrimary }]}>{item.label}</Text>
+                </View>
+                <Text style={[styles.legendPercent, { color: colors.textSecondary }]}>{item.percent}%</Text>
+              </View>
+            ))}
+          </View>
         </View>
 
         {/* Transactions */}
@@ -424,30 +489,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  // Tooltip
+  // Tooltip – bubble with pointer from bottom-right (image)
   tooltipContainer: {
     alignItems: 'center',
     marginBottom: 2,
   },
+  tooltipBubbleWrap: {
+    position: 'relative',
+    alignSelf: 'flex-end',
+  },
   tooltipBubble: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    paddingRight: 18,
     borderRadius: 10,
   },
   tooltipText: {
     color: '#FFF',
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
   },
-  tooltipArrow: {
-    marginTop: -1,
+  tooltipPointerWrap: {
+    position: 'absolute',
+    right: 10,
+    bottom: -6,
   },
+  tooltipPointerSvg: {},
   tooltipDot: {
-    marginTop: 3,
+    marginTop: 4,
   },
-  // Spacer to align non-max bars
+  // Spacer to align non-max bars (bubble + pointer + dot + gap)
   tooltipSpacer: {
-    height: 36 + 8 + 10 + 6, // bubble + arrow + dot + gap
+    height: 36 + 7 + 10 + 6,
   },
   barBase: {
     alignItems: 'center',
@@ -457,6 +530,27 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontWeight: '500',
   },
+
+  // Legend under chart – infographics (Transfers, Airtimes, ATM, Others)
+  legend: {
+    width: '100%',
+    marginTop: 20,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: 'transparent',
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+  },
+  legendLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  legendDot: { width: 12, height: 12, borderRadius: 6 },
+  legendLabel: { fontSize: 14, fontWeight: '600' },
+  legendPercent: { fontSize: 13 },
+  legendItemLast: { borderBottomWidth: 0 },
 
   // Transactions
   transactionsSection: { marginTop: 8 },
