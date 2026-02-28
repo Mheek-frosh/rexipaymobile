@@ -34,6 +34,7 @@ import DebitCardTransactionDetailScreen from '../screens/DebitCardTransactionDet
 import ForgotPinPhoneScreen from '../screens/ForgotPinPhoneScreen';
 import ForgotPinOtpScreen from '../screens/ForgotPinOtpScreen';
 import ForgotPinSetPinScreen from '../screens/ForgotPinSetPinScreen';
+import OfflinePayScreen from '../screens/OfflinePayScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -62,6 +63,7 @@ export default function RootNavigator() {
         <Stack.Screen name="SendCrypto" component={SendCryptoScreen} />
         <Stack.Screen name="SendCryptoAsset" component={SendCryptoAssetScreen} />
         <Stack.Screen name="TransactionDetail" component={TransactionDetailScreen} />
+        <Stack.Screen name="OfflinePay" component={OfflinePayScreen} />
         <Stack.Screen name="DebitCardTransactionDetail" component={DebitCardTransactionDetailScreen} />
         <Stack.Screen name="ForgotPinPhone" component={ForgotPinPhoneScreen} />
         <Stack.Screen name="ForgotPinOtp" component={ForgotPinOtpScreen} />

@@ -150,6 +150,55 @@ app.post('/api/auth/resend-status', (req, res) => {
   });
 });
 
+// ============ Offline MVP Mock APIs ============
+// In-memory store for mock validation (use DB in production)
+const syncedTransactions = new Set();
+const mockBalances = new Map(); // userId -> { NGN: number, ... }
+
+app.post('/api/offline/sync', async (req, res) => {
+  try {
+    const { transactions } = req.body;
+    if (!Array.isArray(transactions)) {
+      return res.status(400).json({ success: false, error: 'transactions array required' });
+    }
+    const syncedIds = [];
+    for (const tx of transactions) {
+      const { transactionId, senderId, receiverId, amount, currency, timestamp, deviceSignature } = tx;
+      if (!transactionId || !senderId || !receiverId || amount == null) {
+        continue;
+      }
+      if (syncedTransactions.has(transactionId)) continue;
+      const fiveMinAgo = Date.now() - 5 * 60 * 1000;
+      if (timestamp < fiveMinAgo) continue;
+      syncedTransactions.add(transactionId);
+      syncedIds.push(transactionId);
+      // Mock: deduct sender, credit receiver
+      const sBal = mockBalances.get(senderId) || { NGN: 250000 };
+      const rBal = mockBalances.get(receiverId) || { NGN: 0 };
+      const cur = currency || 'NGN';
+      sBal[cur] = (sBal[cur] || 0) - Number(amount);
+      rBal[cur] = (rBal[cur] || 0) + Number(amount);
+      mockBalances.set(senderId, sBal);
+      mockBalances.set(receiverId, rBal);
+    }
+    res.json({ success: true, syncedIds });
+  } catch (err) {
+    console.error('Offline sync error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/wallet/reconcile', (req, res) => {
+  try {
+    const userId = req.query.userId;
+    if (!userId) return res.status(400).json({ success: false, error: 'userId required' });
+    const bal = mockBalances.get(userId) || { NGN: 250000 };
+    res.json({ success: true, balance: bal });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // Resolve Nigerian bank account name (Flutterwave API)
 app.post('/api/bank/resolve-account', async (req, res) => {
   try {

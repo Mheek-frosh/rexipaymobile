@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
+import { useAuth } from '../context/AuthContext';
+import { getWalletState } from '../services/offlineWalletService';
 
 const PENDING_ORANGE = '#F59E0B';
 const PENDING_ORANGE_LIGHT = 'rgba(245, 158, 11, 0.15)';
@@ -31,9 +33,41 @@ function getIconBg(type, colors) {
   return colors.primaryLight;
 }
 
+function formatOfflineTx(tx, userId, type) {
+  const amount = Number(tx.amount).toLocaleString();
+  const date = new Date(tx.timestamp);
+  return {
+    id: tx.transactionId,
+    name: type === 'sent' ? tx.receiverId : tx.senderId,
+    amount,
+    type: type === 'sent' ? 'sent' : 'received',
+    dateTime: date.toLocaleDateString() + ' | ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    statusDisplay: 'Pending Sync',
+    isOffline: true,
+  };
+}
+
 export default function TransactionsScreen() {
   const { colors } = useTheme();
+  const { userPhone } = useAuth();
   const navigation = useNavigation();
+  const [offlineTxs, setOfflineTxs] = useState([]);
+
+  const loadOffline = useCallback(async () => {
+    const state = await getWalletState();
+    const userId = userPhone || 'user';
+    const debits = (state?.pendingOfflineDebits || []).map((t) => formatOfflineTx(t, userId, 'sent'));
+    const credits = (state?.pendingOfflineCredits || []).map((t) => formatOfflineTx(t, userId, 'received'));
+    setOfflineTxs([...debits, ...credits].sort((a, b) => b.id.localeCompare(a.id)));
+  }, [userPhone]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadOffline();
+    }, [loadOffline])
+  );
+
+  const allTxs = [...offlineTxs, ...MOCK_TRANSACTIONS];
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -48,14 +82,15 @@ export default function TransactionsScreen() {
         <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>This Month</Text>
       </View>
       <FlatList
-        data={MOCK_TRANSACTIONS}
+        data={allTxs}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         renderItem={({ item: tx }) => {
-          const isSuccess = tx.statusDisplay === 'Success';
+          const isSuccess = tx.statusDisplay === 'Success' && !tx.isOffline;
           const amountColor = isSuccess ? colors.success : PENDING_ORANGE;
           const pillBg = isSuccess ? colors.success + '20' : PENDING_ORANGE_LIGHT;
           const pillColor = isSuccess ? colors.success : PENDING_ORANGE;
+          const pillLabel = tx.statusDisplay || (isSuccess ? 'Success' : 'Pending');
           return (
             <TouchableOpacity
               style={[styles.card, { backgroundColor: colors.cardBackground }]}
@@ -82,7 +117,7 @@ export default function TransactionsScreen() {
                   {tx.type === 'sent' ? '-' : '+'}₦{tx.amount}
                 </Text>
                 <View style={[styles.pill, { backgroundColor: pillBg }]}>
-                  <Text style={[styles.pillText, { color: pillColor }]}>{tx.statusDisplay}</Text>
+                  <Text style={[styles.pillText, { color: pillColor }]}>{pillLabel}</Text>
                 </View>
               </View>
             </TouchableOpacity>

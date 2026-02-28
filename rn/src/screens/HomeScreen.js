@@ -27,6 +27,7 @@ const COLS = 4;
 const ITEM_WIDTH = (width - PADDING * 2 - GAP * (COLS - 1)) / COLS;
 
 const QUICK_ACTIONS = [
+  { icon: 'wifi-off', label: 'Offline Pay', color: '#10B981', bg: '#E8F5E9', route: 'OfflinePay' },
   { icon: 'wifi', label: 'Airtime', color: '#FF9800', bg: '#FFF3E0', route: 'Airtime' },
   { icon: 'public', label: 'Internet', color: '#4CAF50', bg: '#E8F5E9', route: null },
   { icon: 'bolt', label: 'Electricity', color: '#FFC107', bg: '#FFFDE7', route: null },
@@ -159,6 +160,7 @@ export default function HomeScreen() {
                     onPress={() => {
                       if (item.route === 'Airtime') navigation.navigate('Airtime');
                       if (item.route === 'Transactions') navigation.navigate('Transactions');
+                      if (item.route === 'OfflinePay') navigation.navigate('OfflinePay');
                     }}
                   >
                     <View

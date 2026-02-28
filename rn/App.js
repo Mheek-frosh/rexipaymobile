@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AuthProvider } from './src/context/AuthContext';
 import { ThemeProvider } from './src/theme/ThemeContext';
+import { startNetworkMonitoring } from './src/services/offlineSyncService';
 import RootNavigator from './src/navigation/RootNavigator';
 import SplashScreen from './src/screens/SplashScreen';
 
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
+
+  useEffect(() => {
+    const unsub = startNetworkMonitoring();
+    return () => unsub?.();
+  }, []);
 
   if (!splashDone) {
     return (
