@@ -34,19 +34,24 @@ export default function SignupScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
   const [showCountryPicker, setShowCountryPicker] = useState(false);
+  // Checks if the required fields (name and phone) are filled before allowing submission
   const canSubmit = name.trim() && phone.trim();
 
+  // Handles the initial signup step
   const handleSignUp = async () => {
     if (!canSubmit) return;
     setLoading(true);
     try {
-      // For now: skip OTP and go directly to PersonalInfo - logic will be added later
+      // NOTE: For development purposes, this skips the actual OTP verification step 
+      // and goes directly to the `PersonalInfo` screen. 
+      // The `pendingSignupUser` state temporarily stores user data during this flow.
       const userData = {
         name: name.trim(),
         phone: phone.trim(),
         firstName: name.trim().split(' ')[0] || 'User',
         countryCode: selectedCountry.dialCode,
       };
+
       setPendingSignupUser(userData);
       navigation.navigate('PersonalInfo', { skipOtp: true });
     } catch (e) {
@@ -62,93 +67,99 @@ export default function SignupScreen() {
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <SegmentedProgressBar totalSteps={4} currentStep={1} />
-        <Text style={[styles.title, { color: colors.textPrimary }]}>Create Account</Text>
-        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-          Enter your mobile number to verify your account
-        </Text>
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Step 1 of the 4-step signup progess */}
+          <SegmentedProgressBar totalSteps={4} currentStep={1} />
+          <Text style={[styles.title, { color: colors.textPrimary }]}>Create Account</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+            Enter your mobile number to verify your account
+          </Text>
 
-        <Text style={[styles.label, { color: colors.textPrimary }]}>Full Name</Text>
-        <TextInput
-          style={[styles.input, { color: colors.textPrimary, borderColor: colors.border }]}
-          placeholder="e.g. Michael Ozeluah"
-          placeholderTextColor={colors.textSecondary}
-          value={name}
-          onChangeText={setName}
-          autoCapitalize="words"
-        />
+          {/* Full Name Input Box */}
+          <Text style={[styles.label, { color: colors.textPrimary }]}>Full Name</Text>
+          <TextInput
+            style={[styles.input, { color: colors.textPrimary, borderColor: colors.border }]}
+            placeholder="e.g. Michael Ozeluah"
+            placeholderTextColor={colors.textSecondary}
+            value={name}
+            onChangeText={setName}
+            autoCapitalize="words"
+          />
 
-        <Text style={[styles.label, { color: colors.textPrimary }]}>Phone</Text>
-        <View style={styles.phoneRow}>
+          <Text style={[styles.label, { color: colors.textPrimary }]}>Phone</Text>
+          <View style={styles.phoneRow}>
+            <TouchableOpacity
+              style={[styles.countryBox, { borderColor: colors.border }]}
+              onPress={() => setShowCountryPicker(true)}
+            >
+              <Text style={[styles.countryText, { color: colors.textPrimary }]}>
+                {selectedCountry.flag} {selectedCountry.dialCode}
+              </Text>
+            </TouchableOpacity>
+            <TextInput
+              style={[
+                styles.input,
+                styles.phoneInput,
+                { color: colors.textPrimary, borderColor: colors.border },
+              ]}
+              placeholder="90 3444 8700"
+              placeholderTextColor={colors.textSecondary}
+              value={phone}
+              onChangeText={setPhone}
+              keyboardType="phone-pad"
+            />
+          </View>
+
+          <Text style={[styles.label, { color: colors.textPrimary }]}>Password</Text>
+          <View style={styles.passwordWrap}>
+            <TextInput
+              style={[styles.input, styles.passwordInput, { color: colors.textPrimary, borderColor: colors.border }]}
+              placeholder="••••••••••"
+              placeholderTextColor={colors.textSecondary}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity
+              style={styles.eyeBtn}
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? (
+                <Eye size={22} color={colors.textSecondary} />
+              ) : (
+                <EyeSlash size={22} color={colors.textSecondary} />
+              )}
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.spacer} />
+
+          {/* Submit Button: Disabled until user inputs name and phone */}
+          <PrimaryButton
+            text="Sign Up"
+            onPress={handleSignUp}
+            disabled={!canSubmit}
+            loading={loading}
+            style={styles.btn}
+          />
+
+          {/* Navigation back to Login Screen for existing users */}
           <TouchableOpacity
-            style={[styles.countryBox, { borderColor: colors.border }]}
-            onPress={() => setShowCountryPicker(true)}
+            style={styles.linkWrap}
+            onPress={() => navigation.navigate('Login')}
           >
-            <Text style={[styles.countryText, { color: colors.textPrimary }]}>
-              {selectedCountry.flag} {selectedCountry.dialCode}
+            <Text style={[styles.linkText, { color: colors.textSecondary }]}>
+              Already have an account?{' '}
+            </Text>
+            <Text style={[styles.linkText, { color: colors.primary, fontWeight: '600' }]}>
+              Login
             </Text>
           </TouchableOpacity>
-          <TextInput
-            style={[
-              styles.input,
-              styles.phoneInput,
-              { color: colors.textPrimary, borderColor: colors.border },
-            ]}
-            placeholder="90 3444 8700"
-            placeholderTextColor={colors.textSecondary}
-            value={phone}
-            onChangeText={setPhone}
-            keyboardType="phone-pad"
-          />
-        </View>
-
-        <Text style={[styles.label, { color: colors.textPrimary }]}>Password</Text>
-        <View style={styles.passwordWrap}>
-          <TextInput
-            style={[styles.input, styles.passwordInput, { color: colors.textPrimary, borderColor: colors.border }]}
-            placeholder="••••••••••"
-            placeholderTextColor={colors.textSecondary}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!showPassword}
-          />
-          <TouchableOpacity
-            style={styles.eyeBtn}
-            onPress={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? (
-              <Eye size={22} color={colors.textSecondary} />
-            ) : (
-              <EyeSlash size={22} color={colors.textSecondary} />
-            )}
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.spacer} />
-        <PrimaryButton
-          text="Sign Up"
-          onPress={handleSignUp}
-          disabled={!canSubmit}
-          loading={loading}
-          style={styles.btn}
-        />
-        <TouchableOpacity
-          style={styles.linkWrap}
-          onPress={() => navigation.navigate('Login')}
-        >
-          <Text style={[styles.linkText, { color: colors.textSecondary }]}>
-            Already have an account?{' '}
-          </Text>
-          <Text style={[styles.linkText, { color: colors.primary, fontWeight: '600' }]}>
-            Login
-          </Text>
-        </TouchableOpacity>
-      </ScrollView>
+        </ScrollView>
       </KeyboardAvoidingView>
       <CountryPickerSheet
         visible={showCountryPicker}

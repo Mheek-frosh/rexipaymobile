@@ -22,9 +22,10 @@ export default function ForgotPasswordSetPasswordScreen() {
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // Controls visibility of the password characters
+  const [showSuccess, setShowSuccess] = useState(false); // Toggles the success view
 
+  // Step 3 of Password Reset: Validate and save the new password
   const handleSubmit = () => {
     if (password.length < 6) {
       Alert.alert('Invalid password', 'Password must be at least 6 characters.');
@@ -34,11 +35,16 @@ export default function ForgotPasswordSetPasswordScreen() {
       Alert.alert('Passwords do not match', 'Please make sure both passwords are the same.');
       return;
     }
+
+    // In a real app, you would make an API call to update the password here, 
+    // passing the previously validated OTP and phone number along with the new password.
     setShowSuccess(true);
   };
 
+  // Button is only enabled when conditions are met
   const isValid = password.length >= 6 && password === confirmPassword;
 
+  // Render a completely different view once the password is successfully reset
   if (showSuccess) {
     return (
       <View style={[styles.container, styles.successContainer, { backgroundColor: colors.background }]}>

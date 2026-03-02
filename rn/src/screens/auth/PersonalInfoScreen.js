@@ -36,16 +36,20 @@ export default function PersonalInfoScreen() {
   const [dobDate, setDobDate] = useState(null);
   const [showDobPicker, setShowDobPicker] = useState(false);
 
+  // Handles the selection of a date from the DateTimePicker
   const onDobChange = (event, selectedDate) => {
+    // Android picker automatically closes after selection; iOS does not
     if (Platform.OS === 'android') setShowDobPicker(false);
     if (selectedDate) setDobDate(selectedDate);
   };
 
+  // Proceed to the next step (NIN & Face Verification) with the updated user data
   const handleContinue = () => {
     const updatedUser = {
       ...pendingUser,
       name: fullName || pendingUser?.name,
       firstName: username || fullName?.split(' ')[0] || pendingUser?.firstName,
+      // Convert the Date object to an ISO string for storage/API use
       dob: dobDate ? dobDate.toISOString() : null,
     };
     navigation.navigate('NINAndFace', { user: updatedUser });
@@ -62,6 +66,7 @@ export default function PersonalInfoScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
+          {/* Step 2 of the 4-step signup sequence */}
           <SegmentedProgressBar totalSteps={4} currentStep={2} />
           <Text style={[styles.title, { color: colors.textPrimary }]}>Personal Info</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
@@ -97,15 +102,18 @@ export default function PersonalInfoScreen() {
             <MaterialIcons name="calendar-today" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
 
+          {/* Date of Birth Picker Component */}
           {showDobPicker && (
             <DateTimePicker
               value={dobDate || new Date(2000, 0, 1)}
               mode="date"
               display={Platform.OS === 'ios' ? 'spinner' : 'default'}
               onChange={onDobChange}
-              maximumDate={new Date()}
+              maximumDate={new Date()} // Prevents selecting future dates
             />
           )}
+
+          {/* iOS requires an explicit "Done" button to close the spinner, unlike Android default behavior */}
           {Platform.OS === 'ios' && showDobPicker && (
             <TouchableOpacity style={styles.iosDateDone} onPress={() => setShowDobPicker(false)}>
               <Text style={{ color: colors.primary, fontSize: 16, fontWeight: '600' }}>Done</Text>

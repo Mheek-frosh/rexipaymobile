@@ -26,6 +26,9 @@ export default function LoginScreen() {
   const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
   const [showCountryPicker, setShowCountryPicker] = useState(false);
 
+  // Handles the login submission.
+  // In a real app, this would validate the phone number format and authenticate via an API.
+  // Currently, it triggers the `login` function from AuthContext to set authentication state.
   const handleLogin = () => {
     login(phone.trim() || '9034448700', phone.trim() ? 'User' : 'User');
   };
@@ -49,8 +52,10 @@ export default function LoginScreen() {
           Enter your registered mobile number
         </Text>
 
+        {/* Mobile Number Input Section */}
         <Text style={[styles.label, { color: colors.textPrimary }]}>Phone</Text>
         <View style={styles.phoneRow}>
+          {/* Country Code Picker: Opens a bottom sheet to select the country code */}
           <TouchableOpacity
             style={[styles.countryBox, { borderColor: colors.border }]}
             onPress={() => setShowCountryPicker(true)}
@@ -73,6 +78,7 @@ export default function LoginScreen() {
           />
         </View>
 
+        {/* Forgot Password Link */}
         <TouchableOpacity
           style={styles.forgotWrap}
           onPress={() => navigation.navigate('ForgotPasswordPhone')}
@@ -81,7 +87,11 @@ export default function LoginScreen() {
         </TouchableOpacity>
 
         <View style={styles.spacer} />
+
+        {/* Submit Button */}
         <PrimaryButton text="Login" onPress={handleLogin} style={styles.btn} />
+
+        {/* Navigation to Signup Screen */}
         <TouchableOpacity
           style={styles.linkWrap}
           onPress={() => navigation.navigate('Signup')}

@@ -26,12 +26,17 @@ export default function ForgotPasswordPhoneScreen() {
   const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
   const [showCountryPicker, setShowCountryPicker] = useState(false);
 
+  // Step 1 of Password Reset: Validates phone number and sends an OTP
   const handleSendOtp = () => {
+    // Strip non-numeric characters for validation
     const trimmed = phone.trim().replace(/\D/g, '');
     if (!trimmed || trimmed.length < 10) {
       Alert.alert('Invalid number', 'Please enter a valid phone number.');
       return;
     }
+
+    // In a real app, this would trigger an API call to send the OTP.
+    // For now, it passes the phone data directly to the OTP verification screen.
     navigation.navigate('ForgotPasswordOtp', {
       phone: trimmed,
       countryCode: selectedCountry.dialCode,

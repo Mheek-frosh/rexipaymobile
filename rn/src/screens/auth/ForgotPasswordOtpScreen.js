@@ -20,8 +20,9 @@ export default function ForgotPasswordOtpScreen() {
   const { phone, countryCode = '+234' } = route.params || {};
 
   const [otp, setOtp] = useState('');
-  const [resendSeconds, setResendSeconds] = useState(60);
+  const [resendSeconds, setResendSeconds] = useState(60); // 60s cooldown timer for resending OTP
 
+  // Timer effect to decrement the `resendSeconds` until it reaches 0
   useEffect(() => {
     let t;
     if (resendSeconds > 0) {
@@ -30,11 +31,15 @@ export default function ForgotPasswordOtpScreen() {
     return () => clearInterval(t);
   }, [resendSeconds]);
 
+  // Step 2 of Password Reset: Verify OTP and proceed to set a new password
   const handleContinue = () => {
     if (otp.length !== 6) return;
+
+    // Pass the verified phone number and OTP to the final screen for the physical reset operation
     navigation.navigate('ForgotPasswordSetPassword', { phone, countryCode, otp });
   };
 
+  // Restarts the OTP countdown timer and triggers a backend resend in a real app
   const handleResend = () => {
     if (resendSeconds > 0) return;
     setResendSeconds(60);

@@ -23,8 +23,9 @@ export default function OtpVerificationScreen() {
 
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
-  const [resendSeconds, setResendSeconds] = useState(60);
+  const [resendSeconds, setResendSeconds] = useState(60); // 60-second countdown for resending OTP
 
+  // Timer effect to decrement the `resendSeconds` every second
   useEffect(() => {
     let t;
     if (resendSeconds > 0) {
@@ -33,16 +34,21 @@ export default function OtpVerificationScreen() {
     return () => clearInterval(t);
   }, [resendSeconds]);
 
+  // Handles OTP submission to the backend API (`verifyOtp`)
   const handleVerify = async () => {
+    // Only proceed if exactly 6 digits are entered
     if (otp.length !== 6) return;
+
     setLoading(true);
     try {
       const result = await verifyOtp(phone, otp, countryCode, name);
       if (result.success && result.user) {
         if (isSignup) {
+          // If this is during signup, move to the next step (PersonalInfo)
           setPendingSignupUser(result.user);
           navigation.navigate('PersonalInfo');
         } else {
+          // If this is a login returning user, complete auth and go to main app
           signupComplete(result.user);
           navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
         }
@@ -56,8 +62,11 @@ export default function OtpVerificationScreen() {
     }
   };
 
+  // Handles requesting a new OTP from the backend (`sendOtp`)
   const handleResend = async () => {
+    // Prevent resending if timer is still active
     if (resendSeconds > 0) return;
+
     const result = await sendOtp(phone, countryCode);
     if (result.success) {
       setResendSeconds(60);
@@ -82,11 +91,13 @@ export default function OtpVerificationScreen() {
         placeholder="000000"
         placeholderTextColor={colors.textSecondary}
         value={otp}
+        // Strips any non-numeric characters and limits to 6 digits
         onChangeText={(t) => setOtp(t.replace(/\D/g, '').slice(0, 6))}
         keyboardType="number-pad"
         maxLength={6}
       />
 
+      {/* Conditionally render the countdown timer OR the "Resend" button */}
       {resendSeconds > 0 ? (
         <Text style={[styles.resend, { color: colors.textSecondary }]}>
           Resend code in {resendSeconds}s

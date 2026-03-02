@@ -24,8 +24,10 @@ export default function NINAndFaceScreen() {
   const [ninUploaded, setNinUploaded] = useState(false);
   const [faceScanned, setFaceScanned] = useState(false);
 
+  // Prompts the user to pick an image from their gallery for their NIN document
   const handleUploadNIN = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    // Ensures we have permissions before opening the gallery
     if (status !== 'granted') {
       Alert.alert('Permission needed', 'Allow access to photos to upload NIN.');
       return;
@@ -37,9 +39,12 @@ export default function NINAndFaceScreen() {
     if (!result.canceled) setNinUploaded(true);
   };
 
+  // Mock "Face Scan" that utilizes the device's built-in biometric hardware (Face ID/Touch ID)
   const handleScanFace = async () => {
     const hasHardware = await LocalAuthentication.hasHardwareAsync();
     const enrolled = await LocalAuthentication.isEnrolledAsync();
+
+    // Check if device supports biometrics and has them configured
     if (hasHardware && enrolled) {
       const result = await LocalAuthentication.authenticateAsync({
         promptMessage: 'Scan your face to verify identity',
@@ -47,6 +52,7 @@ export default function NINAndFaceScreen() {
       });
       if (result.success) setFaceScanned(true);
     } else {
+      // Fallback if no biometrics are available on device
       setFaceScanned(true);
     }
   };
@@ -66,6 +72,7 @@ export default function NINAndFaceScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
+        {/* Step 3 of the 4-step signup sequence */}
         <SegmentedProgressBar totalSteps={4} currentStep={3} />
         <Text style={[styles.title, { color: colors.textPrimary }]}>Verify Identity</Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>

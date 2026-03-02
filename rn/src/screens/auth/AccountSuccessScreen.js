@@ -12,6 +12,8 @@ export default function AccountSuccessScreen() {
   const route = useRoute();
   const user = route.params?.user || pendingUser;
 
+  // Finalizes the signup flow by saving the user payload to AuthContext (`signupComplete`)
+  // This causes RootNavigator to switch from the Auth Stack -> MainTabs
   const handleContinue = () => {
     signupComplete(user);
   };
@@ -22,6 +24,7 @@ export default function AccountSuccessScreen() {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
+        {/* Step 4 of the 4-step signup sequence (Final Step) */}
         <SegmentedProgressBar totalSteps={4} currentStep={4} />
         <View style={styles.illustration}>
           <Text style={styles.emoji}>🎉</Text>
