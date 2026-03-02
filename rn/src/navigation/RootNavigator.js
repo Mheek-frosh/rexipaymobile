@@ -39,9 +39,13 @@ import OfflinePayScreen from '../screens/OfflinePayScreen';
 const Stack = createNativeStackNavigator();
 
 export default function RootNavigator() {
+  // `isAuthenticated` controls whether to show the main app (logged in) or the auth flows (logged out)
   const { isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
+    // === AUTHENTICATED FLOW ===
+    // This navigation stack is only accessible after a successful login or signup.
+    // It provides access to the user's dashboard, settings, and transaction screens.
     return (
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="MainTabs" component={MainTabs} />
@@ -63,8 +67,15 @@ export default function RootNavigator() {
         <Stack.Screen name="SendCrypto" component={SendCryptoScreen} />
         <Stack.Screen name="SendCryptoAsset" component={SendCryptoAssetScreen} />
         <Stack.Screen name="TransactionDetail" component={TransactionDetailScreen} />
+        {/* --- Recent Additions --- */}
+        {/* Allows quick USSD or offline payments */}
         <Stack.Screen name="OfflinePay" component={OfflinePayScreen} />
+
         <Stack.Screen name="DebitCardTransactionDetail" component={DebitCardTransactionDetailScreen} />
+
+        {/* --- Forgot Transaction PIN Flow --- */}
+        {/* Allows logged-in users to securely reset their 4-digit transaction PIN */}
+        {/* 1. Enter phone -> 2. Verify OTP -> 3. Set new PIN */}
         <Stack.Screen name="ForgotPinPhone" component={ForgotPinPhoneScreen} />
         <Stack.Screen name="ForgotPinOtp" component={ForgotPinOtpScreen} />
         <Stack.Screen name="ForgotPinSetPin" component={ForgotPinSetPinScreen} />
@@ -72,6 +83,9 @@ export default function RootNavigator() {
     );
   }
 
+  // === UNAUTHENTICATED FLOW ===
+  // This navigation stack manages onboarding, login, signup, and account recovery
+  // before the user is authenticated.
   return (
     <Stack.Navigator
       initialRoute="Onboarding"
@@ -100,6 +114,10 @@ export default function RootNavigator() {
         component={AccountSuccessScreen}
         options={{ animation: 'fade', animationDuration: 300 }}
       />
+
+      {/* --- Forgot Password Flow --- */}
+      {/* Allows unauthenticated users to recover their account access by resetting their password */}
+      {/* 1. Enter registered phone number -> 2. Verify OTP -> 3. Set new password */}
       <Stack.Screen name="ForgotPasswordPhone" component={ForgotPasswordPhoneScreen} />
       <Stack.Screen name="ForgotPasswordOtp" component={ForgotPasswordOtpScreen} />
       <Stack.Screen name="ForgotPasswordSetPassword" component={ForgotPasswordSetPasswordScreen} />
