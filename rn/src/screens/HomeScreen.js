@@ -42,7 +42,11 @@ export default function HomeScreen() {
   const { colors, isDark } = useTheme();
   const { userName } = useAuth();
   const navigation = useNavigation();
+
+  // State for toggling between Bank (fiat) and Crypto views
   const [homeView, setHomeView] = useState(0); // 0: Bank, 1: Crypto
+
+  // State for managing which fiat account is currently selected (e.g., NGN, USD, GBP)
   const [selectedAccount, setSelectedAccount] = useState('ngn');
   const [showAccountSheet, setShowAccountSheet] = useState(false);
 
@@ -53,7 +57,9 @@ export default function HomeScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle="light-content" />
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Blue Header - extends down to overlap half of action card */}
+        {/* === TOP BLUE HEADER === */}
+        {/* Contains the user profile, Bank/Crypto toggle, and notification bell. 
+            The blue background extends downward to partially overlap the action cards below. */}
         <View style={styles.header}>
           <View style={styles.topRow}>
             <View style={styles.topRowLeft}>
@@ -89,6 +95,9 @@ export default function HomeScreen() {
           </View>
 
           <Text style={styles.greeting}>Hello, {firstName}!</Text>
+
+          {/* Account Selector Button: Shows the current fiat currency flag and name. 
+              Tapping it opens a bottom sheet to switch between NGN, USD, GBP, etc. */}
           <TouchableOpacity
             style={styles.ngRow}
             onPress={() => setShowAccountSheet(true)}
@@ -99,6 +108,7 @@ export default function HomeScreen() {
             <MaterialIcons name="keyboard-arrow-down" size={16} color="rgba(255,255,255,0.7)" />
           </TouchableOpacity>
 
+          {/* Current Balance Display based on selected fiat currency */}
           <Text style={styles.balance}>{currentAccount.balance}</Text>
           <Text style={styles.balanceLabel}>Available Balance</Text>
 
@@ -146,7 +156,8 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Quick Actions - 4 columns, proper grid */}
+            {/* === QUICK ACTIONS GRID (Bank View) === */}
+            {/* 4-column layout mapping through the `QUICK_ACTIONS` array defined at the top */}
             <View style={styles.quickSection}>
               <View style={styles.quickHeader}>
                 <Text style={[styles.quickTitle, { color: colors.textPrimary }]}>Quick Actions</Text>
@@ -235,7 +246,8 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* My Assets */}
+            {/* === MY ASSETS (Crypto View) === */}
+            {/* Displays a hardcoded list of crypto assets (BTC, ETH, etc.) and their fiat values */}
             <View style={styles.assetsSection}>
               <View style={styles.assetsHeader}>
                 <Text style={[styles.assetsTitle, { color: colors.textPrimary }]}>My Assets</Text>
