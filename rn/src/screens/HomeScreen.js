@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
+  Image,
   TouchableOpacity,
   ScrollView,
   StyleSheet,
@@ -206,7 +207,11 @@ export default function HomeScreen() {
                   <Text style={styles.referralBtnText}>Refer Now</Text>
                 </TouchableOpacity>
               </View>
-              <Text style={styles.referralEmoji}>👍</Text>
+              <Image
+                source={require('../../assets/images/thumbs.png')}
+                style={styles.referralEmoji}
+                resizeMode="contain"
+              />
             </View>
           </>
         )}
@@ -395,7 +400,7 @@ const styles = StyleSheet.create({
   referralSub: { color: 'rgba(255,255,255,0.95)', fontSize: 12, marginTop: 6, lineHeight: 16 },
   referralBtn: { marginTop: 10, backgroundColor: '#FFF', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, alignSelf: 'flex-start' },
   referralBtnText: { color: '#FF9800', fontWeight: '600', fontSize: 12 },
-  referralEmoji: { fontSize: 40 },
+  referralEmoji: { width: 60, height: 60 },
   cryptoActionCard: {
     marginHorizontal: 20,
     marginTop: -60,
