@@ -32,9 +32,13 @@ export default function CardsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <View style={{ width: 24 }} />
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
+        </TouchableOpacity>
         <Text style={[styles.title, { color: colors.textPrimary }]}>Virtual Card</Text>
-        <View style={{ width: 24 }} />
+        <TouchableOpacity onPress={() => navigation.navigate('AddCard')}>
+          <MaterialIcons name="add" size={24} color={colors.primary} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView

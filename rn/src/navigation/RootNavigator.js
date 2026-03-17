@@ -31,6 +31,7 @@ import SendCryptoScreen from '../screens/SendCryptoScreen';
 import SendCryptoAssetScreen from '../screens/SendCryptoAssetScreen';
 import TransactionDetailScreen from '../screens/TransactionDetailScreen';
 import DebitCardTransactionDetailScreen from '../screens/DebitCardTransactionDetailScreen';
+import AddCardScreen from '../screens/AddCardScreen';
 import ForgotPinPhoneScreen from '../screens/ForgotPinPhoneScreen';
 import ForgotPinOtpScreen from '../screens/ForgotPinOtpScreen';
 import ForgotPinSetPinScreen from '../screens/ForgotPinSetPinScreen';
@@ -74,6 +75,8 @@ export default function RootNavigator() {
         <Stack.Screen name="OfflinePay" component={OfflinePayScreen} />
         <Stack.Screen name="ChangePin" component={ChangePinScreen} />
         <Stack.Screen name="Biometrics" component={BiometricsScreen} />
+
+        <Stack.Screen name="AddCard" component={AddCardScreen} />
 
         <Stack.Screen name="DebitCardTransactionDetail" component={DebitCardTransactionDetailScreen} />
 
