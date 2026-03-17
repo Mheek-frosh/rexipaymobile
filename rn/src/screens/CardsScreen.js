@@ -6,6 +6,8 @@ import {
   ScrollView,
   StyleSheet,
   Dimensions,
+  Modal,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -28,16 +30,15 @@ export default function CardsScreen() {
   const navigation = useNavigation();
   const [selectedTab, setSelectedTab] = useState(0);
   const [showCardDetails, setShowCardDetails] = useState(false);
+  const [showSettingsSheet, setShowSettingsSheet] = useState(false);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
+        <View style={{ width: 24 }} />
         <Text style={[styles.title, { color: colors.textPrimary }]}>Virtual Card</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('AddCard')}>
-          <MaterialIcons name="add" size={24} color={colors.primary} />
+        <TouchableOpacity onPress={() => setShowSettingsSheet(true)}>
+          <MaterialIcons name="settings" size={22} color={colors.textPrimary} />
         </TouchableOpacity>
       </View>
 
@@ -193,6 +194,77 @@ export default function CardsScreen() {
           </>
         )}
       </ScrollView>
+
+      <Modal visible={showSettingsSheet} transparent animationType="slide">
+        <TouchableOpacity
+          style={styles.sheetOverlay}
+          activeOpacity={1}
+          onPress={() => setShowSettingsSheet(false)}
+        >
+          <View
+            style={[styles.sheet, { backgroundColor: colors.cardBackground }]}
+            onStartShouldSetResponder={() => true}
+          >
+            <View style={styles.sheetHandle} />
+            <Text style={[styles.sheetTitle, { color: colors.textPrimary }]}>Card Settings</Text>
+            <View style={[styles.sheetDivider, { backgroundColor: colors.border }]} />
+
+            <TouchableOpacity
+              style={styles.sheetItem}
+              onPress={() => {
+                setShowSettingsSheet(false);
+                navigation.navigate('ChangePin');
+              }}
+            >
+              <MaterialIcons name="shield" size={22} color={colors.textPrimary} />
+              <Text style={[styles.sheetItemText, { color: colors.textPrimary }]}>Change PIN</Text>
+              <MaterialIcons name="chevron-right" size={22} color={colors.textSecondary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.sheetItem}
+              onPress={() => {
+                setShowSettingsSheet(false);
+                navigation.navigate('ChangeLimit');
+              }}
+            >
+              <MaterialIcons name="swap-vert" size={22} color={colors.textPrimary} />
+              <Text style={[styles.sheetItemText, { color: colors.textPrimary }]}>
+                Change Limit
+              </Text>
+              <MaterialIcons name="chevron-right" size={22} color={colors.textSecondary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.sheetItem}
+              onPress={() => {
+                setShowSettingsSheet(false);
+                Alert.alert('Freeze Card', 'Card freeze is not implemented in this demo yet.');
+              }}
+            >
+              <MaterialIcons name="access-time" size={22} color={colors.textPrimary} />
+              <Text style={[styles.sheetItemText, { color: colors.textPrimary }]}>
+                Freeze Card
+              </Text>
+              <MaterialIcons name="chevron-right" size={22} color={colors.textSecondary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.sheetItem}
+              onPress={() => {
+                setShowSettingsSheet(false);
+                Alert.alert('Delete Card', 'Card deletion is not implemented in this demo yet.');
+              }}
+            >
+              <MaterialIcons name="highlight-off" size={22} color="#E53935" />
+              <Text style={[styles.sheetItemText, { color: colors.textPrimary }]}>
+                Delete Card
+              </Text>
+              <MaterialIcons name="chevron-right" size={22} color={colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 }
@@ -329,4 +401,45 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   debitPillText: { fontSize: 12, fontWeight: '600' },
+  sheetOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  sheet: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 32,
+  },
+  sheetHandle: {
+    width: 60,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(0,0,0,0.15)',
+    alignSelf: 'center',
+    marginBottom: 12,
+  },
+  sheetTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  sheetDivider: {
+    height: 1,
+    marginBottom: 4,
+  },
+  sheetItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    gap: 16,
+  },
+  sheetItemText: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '500',
+  },
 });

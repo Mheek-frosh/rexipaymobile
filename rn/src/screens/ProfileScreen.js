@@ -16,7 +16,7 @@ import { LogoutBottomSheet } from '../components/BottomSheet';
 import Toast from '../components/Toast';
 
 const MENU_ITEMS = [
-  { icon: 'account-balance', iconBg: '#FFD166', iconColor: null, title: 'Cards', route: 'CardsTab' },
+  { icon: 'account-balance', iconBg: '#FFD166', iconColor: null, title: 'Cards', route: 'AddCard' },
   { icon: 'badge', iconBg: '#E8F0FE', iconColor: '#2E63F6', title: 'Account details', route: 'AccountDetails' },
   { icon: 'notifications', iconBg: '#FFF3E0', iconColor: '#FB8C00', title: 'Notifications', route: 'Notifications' },
   { icon: 'headset-mic', iconBg: '#E8F5E9', iconColor: '#4CAF50', title: 'Support', route: 'Support' },
@@ -48,8 +48,6 @@ export default function ProfileScreen() {
   const handleMenuTap = (item) => {
     if (item.route === 'logout') {
       setShowLogoutSheet(true);
-    } else if (item.route === 'CardsTab') {
-      navigation.navigate('Cards');
     } else if (item.route) {
       navigation.navigate(item.route);
     }
