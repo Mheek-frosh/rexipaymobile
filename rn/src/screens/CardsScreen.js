@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Dimensions,
   Modal,
-  Alert,
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -31,6 +31,8 @@ export default function CardsScreen() {
   const [selectedTab, setSelectedTab] = useState(0);
   const [showCardDetails, setShowCardDetails] = useState(false);
   const [showSettingsSheet, setShowSettingsSheet] = useState(false);
+  const [showFreezeSheet, setShowFreezeSheet] = useState(false);
+  const [showDeleteSheet, setShowDeleteSheet] = useState(false);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -239,7 +241,7 @@ export default function CardsScreen() {
               style={styles.sheetItem}
               onPress={() => {
                 setShowSettingsSheet(false);
-                Alert.alert('Freeze Card', 'Card freeze is not implemented in this demo yet.');
+                setShowFreezeSheet(true);
               }}
             >
               <MaterialIcons name="access-time" size={22} color={colors.textPrimary} />
@@ -253,7 +255,7 @@ export default function CardsScreen() {
               style={styles.sheetItem}
               onPress={() => {
                 setShowSettingsSheet(false);
-                Alert.alert('Delete Card', 'Card deletion is not implemented in this demo yet.');
+                setShowDeleteSheet(true);
               }}
             >
               <MaterialIcons name="highlight-off" size={22} color="#E53935" />
@@ -261,6 +263,70 @@ export default function CardsScreen() {
                 Delete Card
               </Text>
               <MaterialIcons name="chevron-right" size={22} color={colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      <Modal visible={showFreezeSheet} transparent animationType="slide">
+        <TouchableOpacity
+          style={styles.sheetOverlay}
+          activeOpacity={1}
+          onPress={() => setShowFreezeSheet(false)}
+        >
+          <View
+            style={[styles.confirmSheet, { backgroundColor: colors.cardBackground }]}
+            onStartShouldSetResponder={() => true}
+          >
+            <View style={styles.sheetHandle} />
+            <Image
+              source={require('../../assets/images/freeze.png')}
+              style={styles.confirmImage}
+              resizeMode="contain"
+            />
+            <Text style={[styles.confirmTitle, { color: colors.textPrimary }]}>
+              Freeze Card
+            </Text>
+            <Text style={[styles.confirmText, { color: colors.textSecondary }]}>
+              Are you sure you want to freeze the card?
+            </Text>
+            <TouchableOpacity
+              style={[styles.dangerButton, { backgroundColor: '#E53935' }]}
+              onPress={() => setShowFreezeSheet(false)}
+            >
+              <Text style={styles.dangerButtonText}>Freeze</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      <Modal visible={showDeleteSheet} transparent animationType="slide">
+        <TouchableOpacity
+          style={styles.sheetOverlay}
+          activeOpacity={1}
+          onPress={() => setShowDeleteSheet(false)}
+        >
+          <View
+            style={[styles.confirmSheet, { backgroundColor: colors.cardBackground }]}
+            onStartShouldSetResponder={() => true}
+          >
+            <View style={styles.sheetHandle} />
+            <Image
+              source={require('../../assets/images/delete.png')}
+              style={styles.confirmImage}
+              resizeMode="contain"
+            />
+            <Text style={[styles.confirmTitle, { color: colors.textPrimary }]}>
+              Delete Card
+            </Text>
+            <Text style={[styles.confirmText, { color: colors.textSecondary }]}>
+              Are you sure you want to delete this card?
+            </Text>
+            <TouchableOpacity
+              style={[styles.dangerButton, { backgroundColor: '#E53935' }]}
+              onPress={() => setShowDeleteSheet(false)}
+            >
+              <Text style={styles.dangerButtonText}>Delete</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
@@ -441,5 +507,42 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontWeight: '500',
+  },
+  confirmSheet: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 32,
+    alignItems: 'center',
+  },
+  confirmImage: {
+    width: 200,
+    height: 120,
+    marginTop: 8,
+    marginBottom: 24,
+  },
+  confirmTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+  confirmText: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  dangerButton: {
+    marginTop: 8,
+    paddingVertical: 14,
+    borderRadius: 999,
+    paddingHorizontal: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dangerButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
