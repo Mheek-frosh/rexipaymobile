@@ -16,6 +16,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
+import * as LocalAuthentication from 'expo-local-authentication';
 import { resolveAccount } from '../services/bankService';
 import { NIGERIAN_BANKS } from '../data/nigerianBanks';
 import PinEntryModal from '../components/PinEntryModal';
@@ -120,9 +121,27 @@ export default function TransferScreen() {
     setShowSummaryModal(true);
   };
 
-  const handleConfirmFromSummary = () => {
+  const handleConfirmFromSummary = async () => {
     setShowSummaryModal(false);
-    setShowPinModal(true);
+    try {
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      const enrolled = await LocalAuthentication.isEnrolledAsync();
+      const canUseBiometrics = hasHardware && enrolled;
+
+      if (canUseBiometrics) {
+        const result = await LocalAuthentication.authenticateAsync({
+          promptMessage: 'Confirm transfer',
+          fallbackLabel: 'Use PIN',
+        });
+        if (result.success) {
+          handlePinSuccess();
+          return;
+        }
+      }
+      setShowPinModal(true);
+    } catch {
+      setShowPinModal(true);
+    }
   };
 
   const handlePinSuccess = () => {

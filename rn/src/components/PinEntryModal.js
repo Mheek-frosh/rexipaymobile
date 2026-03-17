@@ -10,6 +10,17 @@ export default function PinEntryModal({
   onCancel,
   onForgotPin,
   title = 'Enter Transaction PIN',
+  /**
+   * Layout style:
+   * - 'dialog' (centered card – default)
+   * - 'sheet'  (bottom sheet)
+   */
+  variant = 'dialog',
+  /**
+   * Optional context line, e.g. masked phone or account number.
+   * Shown inside a small card above the PIN boxes.
+   */
+  contextText,
 }) {
   const { colors } = useTheme();
   const [pin, setPin] = useState('');
@@ -59,10 +70,18 @@ export default function PinEntryModal({
     onForgotPin?.();
   };
 
+  const isDialog = variant === 'dialog';
+
   return (
     <Modal visible={visible} transparent animationType="slide">
-      <View style={styles.overlay}>
-        <View style={[styles.modal, { backgroundColor: colors.cardBackground }]}>
+      <View style={[styles.overlay, isDialog && styles.overlayCenter]}>
+        <View
+          style={[
+            styles.modal,
+            isDialog ? styles.modalDialog : styles.modalSheet,
+            { backgroundColor: colors.cardBackground },
+          ]}
+        >
           <View style={styles.headerRow}>
             <Text style={[styles.title, { color: colors.textPrimary }]}>{title}</Text>
             <TouchableOpacity
@@ -72,6 +91,17 @@ export default function PinEntryModal({
               <MaterialIcons name="close" size={24} color={colors.textPrimary} />
             </TouchableOpacity>
           </View>
+
+          {contextText ? (
+            <View style={[styles.contextCard, { backgroundColor: colors.surfaceVariant }]}>
+              <Text style={[styles.contextLabel, { color: colors.textSecondary }]}>
+                For
+              </Text>
+              <Text style={[styles.contextValue, { color: colors.textPrimary }]} numberOfLines={1}>
+                {contextText}
+              </Text>
+            </View>
+          ) : null}
 
           <View style={styles.pinRow}>
             {[0, 1, 2, 3].map((i) => (
@@ -137,19 +167,48 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'flex-end',
   },
+  overlayCenter: {
+    justifyContent: 'center',
+  },
   modal: {
+    maxWidth: 420,
+    alignSelf: 'center',
+  },
+  modalSheet: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
     paddingBottom: 40,
   },
+  modalDialog: {
+    borderRadius: 24,
+    padding: 24,
+    paddingBottom: 32,
+    marginHorizontal: 24,
+  },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 24,
+    marginBottom: 16,
   },
   title: { fontSize: 18, fontWeight: '700' },
+  contextCard: {
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    marginBottom: 20,
+  },
+  contextLabel: {
+    fontSize: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    marginBottom: 2,
+  },
+  contextValue: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
   pinRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

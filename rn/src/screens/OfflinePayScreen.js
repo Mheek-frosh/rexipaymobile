@@ -32,6 +32,7 @@ import {
   isConnected,
 } from '../services/offlineSyncService';
 import PinEntryModal from '../components/PinEntryModal';
+import * as LocalAuthentication from 'expo-local-authentication';
 
 const DEFAULT_CURRENCY = 'NGN';
 const SYMBOL = { NGN: '₦' };
@@ -160,11 +161,30 @@ export default function OfflinePayScreen() {
       Alert.alert('Insufficient Balance', `Available: ${formatBalance(availableBalance)}`);
       return;
     }
-    setShowPinModal(true);
+    (async () => {
+      try {
+        const hasHardware = await LocalAuthentication.hasHardwareAsync();
+        const enrolled = await LocalAuthentication.isEnrolledAsync();
+        const canUseBiometrics = hasHardware && enrolled;
+
+        if (canUseBiometrics) {
+          const result = await LocalAuthentication.authenticateAsync({
+            promptMessage: 'Confirm offline payment',
+            fallbackLabel: 'Use PIN',
+          });
+          if (result.success) {
+            await performOfflineDebit();
+            return;
+          }
+        }
+        setShowPinModal(true);
+      } catch {
+        setShowPinModal(true);
+      }
+    })();
   };
 
-  const handlePinSuccess = async () => {
-    setShowPinModal(false);
+  const performOfflineDebit = async () => {
     const amt = parseFloat(String(amount).replace(/,/g, ''));
     const res = await recordOfflineDebit(
       walletState,
@@ -181,6 +201,11 @@ export default function OfflinePayScreen() {
     setWalletState(res.state);
     setMode('success');
     Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, tension: 50, friction: 7 }).start();
+  };
+
+  const handlePinSuccess = async () => {
+    setShowPinModal(false);
+    await performOfflineDebit();
   };
 
   const handleScanTransaction = async (data) => {
