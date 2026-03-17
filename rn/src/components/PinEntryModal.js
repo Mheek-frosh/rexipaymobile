@@ -9,7 +9,7 @@ export default function PinEntryModal({
   onSuccess,
   onCancel,
   onForgotPin,
-  title = 'Enter PIN',
+  title = 'Enter Transaction PIN',
 }) {
   const { colors } = useTheme();
   const [pin, setPin] = useState('');
@@ -79,7 +79,10 @@ export default function PinEntryModal({
                 key={i}
                 style={[
                   styles.pinBox,
-                  { borderColor: i < pin.length ? colors.primary : colors.border },
+                  {
+                    borderColor: colors.primary,
+                    backgroundColor: i < pin.length ? colors.primary + '10' : 'transparent',
+                  },
                 ]}
               >
                 {i < pin.length && (
