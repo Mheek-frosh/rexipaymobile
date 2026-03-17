@@ -35,6 +35,8 @@ import ForgotPinPhoneScreen from '../screens/ForgotPinPhoneScreen';
 import ForgotPinOtpScreen from '../screens/ForgotPinOtpScreen';
 import ForgotPinSetPinScreen from '../screens/ForgotPinSetPinScreen';
 import OfflinePayScreen from '../screens/OfflinePayScreen';
+import ChangePinScreen from '../screens/ChangePinScreen';
+import BiometricsScreen from '../screens/BiometricsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -70,6 +72,8 @@ export default function RootNavigator() {
         {/* --- Recent Additions --- */}
         {/* Allows quick USSD or offline payments */}
         <Stack.Screen name="OfflinePay" component={OfflinePayScreen} />
+        <Stack.Screen name="ChangePin" component={ChangePinScreen} />
+        <Stack.Screen name="Biometrics" component={BiometricsScreen} />
 
         <Stack.Screen name="DebitCardTransactionDetail" component={DebitCardTransactionDetailScreen} />
 

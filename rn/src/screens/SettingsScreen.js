@@ -12,15 +12,25 @@ const SETTINGS_SECTIONS = [
         icon: 'palette-outlined',
         title: 'Theme',
         subtitle: 'Light, Dark, or System',
-        trailing: 'value',
+        trailing: 'theme',
       },
     ],
   },
   {
     title: 'Security',
     items: [
-      { icon: 'lock-outline', title: 'Change PIN', subtitle: 'Update your transaction PIN' },
-      { icon: 'fingerprint', title: 'Biometrics', subtitle: 'Use fingerprint or face ID' },
+      {
+        icon: 'lock-outline',
+        title: 'Change PIN',
+        subtitle: 'Update your transaction PIN',
+        route: 'ChangePin',
+      },
+      {
+        icon: 'fingerprint',
+        title: 'Biometrics',
+        subtitle: 'Use Face ID or fingerprint',
+        route: 'Biometrics',
+      },
     ],
   },
   {
@@ -60,12 +70,22 @@ export default function SettingsScreen() {
               {section.title}
             </Text>
             <View style={[styles.sectionCard, { backgroundColor: colors.cardBackground }]}>
-              {section.items.map((item, ii) => (
-                <TouchableOpacity
-                  key={ii}
-                  style={[styles.item, { borderBottomColor: colors.border }]}
-                  onPress={item.trailing === 'value' ? toggleTheme : undefined}
-                >
+              {section.items.map((item, ii) => {
+                const isTheme = item.trailing === 'theme';
+                const handlePress =
+                  isTheme
+                    ? toggleTheme
+                    : item.route
+                    ? () => navigation.navigate(item.route)
+                    : undefined;
+
+                return (
+                  <TouchableOpacity
+                    key={ii}
+                    style={[styles.item, { borderBottomColor: colors.border }]}
+                    onPress={handlePress}
+                    activeOpacity={0.7}
+                  >
                   <View style={[styles.itemIcon, { backgroundColor: colors.primaryLight }]}>
                     <MaterialIcons name={item.icon} size={22} color={colors.primary} />
                   </View>
@@ -77,15 +97,16 @@ export default function SettingsScreen() {
                       {item.subtitle}
                     </Text>
                   </View>
-                  {item.trailing === 'value' ? (
+                  {isTheme ? (
                     <Text style={[styles.itemValue, { color: colors.textSecondary }]}>
                       {isDark ? 'Dark' : 'Light'}
                     </Text>
                   ) : (
                     <MaterialIcons name="chevron-right" size={24} color={colors.textSecondary} />
                   )}
-                </TouchableOpacity>
-              ))}
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           </View>
         ))}
