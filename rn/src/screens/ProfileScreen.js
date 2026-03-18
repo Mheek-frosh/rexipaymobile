@@ -6,10 +6,12 @@ import {
   ScrollView,
   StyleSheet,
   Switch,
+  Image,
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../theme/ThemeContext';
 import { LogoutBottomSheet } from '../components/BottomSheet';
@@ -37,10 +39,33 @@ export default function ProfileScreen() {
   const navigation = useNavigation();
   const [showLogoutSheet, setShowLogoutSheet] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [avatarUri, setAvatarUri] = useState(null);
 
   const handleCopy = async (text, label) => {
     if (text) {
       await Clipboard.setStringAsync(String(text));
+      setToastMessage('Copied!');
+      setToastVisible(true);
+    }
+  };
+
+  const handlePickAvatar = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permission.status !== 'granted') {
+      setToastMessage('Permission needed to access your photos');
+      setToastVisible(true);
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.7,
+    });
+
+    if (!result.canceled && result.assets?.length) {
+      setAvatarUri(result.assets[0].uri);
+      setToastMessage('Profile picture updated successfully');
       setToastVisible(true);
     }
   };
@@ -64,9 +89,20 @@ export default function ProfileScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         {/* User Info Card */}
         <View style={[styles.userCard, { backgroundColor: colors.cardBackground }]}>
-          <View style={[styles.avatar, { backgroundColor: colors.surfaceVariant }]}>
-            <MaterialIcons name="person" size={40} color={colors.textSecondary} />
-          </View>
+          <TouchableOpacity
+            style={[styles.avatar, { backgroundColor: colors.surfaceVariant }]}
+            activeOpacity={0.8}
+            onPress={handlePickAvatar}
+          >
+            {avatarUri ? (
+              <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
+            ) : (
+              <MaterialIcons name="person" size={40} color={colors.textSecondary} />
+            )}
+            <View style={[styles.avatarEditBadge, { backgroundColor: colors.primary }]}>
+              <MaterialIcons name="edit" size={14} color="#FFF" />
+            </View>
+          </TouchableOpacity>
           <View style={styles.userInfo}>
             <TouchableOpacity
               style={styles.nameRow}
@@ -164,7 +200,11 @@ export default function ProfileScreen() {
         onClose={() => setShowLogoutSheet(false)}
         onConfirm={logout}
       />
-      <Toast visible={toastVisible} message="Copied!" onHide={() => setToastVisible(false)} />
+      <Toast
+        visible={toastVisible}
+        message={toastMessage}
+        onHide={() => setToastVisible(false)}
+      />
     </View>
   );
 }
@@ -192,6 +232,24 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+  },
+  avatarEditBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFF',
   },
   userInfo: { flex: 1, marginLeft: 15 },
   nameRow: {
