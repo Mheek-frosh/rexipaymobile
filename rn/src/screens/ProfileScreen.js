@@ -60,7 +60,9 @@ export default function ProfileScreen() {
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.7,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.9,
     });
 
     if (!result.canceled && result.assets?.length) {
