@@ -94,11 +94,13 @@ export default function ProfileScreen() {
             activeOpacity={0.8}
             onPress={handlePickAvatar}
           >
-            {avatarUri ? (
-              <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
-            ) : (
-              <MaterialIcons name="person" size={40} color={colors.textSecondary} />
-            )}
+            <View style={styles.avatarInner}>
+              {avatarUri ? (
+                <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
+              ) : (
+                <MaterialIcons name="person" size={40} color={colors.textSecondary} />
+              )}
+            </View>
             <View style={[styles.avatarEditBadge, { backgroundColor: colors.primary }]}>
               <MaterialIcons name="edit" size={14} color="#FFF" />
             </View>
@@ -227,13 +229,28 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 90,
+    height: 90,
+    borderRadius: 45,
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden',
+    overflow: 'visible',
     position: 'relative',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
+  },
+  avatarInner: {
+    width: 78,
+    height: 78,
+    borderRadius: 39,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   avatarImage: {
     width: '100%',
@@ -243,9 +260,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0,
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
