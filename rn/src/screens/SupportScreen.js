@@ -88,38 +88,18 @@ export default function SupportScreen() {
         <View style={{ width: 24 }} />
       </View>
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Contact Us</Text>
-          <View style={[styles.sectionCard, { backgroundColor: colors.cardBackground }]}>
-            {CONTACTS.map((c, i) => (
-              <View key={i} style={styles.contactItem}>
-                <View style={[styles.contactIcon, { backgroundColor: colors.primaryLight }]}>
-                  <MaterialIcons name={c.icon} size={24} color={colors.primary} />
-                </View>
-                <View style={styles.contactInfo}>
-                  <Text style={[styles.contactLabel, { color: colors.textSecondary }]}>
-                    {c.label}
-                  </Text>
-                  <Text style={[styles.contactValue, { color: colors.textPrimary }]}>{c.value}</Text>
-                </View>
-              </View>
-            ))}
-          </View>
+        {/* Hero / intro */}
+        <View style={[styles.heroCard, { backgroundColor: colors.cardBackground }]}>
+          <Text style={[styles.heroTitle, { color: colors.textPrimary }]}>
+            How can we help you?
+          </Text>
+          <Text style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
+            Chat with Rexi Bot for quick help, or reach our support team any time.
+          </Text>
         </View>
 
-        <View style={[styles.section, { marginTop: 24 }]}>
-          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>FAQs</Text>
-          <View style={[styles.sectionCard, { backgroundColor: colors.cardBackground }]}>
-            {FAQS.map((faq, i) => (
-              <View key={i} style={styles.faqItem}>
-                <Text style={[styles.faqQ, { color: colors.textPrimary }]}>{faq.q}</Text>
-                <Text style={[styles.faqA, { color: colors.textSecondary }]}>{faq.a}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        <View style={[styles.section, { marginTop: 24 }]}>
+        {/* Chat bot */}
+        <View style={[styles.section, { marginTop: 20 }]}>
           <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Chat with Rexi Bot</Text>
           <View style={[styles.chatCard, { backgroundColor: colors.cardBackground }]}>
             <ScrollView
@@ -182,6 +162,39 @@ export default function SupportScreen() {
             </View>
           </View>
         </View>
+
+        {/* Quick help / FAQs */}
+        <View style={[styles.section, { marginTop: 24 }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Quick help</Text>
+          <View style={[styles.sectionCard, { backgroundColor: colors.cardBackground }]}>
+            {FAQS.map((faq, i) => (
+              <View key={i} style={styles.faqItem}>
+                <Text style={[styles.faqQ, { color: colors.textPrimary }]}>{faq.q}</Text>
+                <Text style={[styles.faqA, { color: colors.textSecondary }]}>{faq.a}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* Contact options */}
+        <View style={[styles.section, { marginTop: 24 }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Contact us</Text>
+          <View style={[styles.sectionCard, { backgroundColor: colors.cardBackground }]}>
+            {CONTACTS.map((c, i) => (
+              <View key={i} style={styles.contactItem}>
+                <View style={[styles.contactIcon, { backgroundColor: colors.primaryLight }]}>
+                  <MaterialIcons name={c.icon} size={24} color={colors.primary} />
+                </View>
+                <View style={styles.contactInfo}>
+                  <Text style={[styles.contactLabel, { color: colors.textSecondary }]}>
+                    {c.label}
+                  </Text>
+                  <Text style={[styles.contactValue, { color: colors.textPrimary }]}>{c.value}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
       </ScrollView>
     </View>
   );
@@ -199,6 +212,13 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 18, fontWeight: '700' },
   content: { padding: 20, paddingBottom: 40 },
+  heroCard: {
+    borderRadius: 20,
+    padding: 18,
+    marginBottom: 4,
+  },
+  heroTitle: { fontSize: 20, fontWeight: '700', marginBottom: 6 },
+  heroSubtitle: { fontSize: 14, lineHeight: 20 },
   sectionTitle: { fontSize: 18, fontWeight: '700', marginBottom: 16 },
   sectionCard: {
     padding: 16,
