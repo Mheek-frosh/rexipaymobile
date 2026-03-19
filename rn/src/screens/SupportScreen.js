@@ -1,35 +1,38 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 
-const CONTACTS = [
-  { icon: 'email', label: 'Email', value: 'support@rexipay.com' },
-  { icon: 'phone', label: 'Phone', value: '+234 800 000 0000' },
-  { icon: 'chat-bubble-outline', label: 'Live Chat', value: 'Available 24/7' },
-];
-
-const FAQS = [
-  {
-    q: 'How do I add money to my wallet?',
-    a: 'You can add money via Bank Transfer or Crypto. Go to Home > Add Money and select your preferred method.',
-  },
-  {
-    q: 'How do I reset my PIN?',
-    a: 'Go to Profile > Settings > Security to reset your transaction PIN.',
-  },
-  {
-    q: 'How long do transfers take?',
-    a: 'Bank transfers are usually instant. Crypto transfers may take a few minutes depending on network congestion.',
-  },
-];
-
 const BOT_QUICK_TOPICS = [
-  'Card issues',
-  'Transfers',
-  'Offline payments',
-  'Account & PIN',
+  {
+    id: 'card',
+    icon: 'credit-card',
+    title: 'Card not working',
+    subtitle: 'Declines, limits, freeze or replace card',
+    prompt: 'My card is not working',
+  },
+  {
+    id: 'transfer',
+    icon: 'swap-horiz',
+    title: 'Transfer issue',
+    subtitle: 'Pending transfer or wrong beneficiary',
+    prompt: 'I have a transfer issue',
+  },
+  {
+    id: 'security',
+    icon: 'shield',
+    title: 'Security and PIN',
+    subtitle: 'Reset PIN, password help, secure account',
+    prompt: 'I need help with my PIN and security',
+  },
+  {
+    id: 'offline',
+    icon: 'wifi-off',
+    title: 'Offline payments',
+    subtitle: 'Sync issues and offline balance updates',
+    prompt: 'I need help with offline payments',
+  },
 ];
 
 const initialBotMessage = {
@@ -42,6 +45,7 @@ const initialBotMessage = {
 export default function SupportScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation();
+  const chatScrollRef = useRef(null);
   const [messages, setMessages] = useState([initialBotMessage]);
   const [input, setInput] = useState('');
 
@@ -87,115 +91,86 @@ export default function SupportScreen() {
         <Text style={[styles.title, { color: colors.textPrimary }]}>Support</Text>
         <View style={{ width: 24 }} />
       </View>
-      <ScrollView contentContainerStyle={styles.content}>
-        {/* Hero / intro */}
-        <View style={[styles.heroCard, { backgroundColor: colors.cardBackground }]}>
-          <Text style={[styles.heroTitle, { color: colors.textPrimary }]}>
-            How can we help you?
-          </Text>
-          <Text style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
-            Chat with Rexi Bot for quick help, or reach our support team any time.
-          </Text>
+      <View style={styles.content}>
+        <View style={[styles.botTopCard, { backgroundColor: colors.cardBackground }]}>
+          <View style={[styles.botAvatar, { backgroundColor: colors.primaryLight }]}>
+            <MaterialIcons name="smart-toy" size={18} color={colors.primary} />
+          </View>
+          <View style={styles.botTopTextWrap}>
+            <Text style={[styles.botName, { color: colors.textPrimary }]}>Rexi Assistant</Text>
+            <View style={styles.statusRow}>
+              <View style={[styles.statusDot, { backgroundColor: '#1DB954' }]} />
+              <Text style={[styles.statusText, { color: colors.textSecondary }]}>Online now</Text>
+            </View>
+          </View>
         </View>
 
-        {/* Chat bot */}
-        <View style={[styles.section, { marginTop: 20 }]}>
-          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Chat with Rexi Bot</Text>
-          <View style={[styles.chatCard, { backgroundColor: colors.cardBackground }]}>
-            <ScrollView
-              style={styles.chatMessages}
-              contentContainerStyle={styles.chatMessagesContent}
-              showsVerticalScrollIndicator={false}
+        <ScrollView
+          ref={chatScrollRef}
+          style={[styles.chatCard, { backgroundColor: colors.cardBackground }]}
+          contentContainerStyle={styles.chatMessagesContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {messages.map((msg) => (
+            <View
+              key={msg.id}
+              style={[
+                styles.chatBubble,
+                msg.from === 'user'
+                  ? [styles.chatBubbleUser, { backgroundColor: colors.primary }]
+                  : [styles.chatBubbleBot, { backgroundColor: colors.surfaceVariant }],
+              ]}
             >
-              {messages.map((msg) => (
-                <View
-                  key={msg.id}
-                  style={[
-                    styles.chatBubble,
-                    msg.from === 'user'
-                      ? [styles.chatBubbleUser, { backgroundColor: colors.primary }]
-                      : [styles.chatBubbleBot, { backgroundColor: colors.surfaceVariant }],
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.chatText,
-                      { color: msg.from === 'user' ? '#FFF' : colors.textPrimary },
-                    ]}
-                  >
-                    {msg.text}
-                  </Text>
-                </View>
-              ))}
-            </ScrollView>
-
-            <View style={styles.quickRow}>
-              {BOT_QUICK_TOPICS.map((topic) => (
-                <TouchableOpacity
-                  key={topic}
-                  style={[styles.quickChip, { borderColor: colors.border }]}
-                  onPress={() => handleSend(topic)}
-                >
-                  <Text style={[styles.quickChipText, { color: colors.textSecondary }]}>
-                    {topic}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            <View style={styles.inputRow}>
-              <TextInput
-                style={[styles.input, { color: colors.textPrimary, borderColor: colors.border }]}
-                placeholder="Type your message..."
-                placeholderTextColor={colors.textSecondary}
-                value={input}
-                onChangeText={setInput}
-                multiline
-              />
-              <TouchableOpacity
-                style={[styles.sendBtn, { backgroundColor: colors.primary }]}
-                onPress={() => handleSend()}
-                activeOpacity={0.8}
+              <Text
+                style={[
+                  styles.chatText,
+                  { color: msg.from === 'user' ? '#FFF' : colors.textPrimary },
+                ]}
               >
-                <MaterialIcons name="send" size={18} color="#FFF" />
-              </TouchableOpacity>
+                {msg.text}
+              </Text>
             </View>
-          </View>
-        </View>
+          ))}
+        </ScrollView>
 
-        {/* Quick help / FAQs */}
-        <View style={[styles.section, { marginTop: 24 }]}>
-          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Quick help</Text>
-          <View style={[styles.sectionCard, { backgroundColor: colors.cardBackground }]}>
-            {FAQS.map((faq, i) => (
-              <View key={i} style={styles.faqItem}>
-                <Text style={[styles.faqQ, { color: colors.textPrimary }]}>{faq.q}</Text>
-                <Text style={[styles.faqA, { color: colors.textSecondary }]}>{faq.a}</Text>
+        <Text style={[styles.quickTitle, { color: colors.textPrimary }]}>Quick options</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickRow}>
+          {BOT_QUICK_TOPICS.map((topic) => (
+            <TouchableOpacity
+              key={topic.id}
+              style={[styles.quickCard, { borderColor: colors.border, backgroundColor: colors.background }]}
+              onPress={() => handleSend(topic.prompt)}
+              activeOpacity={0.85}
+            >
+              <View style={[styles.quickIconWrap, { backgroundColor: colors.primaryLight }]}>
+                <MaterialIcons name={topic.icon} size={16} color={colors.primary} />
               </View>
-            ))}
-          </View>
-        </View>
+              <Text style={[styles.quickCardTitle, { color: colors.textPrimary }]}>{topic.title}</Text>
+              <Text style={[styles.quickCardSubtitle, { color: colors.textSecondary }]}>
+                {topic.subtitle}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
 
-        {/* Contact options */}
-        <View style={[styles.section, { marginTop: 24 }]}>
-          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Contact us</Text>
-          <View style={[styles.sectionCard, { backgroundColor: colors.cardBackground }]}>
-            {CONTACTS.map((c, i) => (
-              <View key={i} style={styles.contactItem}>
-                <View style={[styles.contactIcon, { backgroundColor: colors.primaryLight }]}>
-                  <MaterialIcons name={c.icon} size={24} color={colors.primary} />
-                </View>
-                <View style={styles.contactInfo}>
-                  <Text style={[styles.contactLabel, { color: colors.textSecondary }]}>
-                    {c.label}
-                  </Text>
-                  <Text style={[styles.contactValue, { color: colors.textPrimary }]}>{c.value}</Text>
-                </View>
-              </View>
-            ))}
-          </View>
+        <View style={[styles.inputContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+          <TextInput
+            style={[styles.input, { color: colors.textPrimary }]}
+            placeholder="Write a message..."
+            placeholderTextColor={colors.textSecondary}
+            value={input}
+            onChangeText={setInput}
+            multiline
+          />
+          <TouchableOpacity
+            style={[styles.sendBtn, { backgroundColor: colors.primary }]}
+            onPress={() => handleSend()}
+            activeOpacity={0.85}
+          >
+            <MaterialIcons name="send" size={18} color="#FFF" />
+          </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
     </View>
   );
 }
@@ -211,47 +186,38 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   title: { fontSize: 18, fontWeight: '700' },
-  content: { padding: 20, paddingBottom: 40 },
-  heroCard: {
-    borderRadius: 20,
-    padding: 18,
-    marginBottom: 4,
+  content: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
-  heroTitle: { fontSize: 20, fontWeight: '700', marginBottom: 6 },
-  heroSubtitle: { fontSize: 14, lineHeight: 20 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', marginBottom: 16 },
-  sectionCard: {
-    padding: 16,
+  botTopCard: {
     borderRadius: 16,
-  },
-  contactItem: {
+    padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
-    gap: 16,
+    marginBottom: 12,
+    gap: 10,
   },
-  contactIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+  botAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  contactInfo: { flex: 1 },
-  contactLabel: { fontSize: 14 },
-  contactValue: { fontSize: 16, fontWeight: '600', marginTop: 2 },
-  faqItem: { marginBottom: 16 },
-  faqQ: { fontSize: 16, fontWeight: '600' },
-  faqA: { fontSize: 14, marginTop: 8, lineHeight: 20 },
+  botTopTextWrap: { flex: 1 },
+  botName: { fontSize: 15, fontWeight: '700' },
+  statusRow: { flexDirection: 'row', alignItems: 'center', marginTop: 2, gap: 6 },
+  statusDot: { width: 8, height: 8, borderRadius: 4 },
+  statusText: { fontSize: 12, fontWeight: '500' },
   chatCard: {
     borderRadius: 16,
     padding: 12,
-  },
-  chatMessages: {
-    maxHeight: 220,
+    flex: 1,
   },
   chatMessagesContent: {
-    paddingVertical: 4,
+    paddingVertical: 8,
   },
   chatBubble: {
     maxWidth: '82%',
@@ -270,37 +236,48 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
+  quickTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginTop: 14,
+    marginBottom: 10,
+  },
   quickRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 8,
-    marginBottom: 4,
+    paddingRight: 6,
+    gap: 10,
+    marginBottom: 12,
   },
-  quickChip: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999,
+  quickCard: {
+    width: 178,
+    borderRadius: 14,
     borderWidth: 1,
+    padding: 12,
   },
-  quickChipText: {
-    fontSize: 12,
-    fontWeight: '500',
+  quickIconWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
   },
-  inputRow: {
+  quickCardTitle: { fontSize: 13, fontWeight: '700' },
+  quickCardSubtitle: { fontSize: 12, lineHeight: 17, marginTop: 4 },
+  inputContainer: {
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
     flexDirection: 'row',
     alignItems: 'flex-end',
-    marginTop: 8,
     gap: 8,
   },
   input: {
     flex: 1,
-    minHeight: 40,
-    maxHeight: 100,
-    borderWidth: 1,
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    minHeight: 36,
+    maxHeight: 96,
+    paddingHorizontal: 6,
+    paddingVertical: 6,
     fontSize: 14,
   },
   sendBtn: {
