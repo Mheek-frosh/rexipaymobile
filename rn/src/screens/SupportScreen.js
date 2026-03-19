@@ -48,6 +48,7 @@ export default function SupportScreen() {
   const chatScrollRef = useRef(null);
   const [messages, setMessages] = useState([initialBotMessage]);
   const [input, setInput] = useState('');
+  const [quickOptionsOpen, setQuickOptionsOpen] = useState(true);
 
   const addMessage = (from, text) => {
     setMessages((prev) => [
@@ -70,7 +71,7 @@ export default function SupportScreen() {
     if (lower.includes('pin') || lower.includes('password')) {
       return 'You can change your transaction PIN from Settings > Security, or use the Forgot PIN flow if you no longer remember it.';
     }
-    return 'Thanks for your message. A support agent will review this shortly. You can also check the FAQs below for quick answers.';
+    return 'Thanks for your message. I can help right away, or I can connect you to a support agent for advanced issues.';
   };
 
   const handleSend = (textOverride) => {
@@ -110,6 +111,7 @@ export default function SupportScreen() {
           style={[styles.chatCard, { backgroundColor: colors.cardBackground }]}
           contentContainerStyle={styles.chatMessagesContent}
           showsVerticalScrollIndicator={false}
+          onContentSizeChange={() => chatScrollRef.current?.scrollToEnd({ animated: true })}
         >
           {messages.map((msg) => (
             <View
@@ -133,25 +135,44 @@ export default function SupportScreen() {
           ))}
         </ScrollView>
 
-        <Text style={[styles.quickTitle, { color: colors.textPrimary }]}>Quick options</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickRow}>
-          {BOT_QUICK_TOPICS.map((topic) => (
-            <TouchableOpacity
-              key={topic.id}
-              style={[styles.quickCard, { borderColor: colors.border, backgroundColor: colors.background }]}
-              onPress={() => handleSend(topic.prompt)}
-              activeOpacity={0.85}
-            >
-              <View style={[styles.quickIconWrap, { backgroundColor: colors.primaryLight }]}>
-                <MaterialIcons name={topic.icon} size={16} color={colors.primary} />
-              </View>
-              <Text style={[styles.quickCardTitle, { color: colors.textPrimary }]}>{topic.title}</Text>
-              <Text style={[styles.quickCardSubtitle, { color: colors.textSecondary }]}>
-                {topic.subtitle}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+        <TouchableOpacity
+          style={styles.quickHeader}
+          onPress={() => setQuickOptionsOpen((prev) => !prev)}
+          activeOpacity={0.85}
+        >
+          <Text style={[styles.quickTitle, { color: colors.textPrimary }]}>Quick options</Text>
+          <MaterialIcons
+            name={quickOptionsOpen ? 'keyboard-arrow-up' : 'keyboard-arrow-down'}
+            size={22}
+            color={colors.textSecondary}
+          />
+        </TouchableOpacity>
+        {quickOptionsOpen ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickRow}>
+            {BOT_QUICK_TOPICS.map((topic) => (
+              <TouchableOpacity
+                key={topic.id}
+                style={[styles.quickCard, { borderColor: colors.border, backgroundColor: colors.background }]}
+                onPress={() => handleSend(topic.prompt)}
+                activeOpacity={0.85}
+              >
+                <View style={[styles.quickCardTopRow]}>
+                  <View style={[styles.quickIconWrap, { backgroundColor: colors.primaryLight }]}>
+                    <MaterialIcons name={topic.icon} size={14} color={colors.primary} />
+                  </View>
+                  <MaterialIcons name="north-east" size={14} color={colors.textSecondary} />
+                </View>
+                <Text style={[styles.quickCardTitle, { color: colors.textPrimary }]}>{topic.title}</Text>
+                <Text
+                  style={[styles.quickCardSubtitle, { color: colors.textSecondary }]}
+                  numberOfLines={2}
+                >
+                  {topic.subtitle}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        ) : null}
 
         <View style={[styles.inputContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
           <TextInput
@@ -237,32 +258,42 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   quickTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
-    marginTop: 14,
-    marginBottom: 10,
+  },
+  quickHeader: {
+    marginTop: 12,
+    marginBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   quickRow: {
     paddingRight: 6,
-    gap: 10,
+    gap: 8,
     marginBottom: 12,
   },
   quickCard: {
-    width: 178,
-    borderRadius: 14,
+    width: 150,
+    borderRadius: 12,
     borderWidth: 1,
-    padding: 12,
+    padding: 10,
+  },
+  quickCardTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
   },
   quickIconWrap: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
   },
-  quickCardTitle: { fontSize: 13, fontWeight: '700' },
-  quickCardSubtitle: { fontSize: 12, lineHeight: 17, marginTop: 4 },
+  quickCardTitle: { fontSize: 12, fontWeight: '700' },
+  quickCardSubtitle: { fontSize: 11, lineHeight: 15, marginTop: 4 },
   inputContainer: {
     borderWidth: 1,
     borderRadius: 16,
