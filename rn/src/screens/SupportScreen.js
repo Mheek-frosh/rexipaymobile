@@ -1,7 +1,19 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, TextInput } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  Image,
+  Alert,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../theme/ThemeContext';
 
 const BOT_QUICK_TOPICS = [
@@ -49,11 +61,12 @@ export default function SupportScreen() {
   const [messages, setMessages] = useState([initialBotMessage]);
   const [input, setInput] = useState('');
   const [quickOptionsOpen, setQuickOptionsOpen] = useState(true);
+  const [attachmentUri, setAttachmentUri] = useState(null);
 
-  const addMessage = (from, text) => {
+  const addMessage = (from, text, imageUri = null) => {
     setMessages((prev) => [
       ...prev,
-      { id: `${from}-${prev.length + 1}`, from, text },
+      { id: `${from}-${prev.length + 1}`, from, text, imageUri },
     ]);
   };
 
@@ -76,15 +89,43 @@ export default function SupportScreen() {
 
   const handleSend = (textOverride) => {
     const content = (textOverride ?? input).trim();
-    if (!content) return;
-    addMessage('user', content);
+    if (!content && !attachmentUri) return;
+    addMessage('user', content || 'Screenshot attached', attachmentUri);
     const reply = getBotReply(content);
-    addMessage('bot', reply);
+    const imageReply = attachmentUri
+      ? 'Thanks for sharing the screenshot. I can see it and help you resolve this faster.'
+      : reply;
+    addMessage('bot', imageReply);
     setInput('');
+    setAttachmentUri(null);
+    setQuickOptionsOpen(false);
+  };
+
+  const handleAttachImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Please allow photo access to attach screenshots.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      setAttachmentUri(result.assets[0]?.uri || null);
+      setQuickOptionsOpen(false);
+    }
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <KeyboardAvoidingView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}
+    >
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
@@ -111,6 +152,7 @@ export default function SupportScreen() {
           style={[styles.chatCard, { backgroundColor: colors.cardBackground }]}
           contentContainerStyle={styles.chatMessagesContent}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
           onContentSizeChange={() => chatScrollRef.current?.scrollToEnd({ animated: true })}
         >
           {messages.map((msg) => (
@@ -131,6 +173,13 @@ export default function SupportScreen() {
               >
                 {msg.text}
               </Text>
+              {msg.imageUri ? (
+                <Image
+                  source={{ uri: msg.imageUri }}
+                  style={styles.chatImage}
+                  resizeMode="cover"
+                />
+              ) : null}
             </View>
           ))}
         </ScrollView>
@@ -174,7 +223,27 @@ export default function SupportScreen() {
           </ScrollView>
         ) : null}
 
+        {attachmentUri ? (
+          <View style={[styles.attachmentPreview, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+            <Image source={{ uri: attachmentUri }} style={styles.attachmentImage} />
+            <View style={styles.attachmentTextWrap}>
+              <Text style={[styles.attachmentTitle, { color: colors.textPrimary }]}>Screenshot attached</Text>
+              <Text style={[styles.attachmentSubtitle, { color: colors.textSecondary }]}>Ready to send</Text>
+            </View>
+            <TouchableOpacity onPress={() => setAttachmentUri(null)} style={styles.removeAttachmentBtn}>
+              <MaterialIcons name="close" size={16} color={colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
+        ) : null}
+
         <View style={[styles.inputContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+          <TouchableOpacity
+            style={[styles.attachBtn, { backgroundColor: colors.surfaceVariant }]}
+            onPress={handleAttachImage}
+            activeOpacity={0.85}
+          >
+            <MaterialIcons name="add" size={20} color={colors.textPrimary} />
+          </TouchableOpacity>
           <TextInput
             style={[styles.input, { color: colors.textPrimary }]}
             placeholder="Write a message..."
@@ -182,6 +251,8 @@ export default function SupportScreen() {
             value={input}
             onChangeText={setInput}
             multiline
+            textAlignVertical="top"
+            onFocus={() => setQuickOptionsOpen(false)}
           />
           <TouchableOpacity
             style={[styles.sendBtn, { backgroundColor: colors.primary }]}
@@ -192,7 +263,7 @@ export default function SupportScreen() {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -257,6 +328,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
+  chatImage: {
+    width: 180,
+    height: 120,
+    borderRadius: 12,
+    marginTop: 8,
+  },
   quickTitle: {
     fontSize: 15,
     fontWeight: '700',
@@ -303,6 +380,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     gap: 8,
   },
+  attachBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 2,
+  },
   input: {
     flex: 1,
     minHeight: 36,
@@ -310,6 +395,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 6,
     fontSize: 14,
+  },
+  attachmentPreview: {
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 8,
+    marginBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  attachmentImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+  },
+  attachmentTextWrap: { flex: 1 },
+  attachmentTitle: { fontSize: 12, fontWeight: '700' },
+  attachmentSubtitle: { fontSize: 11, marginTop: 2 },
+  removeAttachmentBtn: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   sendBtn: {
     width: 40,
