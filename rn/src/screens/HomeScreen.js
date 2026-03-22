@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -41,6 +41,32 @@ export default function HomeScreen() {
   const [selectedAccount, setSelectedAccount] = useState('ngn');
   const [showAccountSheet, setShowAccountSheet] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState(0);
+  const carouselRef = useRef(null);
+  const carouselIntervalRef = useRef(null);
+
+  // Auto-loop carousel (Bank view only): advance every 4s, infinite loop
+  useEffect(() => {
+    if (homeView !== 0) {
+      if (carouselIntervalRef.current) {
+        clearInterval(carouselIntervalRef.current);
+        carouselIntervalRef.current = null;
+      }
+      return;
+    }
+    carouselIntervalRef.current = setInterval(() => {
+      setCarouselIndex((prev) => {
+        const next = (prev + 1) % 3;
+        carouselRef.current?.scrollTo({ x: next * width, animated: true });
+        return next;
+      });
+    }, 4000);
+    return () => {
+      if (carouselIntervalRef.current) {
+        clearInterval(carouselIntervalRef.current);
+        carouselIntervalRef.current = null;
+      }
+    };
+  }, [homeView, width]);
 
   const firstName = (userName || 'User').split(' ')[0];
   const currentAccount = CURRENCY_ACCOUNTS.find((a) => a.id === selectedAccount) || CURRENCY_ACCOUNTS[0];
@@ -199,10 +225,10 @@ export default function HomeScreen() {
               </View>
             </View>
 
-            {/* Featured carousel: Savings · Refer & earn · Rexi Rewards */}
+            {/* Featured carousel: Savings · Refer & earn · Rexi Rewards (auto-loop) */}
             <View style={styles.carouselSection}>
-              <Text style={[styles.carouselSectionTitle, { color: colors.textPrimary }]}>For you</Text>
               <ScrollView
+                ref={carouselRef}
                 horizontal
                 pagingEnabled
                 nestedScrollEnabled
@@ -340,7 +366,15 @@ export default function HomeScreen() {
             <View style={styles.assetsSection}>
               <View style={styles.assetsHeader}>
                 <Text style={[styles.assetsTitle, { color: colors.textPrimary }]}>My Assets</Text>
-                <MaterialIcons name="arrow-forward" size={20} color={colors.textSecondary} />
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('MainTabs', { screen: 'Stats' })}
+                  style={styles.quickSeeAll}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.quickSeeAllText, { color: colors.primary }]}>See all</Text>
+                  <MaterialIcons name="arrow-forward-ios" size={16} color={colors.primary} />
+                </TouchableOpacity>
               </View>
               <View style={[styles.assetsCard, { backgroundColor: colors.cardBackground }]}>
                 {[
@@ -478,7 +512,6 @@ const styles = StyleSheet.create({
   },
   quickLabel: { fontSize: 11, fontWeight: '500', marginTop: 6, textAlign: 'center' },
   carouselSection: { marginTop: 8, paddingBottom: 8 },
-  carouselSectionTitle: { fontSize: 18, fontWeight: '700', paddingHorizontal: 20, marginBottom: 12 },
   carouselSlide: {
     paddingHorizontal: 20,
     justifyContent: 'center',
@@ -554,7 +587,12 @@ const styles = StyleSheet.create({
   dotInactive: { width: 6 },
   dotActive: { width: 22 },
   assetsSection: { paddingHorizontal: 20, marginTop: 20 },
-  assetsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
+  assetsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
   assetsTitle: { fontSize: 18, fontWeight: '700' },
   assetsCard: { borderRadius: 20, overflow: 'hidden' },
   assetRow: {
