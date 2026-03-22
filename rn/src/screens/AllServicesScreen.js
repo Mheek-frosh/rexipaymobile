@@ -1,9 +1,22 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  Dimensions,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
-import { HOME_QUICK_SERVICES } from '../data/homeServices';
+import { ALL_SERVICES_SERVICES } from '../data/homeServices';
+
+const { width } = Dimensions.get('window');
+const PADDING = 20;
+const GAP = 12;
+const COLS = 3;
+const ITEM_WIDTH = (width - PADDING * 2 - GAP * (COLS - 1)) / COLS;
 
 export default function AllServicesScreen() {
   const { colors, isDark } = useTheme();
@@ -12,9 +25,7 @@ export default function AllServicesScreen() {
   const go = (item) => {
     if (item.route) {
       navigation.navigate(item.route);
-      return;
     }
-    Alert.alert('Coming soon', `${item.label} will be available in a future update.`);
   };
 
   return (
@@ -29,14 +40,14 @@ export default function AllServicesScreen() {
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-          Pay bills, save money, and manage your account — all in one place.
+          Savings first — then bills, shopping, and more. Tap any service to open.
         </Text>
 
         <View style={styles.grid}>
-          {HOME_QUICK_SERVICES.map((item) => (
+          {ALL_SERVICES_SERVICES.map((item) => (
             <TouchableOpacity
               key={item.id}
-              style={[styles.tile, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
+              style={[styles.tile, { width: ITEM_WIDTH }]}
               onPress={() => go(item)}
               activeOpacity={0.85}
             >
@@ -46,12 +57,11 @@ export default function AllServicesScreen() {
                   { backgroundColor: isDark ? `${item.bg}33` : item.bg },
                 ]}
               >
-                <MaterialIcons name={item.icon} size={26} color={item.color} />
+                <MaterialIcons name={item.icon} size={24} color={item.color} />
               </View>
-              <Text style={[styles.tileLabel, { color: colors.textPrimary }]} numberOfLines={2}>
+              <Text style={[styles.tileLabel, { color: colors.textSecondary }]} numberOfLines={2}>
                 {item.label}
               </Text>
-              <MaterialIcons name="chevron-right" size={18} color={colors.textSecondary} style={styles.chevron} />
             </TouchableOpacity>
           ))}
         </View>
@@ -72,24 +82,28 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 18, fontWeight: '700' },
   content: { paddingHorizontal: 20, paddingBottom: 40 },
-  subtitle: { fontSize: 14, lineHeight: 20, marginBottom: 20 },
-  grid: { gap: 10 },
-  tile: {
+  subtitle: { fontSize: 14, lineHeight: 20, marginBottom: 18 },
+  grid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: GAP,
+  },
+  tile: {
     alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-    borderRadius: 14,
-    borderWidth: 1,
-    gap: 14,
+    marginBottom: 4,
   },
   iconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
+    width: 52,
+    height: 52,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  tileLabel: { flex: 1, fontSize: 16, fontWeight: '600' },
-  chevron: { opacity: 0.7 },
+  tileLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    marginTop: 8,
+    textAlign: 'center',
+    lineHeight: 14,
+  },
 });
