@@ -9,17 +9,11 @@ import {
   StyleSheet,
   ActivityIndicator,
   RefreshControl,
-  Dimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import { fetchMarkets, formatUsd } from '../services/coingeckoService';
-import SparklineChart from '../components/SparklineChart';
-
-const { width: SCREEN_W } = Dimensions.get('window');
-const SPARK_W = Math.min(88, SCREEN_W * 0.22);
-const SPARK_H = 36;
 
 export default function CryptoMarketScreen() {
   const { colors } = useTheme();
@@ -64,10 +58,8 @@ export default function CryptoMarketScreen() {
   }, [list, query]);
 
   const renderItem = ({ item }) => {
-    const spark = item.sparkline_in_7d?.price;
     const change = item.price_change_percentage_24h;
     const up = change >= 0;
-    const lineColor = up ? '#10B981' : '#EF4444';
 
     return (
       <TouchableOpacity
@@ -82,19 +74,13 @@ export default function CryptoMarketScreen() {
           </Text>
           <Text style={[styles.coinSym, { color: colors.textSecondary }]}>{item.symbol?.toUpperCase()}</Text>
         </View>
-        <View style={styles.sparkWrap}>
-          {spark && spark.length > 1 ? (
-            <SparklineChart data={spark} width={SPARK_W} height={SPARK_H} color={lineColor} strokeWidth={1.2} />
-          ) : (
-            <View style={{ width: SPARK_W, height: SPARK_H }} />
-          )}
-        </View>
         <View style={styles.rowRight}>
           <Text style={[styles.price, { color: colors.textPrimary }]}>{formatUsd(item.current_price)}</Text>
           <Text style={[styles.pct, { color: up ? '#10B981' : '#EF4444' }]}>
             {change != null ? `${up ? '+' : ''}${change.toFixed(2)}%` : '—'}
           </Text>
         </View>
+        <MaterialIcons name="chevron-right" size={20} color={colors.textSecondary} />
       </TouchableOpacity>
     );
   };
@@ -128,7 +114,7 @@ export default function CryptoMarketScreen() {
       </View>
 
       <Text style={[styles.caption, { color: colors.textSecondary }]}>
-        Top assets by market cap · 7d spark · Live data via CoinGecko
+        Top assets by market cap · Live prices via CoinGecko
       </Text>
 
       {loading && !list.length ? (
@@ -199,7 +185,6 @@ const styles = StyleSheet.create({
   rowMid: { flex: 1, minWidth: 0 },
   coinName: { fontSize: 15, fontWeight: '700' },
   coinSym: { fontSize: 12, marginTop: 2 },
-  sparkWrap: { alignItems: 'center', justifyContent: 'center' },
   rowRight: { alignItems: 'flex-end', minWidth: 88 },
   price: { fontSize: 14, fontWeight: '700' },
   pct: { fontSize: 12, fontWeight: '600', marginTop: 2 },

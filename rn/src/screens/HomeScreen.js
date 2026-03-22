@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../theme/ThemeContext';
@@ -28,15 +29,17 @@ const CURRENCY_ACCOUNTS = [
 ];
 
 const { width } = Dimensions.get('window');
-const PADDING = 20;
-const GAP = 12;
+/** Tighter side padding so quick grid & assets align edge-to-edge with the screen */
+const SIDE = 16;
+const GAP = 10;
 const COLS = 4;
-const ITEM_WIDTH = (width - PADDING * 2 - GAP * (COLS - 1)) / COLS;
+const ITEM_WIDTH = (width - SIDE * 2 - GAP * (COLS - 1)) / COLS;
 
 export default function HomeScreen() {
   const { colors, isDark } = useTheme();
   const { userName } = useAuth();
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
 
   // State for toggling between Bank (fiat) and Crypto views
   const [homeView, setHomeView] = useState(0); // 0: Bank, 1: Crypto
@@ -112,7 +115,13 @@ export default function HomeScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle="light-content" />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: Math.max(insets.bottom, 8) },
+        ]}
+      >
         {/* === TOP BLUE HEADER === */}
         {/* Contains the user profile, Bank/Crypto toggle, and notification bell. 
             The blue background extends downward to partially overlap the action cards below. */}
@@ -462,8 +471,6 @@ export default function HomeScreen() {
             </View>
           </>
         )}
-
-        <View style={{ height: 100 }} />
       </ScrollView>
 
       <AccountSwitcherSheet
@@ -478,10 +485,12 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  /** No flexGrow — avoids a blank stretch above the bottom tab bar */
+  scrollContent: {},
   header: {
     backgroundColor: '#2E63F6',
     paddingTop: 50,
-    paddingHorizontal: 20,
+    paddingHorizontal: SIDE,
     paddingBottom: 120, // Extended so blue fills half of action card
   },
   topRow: {
@@ -528,7 +537,7 @@ const styles = StyleSheet.create({
   },
   addMoneyText: { color: '#FFF', fontSize: 14, fontWeight: '600' },
   actionCard: {
-    marginHorizontal: 20,
+    marginHorizontal: SIDE,
     marginTop: -60, // Overlap more - blue fills half
     paddingVertical: 20,
     paddingHorizontal: 10,
@@ -547,12 +556,12 @@ const styles = StyleSheet.create({
   },
   actionLabel: { fontSize: 12, fontWeight: '600', marginTop: 8 },
   actionDivider: { width: 1, height: 30 },
-  quickSection: { paddingHorizontal: 20, paddingVertical: 16 },
+  quickSection: { paddingHorizontal: SIDE, paddingTop: 12, paddingBottom: 8 },
   quickHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 0,
   },
   quickTitle: { fontSize: 18, fontWeight: 'bold' },
   quickSeeAll: { flexDirection: 'row', alignItems: 'center', gap: 4 },
@@ -560,7 +569,7 @@ const styles = StyleSheet.create({
   quickGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginTop: 16,
+    marginTop: 12,
     gap: GAP,
   },
   quickItem: { alignItems: 'center' },
@@ -572,9 +581,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   quickLabel: { fontSize: 11, fontWeight: '500', marginTop: 6, textAlign: 'center' },
-  carouselSection: { marginTop: 8, paddingBottom: 8 },
+  carouselSection: { marginTop: 4, paddingBottom: 4 },
   carouselSlide: {
-    paddingHorizontal: 20,
+    paddingHorizontal: SIDE,
     justifyContent: 'center',
   },
   promoCard: {
@@ -647,21 +656,21 @@ const styles = StyleSheet.create({
   dot: { height: 6, borderRadius: 3 },
   dotInactive: { width: 6 },
   dotActive: { width: 22 },
-  assetsSection: { paddingHorizontal: 20, marginTop: 20 },
+  assetsSection: { paddingHorizontal: SIDE, marginTop: 12, paddingBottom: 0 },
   assetsHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 8,
   },
   assetsTitle: { fontSize: 18, fontWeight: '700' },
-  assetsCard: { borderRadius: 20, overflow: 'hidden' },
+  assetsCard: { borderRadius: 16, overflow: 'hidden' },
   assetRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    gap: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    gap: 10,
   },
   assetIconImage: {
     width: 44,

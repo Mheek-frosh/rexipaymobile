@@ -17,8 +17,7 @@ import { fetchCoinDetail, formatUsd, formatCompactUsd } from '../services/coinge
 import SparklineChart from '../components/SparklineChart';
 
 const { width: W } = Dimensions.get('window');
-const CHART_W = W - 40;
-const CHART_H = 180;
+const CHART_H = 160;
 
 export default function CryptoAssetDetailScreen() {
   const { colors } = useTheme();
@@ -108,15 +107,16 @@ export default function CryptoAssetDetailScreen() {
             24h {change24 != null ? `${up ? '+' : ''}${change24.toFixed(2)}%` : '—'}
           </Text>
 
-          <View style={[styles.chartCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
-            <Text style={[styles.chartLabel, { color: colors.textSecondary }]}>7-day price</Text>
-            {spark && spark.length > 2 ? (
-              <SparklineChart data={spark} width={CHART_W} height={CHART_H} color={chartColor} strokeWidth={2} />
-            ) : null}
-            <Text style={[styles.chartHint, { color: colors.textSecondary }]}>
-              Chart reflects recent market prices (CoinGecko). Not financial advice.
-            </Text>
-          </View>
+          <View style={[styles.chartDivider, { backgroundColor: colors.border }]} />
+          <Text style={[styles.chartCaption, { color: colors.textSecondary }]}>7-day price trend</Text>
+          {spark && spark.length > 2 ? (
+            <View style={styles.chartBleed}>
+              <SparklineChart data={spark} width={W} height={CHART_H} color={chartColor} strokeWidth={2} />
+            </View>
+          ) : null}
+          <Text style={[styles.chartFoot, { color: colors.textSecondary }]}>
+            Prices from CoinGecko · indicative only
+          </Text>
 
           <View style={[styles.statsGrid, { borderColor: colors.border }]}>
             <View style={[styles.statCell, { borderColor: colors.border }]}>
@@ -194,22 +194,18 @@ const styles = StyleSheet.create({
   muted: { marginTop: 12, fontSize: 14, textAlign: 'center' },
   retry: { marginTop: 16, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
   retryText: { color: '#FFF', fontWeight: '700' },
-  content: { paddingHorizontal: 20, paddingBottom: 48 },
+  content: { paddingHorizontal: 20, paddingBottom: 32 },
   heroRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 8 },
   heroIcon: { width: 56, height: 56, borderRadius: 28 },
   heroText: { flex: 1 },
   name: { fontSize: 22, fontWeight: '800' },
   sym: { fontSize: 14, marginTop: 2 },
   bigPrice: { fontSize: 32, fontWeight: '800', marginTop: 8 },
-  change24: { fontSize: 16, fontWeight: '700', marginTop: 4, marginBottom: 20 },
-  chartCard: {
-    borderRadius: 16,
-    borderWidth: 1,
-    padding: 16,
-    marginBottom: 20,
-  },
-  chartLabel: { fontSize: 12, fontWeight: '700', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 },
-  chartHint: { fontSize: 11, marginTop: 10, lineHeight: 16 },
+  change24: { fontSize: 16, fontWeight: '700', marginTop: 4, marginBottom: 12 },
+  chartDivider: { height: StyleSheet.hairlineWidth, width: '100%', marginTop: 4, marginBottom: 10 },
+  chartCaption: { fontSize: 11, fontWeight: '700', letterSpacing: 0.4, marginBottom: 6, textTransform: 'uppercase' },
+  chartBleed: { marginHorizontal: -20, marginBottom: 6 },
+  chartFoot: { fontSize: 10, lineHeight: 14, marginBottom: 18 },
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
