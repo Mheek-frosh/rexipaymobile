@@ -8,12 +8,14 @@ import {
   StyleSheet,
   StatusBar,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../theme/ThemeContext';
 import { AccountSwitcherSheet } from '../components/BottomSheet';
+import { HOME_QUICK_SERVICES } from '../data/homeServices';
 
 const CURRENCY_ACCOUNTS = [
   { id: 'ngn', name: 'Naira', code: 'NGN', flag: '🇳🇬', balance: '₦250,000', symbol: '₦' },
@@ -26,18 +28,6 @@ const PADDING = 20;
 const GAP = 12;
 const COLS = 4;
 const ITEM_WIDTH = (width - PADDING * 2 - GAP * (COLS - 1)) / COLS;
-
-const QUICK_ACTIONS = [
-  { icon: 'wifi-off', label: 'Offline Pay', color: '#10B981', bg: '#E8F5E9', route: 'OfflinePay' },
-  { icon: 'wifi', label: 'Airtime', color: '#FF9800', bg: '#FFF3E0', route: 'Airtime' },
-  { icon: 'public', label: 'Internet', color: '#4CAF50', bg: '#E8F5E9', route: null },
-  { icon: 'bolt', label: 'Electricity', color: '#FFC107', bg: '#FFFDE7', route: null },
-  { icon: 'receipt-long', label: 'History', color: '#FF9800', bg: '#FFF8E1', route: 'Transactions' },
-  { icon: 'shopping-cart', label: 'Shopping', color: '#9C27B0', bg: '#F3E5F5', route: null },
-  { icon: 'volunteer-activism', label: 'Deals', color: '#E91E63', bg: '#FCE4EC', route: null },
-  { icon: 'health-and-safety', label: 'Health', color: '#4CAF50', bg: '#E8F5E9', route: null },
-  { icon: 'beach-access', label: 'Insurance', color: '#00BCD4', bg: '#E0F7FA', route: null },
-];
 
 export default function HomeScreen() {
   const { colors, isDark } = useTheme();
@@ -53,6 +43,14 @@ export default function HomeScreen() {
 
   const firstName = (userName || 'User').split(' ')[0];
   const currentAccount = CURRENCY_ACCOUNTS.find((a) => a.id === selectedAccount) || CURRENCY_ACCOUNTS[0];
+
+  const handleQuickService = (item) => {
+    if (item.route) {
+      navigation.navigate(item.route);
+      return;
+    }
+    Alert.alert('Coming soon', `${item.label} will be available in a future update.`);
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -162,18 +160,22 @@ export default function HomeScreen() {
             <View style={styles.quickSection}>
               <View style={styles.quickHeader}>
                 <Text style={[styles.quickTitle, { color: colors.textPrimary }]}>Quick Actions</Text>
-                <MaterialIcons name="arrow-forward-ios" size={14} color="#9E9E9E" />
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('AllServices')}
+                  style={styles.quickSeeAll}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.quickSeeAllText, { color: colors.primary }]}>See all</Text>
+                  <MaterialIcons name="arrow-forward-ios" size={16} color={colors.primary} />
+                </TouchableOpacity>
               </View>
               <View style={styles.quickGrid}>
-                {QUICK_ACTIONS.map((item, i) => (
+                {HOME_QUICK_SERVICES.map((item) => (
                   <TouchableOpacity
-                    key={i}
+                    key={item.id}
                     style={[styles.quickItem, { width: ITEM_WIDTH }]}
-                    onPress={() => {
-                      if (item.route === 'Airtime') navigation.navigate('Airtime');
-                      if (item.route === 'Transactions') navigation.navigate('Transactions');
-                      if (item.route === 'OfflinePay') navigation.navigate('OfflinePay');
-                    }}
+                    onPress={() => handleQuickService(item)}
                   >
                     <View
                       style={[
@@ -194,6 +196,23 @@ export default function HomeScreen() {
                   </TouchableOpacity>
                 ))}
               </View>
+
+              <TouchableOpacity
+                style={[styles.savingsBanner, { backgroundColor: colors.primary }]}
+                onPress={() => navigation.navigate('SavingsHome')}
+                activeOpacity={0.9}
+              >
+                <View style={styles.savingsBannerIconWrap}>
+                  <MaterialIcons name="account-balance" size={26} color={colors.primary} />
+                </View>
+                <View style={styles.savingsBannerText}>
+                  <Text style={styles.savingsBannerTitle}>Savings</Text>
+                  <Text style={styles.savingsBannerSub} numberOfLines={2}>
+                    Earn interest on your goals — start with any amount.
+                  </Text>
+                </View>
+                <MaterialIcons name="chevron-right" size={22} color="rgba(255,255,255,0.9)" />
+              </TouchableOpacity>
             </View>
 
             {/* Referral Banner */}
@@ -218,8 +237,8 @@ export default function HomeScreen() {
 
         {homeView === 1 && (
           <>
-            {/* Crypto Actions */}
-            <View style={[styles.cryptoActionCard, { backgroundColor: colors.cardBackground }]}>
+            {/* Crypto Actions — same card style as Bank Send / Receive / Convert */}
+            <View style={[styles.actionCard, { backgroundColor: colors.cardBackground }]}>
               <TouchableOpacity
                 style={styles.actionItem}
                 onPress={() => navigation.navigate('SendCrypto')}
@@ -369,8 +388,15 @@ const styles = StyleSheet.create({
   actionLabel: { fontSize: 12, fontWeight: '600', marginTop: 8 },
   actionDivider: { width: 1, height: 30 },
   quickSection: { paddingHorizontal: 20, paddingVertical: 16 },
-  quickHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  quickHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   quickTitle: { fontSize: 18, fontWeight: 'bold' },
+  quickSeeAll: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  quickSeeAllText: { fontSize: 14, fontWeight: '600' },
   quickGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -386,6 +412,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   quickLabel: { fontSize: 11, fontWeight: '500', marginTop: 6, textAlign: 'center' },
+  savingsBanner: {
+    marginTop: 18,
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  savingsBannerIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: '#FFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  savingsBannerText: { flex: 1 },
+  savingsBannerTitle: { color: '#FFF', fontSize: 16, fontWeight: '800' },
+  savingsBannerSub: { color: 'rgba(255,255,255,0.92)', fontSize: 12, marginTop: 4, lineHeight: 17 },
   referralBanner: {
     marginHorizontal: 20,
     marginTop: 12,
@@ -401,16 +447,6 @@ const styles = StyleSheet.create({
   referralBtn: { marginTop: 10, backgroundColor: '#FFF', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, alignSelf: 'flex-start' },
   referralBtnText: { color: '#FF9800', fontWeight: '600', fontSize: 12 },
   referralEmoji: { width: 60, height: 60 },
-  cryptoActionCard: {
-    marginHorizontal: 20,
-    marginTop: -60,
-    paddingVertical: 20,
-    paddingHorizontal: 10,
-    borderRadius: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-  },
   assetsSection: { paddingHorizontal: 20, marginTop: 20 },
   assetsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
   assetsTitle: { fontSize: 18, fontWeight: '700' },

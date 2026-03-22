@@ -38,6 +38,9 @@ import ForgotPinSetPinScreen from '../screens/ForgotPinSetPinScreen';
 import OfflinePayScreen from '../screens/OfflinePayScreen';
 import ChangePinScreen from '../screens/ChangePinScreen';
 import BiometricsScreen from '../screens/BiometricsScreen';
+import AllServicesScreen from '../screens/AllServicesScreen';
+import SavingsHomeScreen from '../screens/SavingsHomeScreen';
+import SavingsSetupScreen from '../screens/SavingsSetupScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -60,6 +63,9 @@ export default function RootNavigator() {
         <Stack.Screen name="DataPrivacy" component={DataPrivacyScreen} />
         <Stack.Screen name="AccountDetails" component={AccountDetailsScreen} />
         <Stack.Screen name="Airtime" component={AirtimeScreen} />
+        <Stack.Screen name="AllServices" component={AllServicesScreen} />
+        <Stack.Screen name="SavingsHome" component={SavingsHomeScreen} />
+        <Stack.Screen name="SavingsSetup" component={SavingsSetupScreen} />
         <Stack.Screen name="ChangeLimit" component={ChangeLimitScreen} />
         <Stack.Screen name="PaymentSuccess" component={PaymentSuccessScreen} />
         <Stack.Screen name="BankReceive" component={BankReceiveScreen} />
