@@ -41,6 +41,8 @@ import BiometricsScreen from '../screens/BiometricsScreen';
 import AllServicesScreen from '../screens/AllServicesScreen';
 import SavingsHomeScreen from '../screens/SavingsHomeScreen';
 import SavingsSetupScreen from '../screens/SavingsSetupScreen';
+import ReferralEarnScreen from '../screens/ReferralEarnScreen';
+import RewardsHubScreen from '../screens/RewardsHubScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -66,6 +68,8 @@ export default function RootNavigator() {
         <Stack.Screen name="AllServices" component={AllServicesScreen} />
         <Stack.Screen name="SavingsHome" component={SavingsHomeScreen} />
         <Stack.Screen name="SavingsSetup" component={SavingsSetupScreen} />
+        <Stack.Screen name="ReferralEarn" component={ReferralEarnScreen} />
+        <Stack.Screen name="RewardsHub" component={RewardsHubScreen} />
         <Stack.Screen name="ChangeLimit" component={ChangeLimitScreen} />
         <Stack.Screen name="PaymentSuccess" component={PaymentSuccessScreen} />
         <Stack.Screen name="BankReceive" component={BankReceiveScreen} />

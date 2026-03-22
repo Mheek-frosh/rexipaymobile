@@ -40,6 +40,7 @@ export default function HomeScreen() {
   // State for managing which fiat account is currently selected (e.g., NGN, USD, GBP)
   const [selectedAccount, setSelectedAccount] = useState('ngn');
   const [showAccountSheet, setShowAccountSheet] = useState(false);
+  const [carouselIndex, setCarouselIndex] = useState(0);
 
   const firstName = (userName || 'User').split(' ')[0];
   const currentAccount = CURRENCY_ACCOUNTS.find((a) => a.id === selectedAccount) || CURRENCY_ACCOUNTS[0];
@@ -196,41 +197,105 @@ export default function HomeScreen() {
                   </TouchableOpacity>
                 ))}
               </View>
-
-              <TouchableOpacity
-                style={[styles.savingsBanner, { backgroundColor: colors.primary }]}
-                onPress={() => navigation.navigate('SavingsHome')}
-                activeOpacity={0.9}
-              >
-                <View style={styles.savingsBannerIconWrap}>
-                  <MaterialIcons name="account-balance" size={26} color={colors.primary} />
-                </View>
-                <View style={styles.savingsBannerText}>
-                  <Text style={styles.savingsBannerTitle}>Savings</Text>
-                  <Text style={styles.savingsBannerSub} numberOfLines={2}>
-                    Earn interest on your goals — start with any amount.
-                  </Text>
-                </View>
-                <MaterialIcons name="chevron-right" size={22} color="rgba(255,255,255,0.9)" />
-              </TouchableOpacity>
             </View>
 
-            {/* Referral Banner */}
-            <View style={styles.referralBanner}>
-              <View style={styles.referralContent}>
-                <Text style={styles.referralTitle}>Refer and Earn</Text>
-                <Text style={styles.referralSub}>
-                  Refer your friend and win crypto coins
-                </Text>
-                <TouchableOpacity style={styles.referralBtn}>
-                  <Text style={styles.referralBtnText}>Refer Now</Text>
-                </TouchableOpacity>
+            {/* Featured carousel: Savings · Refer & earn · Rexi Rewards */}
+            <View style={styles.carouselSection}>
+              <Text style={[styles.carouselSectionTitle, { color: colors.textPrimary }]}>For you</Text>
+              <ScrollView
+                horizontal
+                pagingEnabled
+                nestedScrollEnabled
+                showsHorizontalScrollIndicator={false}
+                decelerationRate="fast"
+                onMomentumScrollEnd={(e) => {
+                  const x = e.nativeEvent.contentOffset.x;
+                  const idx = Math.round(x / width);
+                  setCarouselIndex(Math.min(2, Math.max(0, idx)));
+                }}
+                scrollEventThrottle={16}
+              >
+                {/* Slide 1 — Savings */}
+                <View style={[styles.carouselSlide, { width }]}>
+                  <TouchableOpacity
+                    style={[styles.promoCard, styles.promoCardSavings, { backgroundColor: colors.primary }]}
+                    onPress={() => navigation.navigate('SavingsHome')}
+                    activeOpacity={0.92}
+                  >
+                    <View style={styles.promoCardIconLight}>
+                      <MaterialIcons name="account-balance" size={26} color={colors.primary} />
+                    </View>
+                    <View style={styles.promoCardText}>
+                      <Text style={styles.promoCardTitle}>Savings</Text>
+                      <Text style={styles.promoCardSub} numberOfLines={2}>
+                        Earn interest on your goals — start with any amount.
+                      </Text>
+                    </View>
+                    <MaterialIcons name="chevron-right" size={22} color="rgba(255,255,255,0.9)" />
+                  </TouchableOpacity>
+                </View>
+
+                {/* Slide 2 — Refer & earn */}
+                <View style={[styles.carouselSlide, { width }]}>
+                  <TouchableOpacity
+                    style={[styles.promoCard, styles.promoCardReferral]}
+                    onPress={() => navigation.navigate('ReferralEarn')}
+                    activeOpacity={0.92}
+                  >
+                    <View style={styles.referralSlideInner}>
+                      <View style={styles.referralTextBlock}>
+                        <Text style={styles.promoCardTitleDark}>Refer & earn</Text>
+                        <Text style={styles.promoCardSubDark} numberOfLines={2}>
+                          Invite friends and win rewards when they join RexiPay.
+                        </Text>
+                        <View style={styles.referralCta}>
+                          <Text style={styles.referralCtaText}>Refer now</Text>
+                        </View>
+                      </View>
+                      <Image
+                        source={require('../../assets/images/thumbs.png')}
+                        style={styles.referralSlideImage}
+                        resizeMode="contain"
+                      />
+                    </View>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Slide 3 — Rexi Rewards */}
+                <View style={[styles.carouselSlide, { width }]}>
+                  <TouchableOpacity
+                    style={[styles.promoCard, styles.promoCardRewards]}
+                    onPress={() => navigation.navigate('RewardsHub')}
+                    activeOpacity={0.92}
+                  >
+                    <View style={styles.promoCardIconRewards}>
+                      <MaterialIcons name="stars" size={26} color="#1DB954" />
+                    </View>
+                    <View style={styles.promoCardText}>
+                      <Text style={styles.promoCardTitleRewards}>Rexi Rewards</Text>
+                      <Text style={styles.promoCardSubRewards} numberOfLines={2}>
+                        Earn points on bills & transfers — redeem for perks.
+                      </Text>
+                    </View>
+                    <MaterialIcons name="chevron-right" size={22} color="rgba(255,255,255,0.95)" />
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+
+              <View style={styles.dotsRow}>
+                {[0, 1, 2].map((i) => (
+                  <View
+                    key={i}
+                    style={[
+                      styles.dot,
+                      carouselIndex === i ? styles.dotActive : styles.dotInactive,
+                      {
+                        backgroundColor: carouselIndex === i ? colors.primary : colors.border,
+                      },
+                    ]}
+                  />
+                ))}
               </View>
-              <Image
-                source={require('../../assets/images/thumbs.png')}
-                style={styles.referralEmoji}
-                resizeMode="contain"
-              />
             </View>
           </>
         )}
@@ -412,16 +477,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   quickLabel: { fontSize: 11, fontWeight: '500', marginTop: 6, textAlign: 'center' },
-  savingsBanner: {
-    marginTop: 18,
-    borderRadius: 16,
+  carouselSection: { marginTop: 8, paddingBottom: 8 },
+  carouselSectionTitle: { fontSize: 18, fontWeight: '700', paddingHorizontal: 20, marginBottom: 12 },
+  carouselSlide: {
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+  },
+  promoCard: {
+    borderRadius: 18,
     paddingVertical: 14,
     paddingHorizontal: 14,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    minHeight: 100,
   },
-  savingsBannerIconWrap: {
+  promoCardSavings: {},
+  promoCardIconLight: {
     width: 48,
     height: 48,
     borderRadius: 14,
@@ -429,24 +501,58 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  savingsBannerText: { flex: 1 },
-  savingsBannerTitle: { color: '#FFF', fontSize: 16, fontWeight: '800' },
-  savingsBannerSub: { color: 'rgba(255,255,255,0.92)', fontSize: 12, marginTop: 4, lineHeight: 17 },
-  referralBanner: {
-    marginHorizontal: 20,
-    marginTop: 12,
-    padding: 14,
+  promoCardText: { flex: 1 },
+  promoCardTitle: { color: '#FFF', fontSize: 16, fontWeight: '800' },
+  promoCardSub: { color: 'rgba(255,255,255,0.92)', fontSize: 12, marginTop: 4, lineHeight: 17 },
+  promoCardReferral: {
     backgroundColor: '#FF9800',
-    borderRadius: 18,
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    minHeight: 120,
+  },
+  referralSlideInner: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
+    flex: 1,
   },
-  referralContent: { flex: 1 },
-  referralTitle: { color: '#FFF', fontWeight: '600', fontSize: 15 },
-  referralSub: { color: 'rgba(255,255,255,0.95)', fontSize: 12, marginTop: 6, lineHeight: 16 },
-  referralBtn: { marginTop: 10, backgroundColor: '#FFF', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, alignSelf: 'flex-start' },
-  referralBtnText: { color: '#FF9800', fontWeight: '600', fontSize: 12 },
-  referralEmoji: { width: 60, height: 60 },
+  referralTextBlock: { flex: 1 },
+  promoCardTitleDark: { color: '#FFF', fontWeight: '800', fontSize: 16 },
+  promoCardSubDark: { color: 'rgba(255,255,255,0.95)', fontSize: 12, marginTop: 6, lineHeight: 16 },
+  referralCta: {
+    marginTop: 10,
+    backgroundColor: '#FFF',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  referralCtaText: { color: '#FF9800', fontWeight: '700', fontSize: 12 },
+  referralSlideImage: { width: 72, height: 72 },
+  promoCardRewards: {
+    backgroundColor: '#047857',
+  },
+  promoCardIconRewards: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: '#FFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  promoCardTitleRewards: { color: '#FFF', fontSize: 16, fontWeight: '800' },
+  promoCardSubRewards: { color: 'rgba(255,255,255,0.92)', fontSize: 12, marginTop: 4, lineHeight: 17 },
+  dotsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 14,
+    paddingBottom: 4,
+  },
+  dot: { height: 6, borderRadius: 3 },
+  dotInactive: { width: 6 },
+  dotActive: { width: 22 },
   assetsSection: { paddingHorizontal: 20, marginTop: 20 },
   assetsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
   assetsTitle: { fontSize: 18, fontWeight: '700' },
