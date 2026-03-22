@@ -48,6 +48,8 @@ import ElectricityBillScreen from '../screens/ElectricityBillScreen';
 import ShoppingHubScreen from '../screens/ShoppingHubScreen';
 import DealsHubScreen from '../screens/DealsHubScreen';
 import HealthHubScreen from '../screens/HealthHubScreen';
+import CryptoMarketScreen from '../screens/CryptoMarketScreen';
+import CryptoAssetDetailScreen from '../screens/CryptoAssetDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -80,6 +82,8 @@ export default function RootNavigator() {
         <Stack.Screen name="ShoppingHub" component={ShoppingHubScreen} />
         <Stack.Screen name="DealsHub" component={DealsHubScreen} />
         <Stack.Screen name="HealthHub" component={HealthHubScreen} />
+        <Stack.Screen name="CryptoMarket" component={CryptoMarketScreen} />
+        <Stack.Screen name="CryptoAssetDetail" component={CryptoAssetDetailScreen} />
         <Stack.Screen name="ChangeLimit" component={ChangeLimitScreen} />
         <Stack.Screen name="PaymentSuccess" component={PaymentSuccessScreen} />
         <Stack.Screen name="BankReceive" component={BankReceiveScreen} />

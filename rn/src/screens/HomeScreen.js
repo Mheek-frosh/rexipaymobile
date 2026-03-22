@@ -9,6 +9,7 @@ import {
   StatusBar,
   Dimensions,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -16,6 +17,9 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../theme/ThemeContext';
 import { AccountSwitcherSheet } from '../components/BottomSheet';
 import { HOME_QUICK_SERVICES } from '../data/homeServices';
+import { fetchMarkets, formatUsd } from '../services/coingeckoService';
+
+const PREVIEW_CRYPTO_IDS = ['bitcoin', 'ethereum', 'tether', 'litecoin'];
 
 const CURRENCY_ACCOUNTS = [
   { id: 'ngn', name: 'Naira', code: 'NGN', flag: '🇳🇬', balance: '₦250,000', symbol: '₦' },
@@ -43,6 +47,8 @@ export default function HomeScreen() {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const carouselRef = useRef(null);
   const carouselIntervalRef = useRef(null);
+  const [previewCrypto, setPreviewCrypto] = useState([]);
+  const [cryptoPreviewLoading, setCryptoPreviewLoading] = useState(false);
 
   // Auto-loop carousel (Bank view only): advance every 4s, infinite loop
   useEffect(() => {
@@ -67,6 +73,30 @@ export default function HomeScreen() {
       }
     };
   }, [homeView, width]);
+
+  useEffect(() => {
+    if (homeView !== 1) return;
+    let cancelled = false;
+    setCryptoPreviewLoading(true);
+    (async () => {
+      try {
+        const data = await fetchMarkets({
+          perPage: PREVIEW_CRYPTO_IDS.length,
+          ids: PREVIEW_CRYPTO_IDS.join(','),
+        });
+        if (cancelled) return;
+        const ordered = PREVIEW_CRYPTO_IDS.map((id) => data.find((c) => c.id === id)).filter(Boolean);
+        setPreviewCrypto(ordered);
+      } catch {
+        if (!cancelled) setPreviewCrypto([]);
+      } finally {
+        if (!cancelled) setCryptoPreviewLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [homeView]);
 
   const firstName = (userName || 'User').split(' ')[0];
   const currentAccount = CURRENCY_ACCOUNTS.find((a) => a.id === selectedAccount) || CURRENCY_ACCOUNTS[0];
@@ -367,7 +397,7 @@ export default function HomeScreen() {
               <View style={styles.assetsHeader}>
                 <Text style={[styles.assetsTitle, { color: colors.textPrimary }]}>My Assets</Text>
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('MainTabs', { screen: 'Stats' })}
+                  onPress={() => navigation.navigate('CryptoMarket')}
                   style={styles.quickSeeAll}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                   activeOpacity={0.7}
@@ -377,26 +407,57 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               </View>
               <View style={[styles.assetsCard, { backgroundColor: colors.cardBackground }]}>
-                {[
-                  { name: 'Bitcoin', symbol: 'BTC', value: '$230,000', color: '#FF9800', icon: 'currency-bitcoin' },
-                  { name: 'Ethereum', symbol: 'ETH', value: '$130,000', color: '#627EEA', icon: 'token' },
-                  { name: 'USDT', symbol: 'USDT', value: '$100,000', color: '#26A17B', icon: 'attach-money' },
-                  { name: 'Litecoin', symbol: 'LTC', value: '$40,000', color: '#78909C', icon: 'payments' },
-                ].map((a, i) => (
-                  <View key={i}>
-                    <TouchableOpacity style={styles.assetRow}>
-                      <View style={[styles.assetIcon, { backgroundColor: `${a.color}20` }]}>
-                        <MaterialIcons name={a.icon} size={24} color={a.color} />
-                      </View>
-                      <View style={styles.assetInfo}>
-                        <Text style={[styles.assetName, { color: colors.textPrimary }]}>{a.name}</Text>
-                        <Text style={[styles.assetSymbol, { color: colors.textSecondary }]}>{a.symbol}</Text>
-                      </View>
-                      <Text style={[styles.assetValue, { color: colors.textPrimary }]}>{a.value}</Text>
-                    </TouchableOpacity>
-                    {i < 3 && <View style={[styles.assetDivider, { backgroundColor: colors.border }]} />}
+                {cryptoPreviewLoading ? (
+                  <View style={styles.cryptoPreviewLoading}>
+                    <ActivityIndicator color={colors.primary} />
+                    <Text style={[styles.cryptoPreviewLoadingText, { color: colors.textSecondary }]}>
+                      Loading live prices…
+                    </Text>
                   </View>
-                ))}
+                ) : (
+                  (previewCrypto.length ? previewCrypto : []).map((a, i) => (
+                    <View key={a.id}>
+                      <TouchableOpacity
+                        style={styles.assetRow}
+                        onPress={() => navigation.navigate('CryptoAssetDetail', { coinId: a.id })}
+                        activeOpacity={0.75}
+                      >
+                        <Image source={{ uri: a.image }} style={styles.assetIconImage} />
+                        <View style={styles.assetInfo}>
+                          <Text style={[styles.assetName, { color: colors.textPrimary }]}>{a.name}</Text>
+                          <Text style={[styles.assetSymbol, { color: colors.textSecondary }]}>
+                            {a.symbol?.toUpperCase()}
+                          </Text>
+                        </View>
+                        <View style={styles.assetValueCol}>
+                          <Text style={[styles.assetValue, { color: colors.textPrimary }]}>
+                            {formatUsd(a.current_price)}
+                          </Text>
+                          {a.price_change_percentage_24h != null ? (
+                            <Text
+                              style={[
+                                styles.assetPct,
+                                { color: a.price_change_percentage_24h >= 0 ? '#10B981' : '#EF4444' },
+                              ]}
+                            >
+                              {a.price_change_percentage_24h >= 0 ? '+' : ''}
+                              {a.price_change_percentage_24h.toFixed(2)}%
+                            </Text>
+                          ) : null}
+                        </View>
+                        <MaterialIcons name="chevron-right" size={20} color={colors.textSecondary} />
+                      </TouchableOpacity>
+                      {i < previewCrypto.length - 1 && (
+                        <View style={[styles.assetDivider, { backgroundColor: colors.border }]} />
+                      )}
+                    </View>
+                  ))
+                )}
+                {!cryptoPreviewLoading && previewCrypto.length === 0 ? (
+                  <Text style={[styles.cryptoEmpty, { color: colors.textSecondary }]}>
+                    Pull to refresh or open See all for the full market list.
+                  </Text>
+                ) : null}
               </View>
             </View>
           </>
@@ -602,16 +663,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     gap: 12,
   },
-  assetIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
+  assetIconImage: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
   },
   assetInfo: { flex: 1 },
   assetName: { fontSize: 16, fontWeight: '600' },
   assetSymbol: { fontSize: 12, marginTop: 2 },
-  assetValue: { fontSize: 16, fontWeight: '600' },
+  assetValueCol: { alignItems: 'flex-end', marginRight: 4 },
+  assetValue: { fontSize: 15, fontWeight: '700' },
+  assetPct: { fontSize: 12, fontWeight: '600', marginTop: 2 },
+  cryptoPreviewLoading: {
+    paddingVertical: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  cryptoPreviewLoadingText: { fontSize: 13 },
+  cryptoEmpty: { padding: 20, textAlign: 'center', fontSize: 13, lineHeight: 18 },
   assetDivider: { height: 1, marginLeft: 76 },
 });
