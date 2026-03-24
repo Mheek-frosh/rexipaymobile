@@ -7,13 +7,13 @@ import {
   TextInput,
   FlatList,
   StyleSheet,
-  ActivityIndicator,
   RefreshControl,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import { fetchMarkets, formatUsd } from '../services/coingeckoService';
+import AppLoader from '../components/AppLoader';
 
 export default function CryptoMarketScreen() {
   const { colors } = useTheme();
@@ -118,10 +118,7 @@ export default function CryptoMarketScreen() {
       </Text>
 
       {loading && !list.length ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading markets…</Text>
-        </View>
+        <AppLoader mode="fullscreen" label="Loading markets..." />
       ) : error ? (
         <View style={styles.center}>
           <MaterialIcons name="error-outline" size={48} color={colors.error} />
@@ -189,7 +186,6 @@ const styles = StyleSheet.create({
   price: { fontSize: 14, fontWeight: '700' },
   pct: { fontSize: 12, fontWeight: '600', marginTop: 2 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 40 },
-  loadingText: { marginTop: 12, fontSize: 14 },
   errText: { textAlign: 'center', marginTop: 12, fontSize: 14, lineHeight: 20 },
   retry: { marginTop: 20, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
   retryText: { color: '#FFF', fontWeight: '700', fontSize: 15 },

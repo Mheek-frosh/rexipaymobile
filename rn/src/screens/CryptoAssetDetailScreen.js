@@ -6,7 +6,6 @@ import {
   Image,
   ScrollView,
   StyleSheet,
-  ActivityIndicator,
   Dimensions,
   Linking,
 } from 'react-native';
@@ -15,6 +14,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import { fetchCoinDetail, formatUsd, formatCompactUsd } from '../services/coingeckoService';
 import SparklineChart from '../components/SparklineChart';
+import AppLoader from '../components/AppLoader';
 
 const { width: W } = Dimensions.get('window');
 const CHART_H = 160;
@@ -80,10 +80,7 @@ export default function CryptoAssetDetailScreen() {
       </View>
 
       {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.muted, { color: colors.textSecondary }]}>Loading live data…</Text>
-        </View>
+        <AppLoader mode="fullscreen" label="Loading live data..." />
       ) : error ? (
         <View style={styles.center}>
           <MaterialIcons name="error-outline" size={48} color={colors.error} />

@@ -7,7 +7,6 @@ import {
   StyleSheet,
   TextInput,
   Alert,
-  ActivityIndicator,
   Switch,
 } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
@@ -20,6 +19,7 @@ import {
   getSavingsGoalById,
   updateSavingsGoal,
 } from '../services/savingsService';
+import AppLoader from '../components/AppLoader';
 
 const FREQUENCIES = ['Daily', 'Weekly', 'Monthly'];
 
@@ -118,11 +118,7 @@ export default function SavingsGoalDetailScreen() {
   };
 
   if (loading) {
-    return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <ActivityIndicator color={colors.primary} />
-      </View>
-    );
+    return <AppLoader mode="fullscreen" label="Loading savings goal..." />;
   }
 
   if (!goal) {

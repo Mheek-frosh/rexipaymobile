@@ -9,7 +9,6 @@ import {
   StatusBar,
   Dimensions,
   Alert,
-  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,6 +16,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../theme/ThemeContext';
 import { AccountSwitcherSheet } from '../components/BottomSheet';
+import AppLoader from '../components/AppLoader';
 import { HOME_QUICK_SERVICES } from '../data/homeServices';
 import { fetchMarkets, formatUsd } from '../services/coingeckoService';
 
@@ -418,10 +418,7 @@ export default function HomeScreen() {
               <View style={[styles.assetsCard, { backgroundColor: colors.cardBackground }]}>
                 {cryptoPreviewLoading ? (
                   <View style={styles.cryptoPreviewLoading}>
-                    <ActivityIndicator color={colors.primary} />
-                    <Text style={[styles.cryptoPreviewLoadingText, { color: colors.textSecondary }]}>
-                      Loading live prices…
-                    </Text>
+                    <AppLoader mode="inline" label="Loading live prices..." />
                   </View>
                 ) : (
                   (previewCrypto.length ? previewCrypto : []).map((a, i) => (
