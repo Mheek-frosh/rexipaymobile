@@ -13,6 +13,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
+import { createSavingsGoal } from '../services/savingsService';
 
 const FREQUENCIES = ['Daily', 'Weekly', 'Monthly'];
 
@@ -24,7 +25,7 @@ export default function SavingsSetupScreen() {
   const [contribution, setContribution] = useState('');
   const [frequency, setFrequency] = useState('Monthly');
 
-  const submit = () => {
+  const submit = async () => {
     const name = goalName.trim();
     if (!name) {
       Alert.alert('Goal name', 'Please enter a name for this savings goal.');
@@ -34,10 +35,16 @@ export default function SavingsSetupScreen() {
       Alert.alert('Amounts', 'Please enter target amount and how much you want to save per period.');
       return;
     }
+    const goal = await createSavingsGoal({
+      name,
+      targetAmount: target,
+      contributionAmount: contribution,
+      frequency,
+    });
     Alert.alert(
       'Savings goal created',
-      `"${name}" is set up. You can fund it anytime from your wallet.`,
-      [{ text: 'View savings', onPress: () => navigation.navigate('SavingsHome') }]
+      `"${name}" is ready. You can now start funding this plan.`,
+      [{ text: 'Open goal', onPress: () => navigation.replace('SavingsGoalDetail', { goalId: goal.id }) }]
     );
   };
 

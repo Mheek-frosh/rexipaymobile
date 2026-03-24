@@ -6,10 +6,10 @@ import {
   ScrollView,
   StyleSheet,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
-import { fetchSavingsOverview } from '../services/appContentService';
+import { getSavingsSummary } from '../services/savingsService';
 
 export default function SavingsHomeScreen() {
   const { colors } = useTheme();
@@ -17,18 +17,21 @@ export default function SavingsHomeScreen() {
   const [goals, setGoals] = useState([]);
   const [totalSaved, setTotalSaved] = useState('₦0');
 
+  const load = async () => {
+    const data = await getSavingsSummary();
+    setGoals(Array.isArray(data?.goals) ? data.goals : []);
+    setTotalSaved(data?.totalSaved || '₦0');
+  };
+
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      const data = await fetchSavingsOverview();
-      if (!mounted) return;
-      setGoals(Array.isArray(data?.goals) ? data.goals : []);
-      setTotalSaved(data?.totalSaved || '₦0');
-    })();
-    return () => {
-      mounted = false;
-    };
+    load();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      load();
+    }, [])
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -58,7 +61,12 @@ export default function SavingsHomeScreen() {
 
         <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Your goals</Text>
         {goals.map((g) => (
-          <View key={g.id} style={[styles.goalCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+          <TouchableOpacity
+            key={g.id}
+            onPress={() => navigation.navigate('SavingsGoalDetail', { goalId: g.id })}
+            activeOpacity={0.85}
+            style={[styles.goalCard, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
+          >
             <View style={styles.goalTop}>
               <Text style={[styles.goalName, { color: colors.textPrimary }]}>{g.name}</Text>
               <Text style={[styles.goalMeta, { color: colors.textSecondary }]}>
@@ -68,7 +76,7 @@ export default function SavingsHomeScreen() {
             <View style={[styles.progressTrack, { backgroundColor: colors.surfaceVariant }]}>
               <View style={[styles.progressFill, { width: `${g.percent}%`, backgroundColor: colors.primary }]} />
             </View>
-          </View>
+          </TouchableOpacity>
         ))}
 
         <TouchableOpacity

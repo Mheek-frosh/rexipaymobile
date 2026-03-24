@@ -41,6 +41,7 @@ import BiometricsScreen from '../screens/BiometricsScreen';
 import AllServicesScreen from '../screens/AllServicesScreen';
 import SavingsHomeScreen from '../screens/SavingsHomeScreen';
 import SavingsSetupScreen from '../screens/SavingsSetupScreen';
+import SavingsGoalDetailScreen from '../screens/SavingsGoalDetailScreen';
 import ReferralEarnScreen from '../screens/ReferralEarnScreen';
 import RewardsHubScreen from '../screens/RewardsHubScreen';
 import InternetDataScreen from '../screens/InternetDataScreen';
@@ -75,6 +76,7 @@ export default function RootNavigator() {
         <Stack.Screen name="AllServices" component={AllServicesScreen} />
         <Stack.Screen name="SavingsHome" component={SavingsHomeScreen} />
         <Stack.Screen name="SavingsSetup" component={SavingsSetupScreen} />
+        <Stack.Screen name="SavingsGoalDetail" component={SavingsGoalDetailScreen} />
         <Stack.Screen name="ReferralEarn" component={ReferralEarnScreen} />
         <Stack.Screen name="RewardsHub" component={RewardsHubScreen} />
         <Stack.Screen name="InternetData" component={InternetDataScreen} />
