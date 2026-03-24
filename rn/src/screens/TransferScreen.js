@@ -20,6 +20,7 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import { resolveAccount } from '../services/bankService';
 import { NIGERIAN_BANKS } from '../data/nigerianBanks';
 import PinEntryModal from '../components/PinEntryModal';
+import AppLoader from '../components/AppLoader';
 
 const RECENT_RECIPIENTS = [
   {
@@ -68,6 +69,8 @@ export default function TransferScreen() {
   const [transferRecipientAccount, setTransferRecipientAccount] = useState('');
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
+  const [processingTransfer, setProcessingTransfer] = useState(false);
+  const [processingLabel, setProcessingLabel] = useState('Sending money...');
 
   const cleanAccount = accountNumber.replace(/\D/g, '');
   const canResolve = cleanAccount.length === 10 && selectedBank;
@@ -144,8 +147,16 @@ export default function TransferScreen() {
     }
   };
 
-  const handlePinSuccess = () => {
+  const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const handlePinSuccess = async () => {
     setShowPinModal(false);
+    setProcessingTransfer(true);
+    setProcessingLabel('Sending money...');
+    await wait(900);
+    setProcessingLabel('Confirming transaction...');
+    await wait(900);
+    setProcessingTransfer(false);
     navigation.navigate('PaymentSuccess', {
       amount: amount,
       recipient: transferRecipient,
@@ -446,6 +457,17 @@ export default function TransferScreen() {
         onCancel={() => setShowPinModal(false)}
         title="Enter 4-digit PIN to confirm transfer"
       />
+
+      <Modal visible={processingTransfer} transparent animationType="fade">
+        <View style={styles.processingOverlay}>
+          <View style={[styles.processingCard, { backgroundColor: colors.background, borderColor: colors.border }]}>
+            <AppLoader mode="inline" label={processingLabel} />
+            <Text style={[styles.processingSubtext, { color: colors.textSecondary }]}>
+              Please wait while we complete your transfer securely.
+            </Text>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -644,4 +666,24 @@ const styles = StyleSheet.create({
   summaryValue: { fontSize: 15, fontWeight: '600' },
   summaryAmount: { fontSize: 18, fontWeight: '700' },
   summaryActions: { flexDirection: 'row', gap: 12 },
+  processingOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  processingCard: {
+    width: '100%',
+    borderRadius: 20,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  processingSubtext: {
+    textAlign: 'center',
+    fontSize: 12,
+    marginTop: 4,
+    marginBottom: 10,
+  },
 });
