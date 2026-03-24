@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -13,24 +13,35 @@ import { MaterialIcons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../theme/ThemeContext';
-
-const REFERRAL_CODE = 'REXI-7K2M9P';
-
-const MOCK_INVITES = [
-  { id: '1', name: 'Chidi O.', status: 'Completed', reward: '₦500', date: 'Mar 12' },
-  { id: '2', name: 'Amina K.', status: 'Pending', reward: '—', date: 'Mar 10' },
-];
+import { fetchReferralOverview } from '../services/appContentService';
 
 export default function ReferralEarnScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation();
   const { userName } = useAuth();
   const [copied, setCopied] = useState(false);
+  const [referralCode, setReferralCode] = useState('REXI-7K2M9P');
+  const [invites, setInvites] = useState([]);
+  const [stats, setStats] = useState({ successfulInvites: 0, totalEarned: '₦0' });
 
-  const shareMessage = `Join me on RexiPay — secure payments & crypto in one app. Use my code ${REFERRAL_CODE} when you sign up: https://rexipay.app/r/${REFERRAL_CODE}`;
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const data = await fetchReferralOverview();
+      if (!mounted) return;
+      setReferralCode(data?.code || 'REXI-7K2M9P');
+      setInvites(Array.isArray(data?.invites) ? data.invites : []);
+      setStats(data?.stats || { successfulInvites: 0, totalEarned: '₦0' });
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const shareMessage = `Join me on RexiPay — secure payments & crypto in one app. Use my code ${referralCode} when you sign up: https://rexipay.app/r/${referralCode}`;
 
   const copyCode = async () => {
-    await Clipboard.setStringAsync(REFERRAL_CODE);
+    await Clipboard.setStringAsync(referralCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
     Alert.alert('Copied', 'Referral code copied to clipboard.');
@@ -69,7 +80,7 @@ export default function ReferralEarnScreen() {
           onPress={copyCode}
           activeOpacity={0.85}
         >
-          <Text style={[styles.codeText, { color: colors.textPrimary }]}>{REFERRAL_CODE}</Text>
+          <Text style={[styles.codeText, { color: colors.textPrimary }]}>{referralCode}</Text>
           <View style={[styles.copyPill, { backgroundColor: colors.primaryLight }]}>
             <MaterialIcons name={copied ? 'check' : 'content-copy'} size={16} color={colors.primary} />
             <Text style={[styles.copyPillText, { color: colors.primary }]}>{copied ? 'Copied' : 'Copy'}</Text>
@@ -87,11 +98,11 @@ export default function ReferralEarnScreen() {
 
         <View style={styles.statsRow}>
           <View style={[styles.statBox, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
-            <Text style={[styles.statValue, { color: colors.textPrimary }]}>3</Text>
+            <Text style={[styles.statValue, { color: colors.textPrimary }]}>{stats.successfulInvites}</Text>
             <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Successful invites</Text>
           </View>
           <View style={[styles.statBox, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
-            <Text style={[styles.statValue, { color: colors.textPrimary }]}>₦1,500</Text>
+            <Text style={[styles.statValue, { color: colors.textPrimary }]}>{stats.totalEarned}</Text>
             <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Total earned</Text>
           </View>
         </View>
@@ -111,7 +122,7 @@ export default function ReferralEarnScreen() {
         ))}
 
         <Text style={[styles.sectionLabel, { color: colors.textPrimary, marginTop: 16 }]}>Recent activity</Text>
-        {MOCK_INVITES.map((row) => (
+        {invites.map((row) => (
           <View
             key={row.id}
             style={[styles.activityRow, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}

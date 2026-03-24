@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,15 +11,29 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
-
-const DISCOS = ['IKEDC', 'EKEDC', 'AEDC', 'PHED', 'KEDCO', 'EEDC'];
+import { fetchDiscos } from '../services/appContentService';
 
 export default function ElectricityBillScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation();
-  const [disco, setDisco] = useState(DISCOS[0]);
+  const [discos, setDiscos] = useState([]);
+  const [disco, setDisco] = useState('');
   const [meter, setMeter] = useState('');
   const [amount, setAmount] = useState('');
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const data = await fetchDiscos();
+      if (!mounted) return;
+      const list = Array.isArray(data) ? data : [];
+      setDiscos(list);
+      if (list.length) setDisco((prev) => (list.includes(prev) ? prev : list[0]));
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const pay = () => {
     if (meter.trim().length < 5) {
@@ -50,7 +64,7 @@ export default function ElectricityBillScreen() {
 
         <Text style={[styles.label, { color: colors.textSecondary }]}>Disco</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.discoRow}>
-          {DISCOS.map((d) => (
+          {discos.map((d) => (
             <TouchableOpacity
               key={d}
               style={[

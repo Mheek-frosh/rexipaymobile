@@ -1,18 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
-
-const PERKS = [
-  { icon: 'payments', title: 'Bill payments', desc: 'Earn points when you pay airtime, data & electricity.' },
-  { icon: 'swap-horiz', title: 'Transfers', desc: 'Bonus points on transfers above ₦5,000.' },
-  { icon: 'account-balance', title: 'Savings goals', desc: 'Extra rewards when you hit monthly savings targets.' },
-];
+import { fetchRewardsOverview } from '../services/appContentService';
 
 export default function RewardsHubScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation();
+  const [points, setPoints] = useState('0');
+  const [perks, setPerks] = useState([]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const data = await fetchRewardsOverview();
+      if (!mounted) return;
+      setPoints(data?.points || '0');
+      setPerks(Array.isArray(data?.perks) ? data.perks : []);
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -27,12 +37,12 @@ export default function RewardsHubScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={[styles.hero, { backgroundColor: '#1DB954' }]}>
           <Text style={styles.heroKicker}>Your points</Text>
-          <Text style={styles.heroPoints}>2,450</Text>
+          <Text style={styles.heroPoints}>{points}</Text>
           <Text style={styles.heroSub}>Redeem for airtime, fee discounts & more — coming soon.</Text>
         </View>
 
         <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Ways to earn</Text>
-        {PERKS.map((p) => (
+        {perks.map((p) => (
           <View key={p.title} style={[styles.perkRow, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
             <View style={[styles.perkIcon, { backgroundColor: 'rgba(29, 185, 84, 0.15)' }]}>
               <MaterialIcons name={p.icon} size={22} color="#1DB954" />

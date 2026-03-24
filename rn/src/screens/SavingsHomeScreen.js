@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -9,18 +9,26 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
-
-const MOCK_GOALS = [
-  { id: '1', name: 'Emergency fund', saved: '₦125,000', target: '₦500,000', percent: 25 },
-  { id: '2', name: 'New phone', saved: '₦45,000', target: '₦180,000', percent: 25 },
-];
+import { fetchSavingsOverview } from '../services/appContentService';
 
 export default function SavingsHomeScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation();
-  const [goals] = useState(MOCK_GOALS);
+  const [goals, setGoals] = useState([]);
+  const [totalSaved, setTotalSaved] = useState('₦0');
 
-  const totalSaved = '₦170,000';
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const data = await fetchSavingsOverview();
+      if (!mounted) return;
+      setGoals(Array.isArray(data?.goals) ? data.goals : []);
+      setTotalSaved(data?.totalSaved || '₦0');
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>

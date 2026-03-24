@@ -1,18 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
-
-const OPTIONS = [
-  { id: '1', title: 'HMO & plans', desc: 'Compare health cover (coming soon)', icon: 'local-hospital' },
-  { id: '2', title: 'Pharmacy & labs', desc: 'Pay partner pharmacies with RexiPay', icon: 'local-pharmacy' },
-  { id: '3', title: 'Telehealth', desc: 'Book virtual consultations', icon: 'videocam' },
-];
+import { fetchHealthOptions } from '../services/appContentService';
 
 export default function HealthHubScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation();
+  const [options, setOptions] = useState([]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const data = await fetchHealthOptions();
+      if (mounted) setOptions(Array.isArray(data) ? data : []);
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -29,7 +36,7 @@ export default function HealthHubScreen() {
           Health payments and benefits — expand your wellness in one place.
         </Text>
 
-        {OPTIONS.map((o) => (
+        {options.map((o) => (
           <TouchableOpacity
             key={o.id}
             style={[styles.row, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
-import { ALL_SERVICES_SERVICES } from '../data/homeServices';
+import { fetchAllServices } from '../services/appContentService';
 
 const { width } = Dimensions.get('window');
 const PADDING = 20;
@@ -21,6 +21,18 @@ const ITEM_WIDTH = (width - PADDING * 2 - GAP * (COLS - 1)) / COLS;
 export default function AllServicesScreen() {
   const { colors, isDark } = useTheme();
   const navigation = useNavigation();
+  const [services, setServices] = useState([]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const data = await fetchAllServices();
+      if (mounted) setServices(Array.isArray(data) ? data : []);
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const go = (item) => {
     if (item.route) {
@@ -44,7 +56,7 @@ export default function AllServicesScreen() {
         </Text>
 
         <View style={styles.grid}>
-          {ALL_SERVICES_SERVICES.map((item) => (
+          {services.map((item) => (
             <TouchableOpacity
               key={item.id}
               style={[styles.tile, { width: ITEM_WIDTH }]}

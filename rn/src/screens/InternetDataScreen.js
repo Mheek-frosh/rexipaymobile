@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,22 +11,31 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
-
-const NETWORKS = [
-  { id: 'mtn', label: 'MTN', color: '#FFCC00' },
-  { id: 'airtel', label: 'Airtel', color: '#E60000' },
-  { id: 'glo', label: 'Glo', color: '#00A859' },
-  { id: '9mobile', label: '9mobile', color: '#006847' },
-];
+import { fetchNetworks } from '../services/appContentService';
 
 const PLANS = ['500MB · 7 days', '1.5GB · 30 days', '3GB · 30 days', '10GB · 30 days'];
 
 export default function InternetDataScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation();
+  const [networks, setNetworks] = useState([]);
   const [network, setNetwork] = useState('mtn');
   const [phone, setPhone] = useState('');
   const [plan, setPlan] = useState(PLANS[1]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const data = await fetchNetworks();
+      if (!mounted) return;
+      const list = Array.isArray(data) ? data : [];
+      setNetworks(list);
+      if (list.length) setNetwork((prev) => (list.some((n) => n.id === prev) ? prev : list[0].id));
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const pay = () => {
     if (phone.replace(/\D/g, '').length < 10) {
@@ -53,7 +62,7 @@ export default function InternetDataScreen() {
 
         <Text style={[styles.label, { color: colors.textSecondary }]}>Network</Text>
         <View style={styles.row}>
-          {NETWORKS.map((n) => (
+          {networks.map((n) => (
             <TouchableOpacity
               key={n.id}
               style={[

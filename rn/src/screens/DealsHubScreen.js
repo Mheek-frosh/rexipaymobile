@@ -1,18 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
-
-const DEALS = [
-  { id: '1', title: '₦500 cashback on transfers', desc: 'Complete 5 transfers this week', ends: 'Ends Mar 25' },
-  { id: '2', title: 'Double rewards points', desc: 'On all bill payments above ₦5k', ends: 'Ends Mar 31' },
-  { id: '3', title: 'Zero fees weekend', desc: 'Saturday & Sunday only', ends: 'This weekend' },
-];
+import { fetchDeals } from '../services/appContentService';
 
 export default function DealsHubScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation();
+  const [deals, setDeals] = useState([]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const data = await fetchDeals();
+      if (mounted) setDeals(Array.isArray(data) ? data : []);
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -29,7 +36,7 @@ export default function DealsHubScreen() {
           Exclusive offers for RexiPay users. Tap a deal to learn more.
         </Text>
 
-        {DEALS.map((d) => (
+        {deals.map((d) => (
           <TouchableOpacity
             key={d.id}
             style={[styles.deal, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}

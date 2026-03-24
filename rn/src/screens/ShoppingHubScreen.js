@@ -1,19 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
-
-const STORES = [
-  { id: '1', name: 'Everyday Market', tag: 'Groceries', icon: 'storefront' },
-  { id: '2', name: 'Tech & Gadgets', tag: 'Electronics', icon: 'smartphone' },
-  { id: '3', name: 'Fashion Hub', tag: 'Clothing', icon: 'shopping-bag' },
-  { id: '4', name: 'Home & Living', tag: 'Furniture', icon: 'home' },
-];
+import { fetchShoppingStores } from '../services/appContentService';
 
 export default function ShoppingHubScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation();
+  const [stores, setStores] = useState([]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const data = await fetchShoppingStores();
+      if (mounted) setStores(Array.isArray(data) ? data : []);
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -30,7 +36,7 @@ export default function ShoppingHubScreen() {
           Shop partner stores with your RexiPay balance. More merchants added weekly.
         </Text>
 
-        {STORES.map((s) => (
+        {stores.map((s) => (
           <TouchableOpacity
             key={s.id}
             style={[styles.card, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
