@@ -17,6 +17,8 @@ import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
 import * as LocalAuthentication from 'expo-local-authentication';
+import * as Haptics from 'expo-haptics';
+import { Audio } from 'expo-av';
 import { resolveAccount } from '../services/bankService';
 import { NIGERIAN_BANKS } from '../data/nigerianBanks';
 import PinEntryModal from '../components/PinEntryModal';
@@ -71,6 +73,8 @@ export default function TransferScreen() {
   const [showPinModal, setShowPinModal] = useState(false);
   const [processingTransfer, setProcessingTransfer] = useState(false);
   const [processingLabel, setProcessingLabel] = useState('Sending money...');
+  const [showTransferFailedModal, setShowTransferFailedModal] = useState(false);
+  const [transferFailureReason, setTransferFailureReason] = useState('Network timeout while confirming transfer.');
 
   const cleanAccount = accountNumber.replace(/\D/g, '');
   const canResolve = cleanAccount.length === 10 && selectedBank;
@@ -149,19 +153,65 @@ export default function TransferScreen() {
 
   const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  const handlePinSuccess = async () => {
-    setShowPinModal(false);
-    setProcessingTransfer(true);
-    setProcessingLabel('Sending money...');
-    await wait(900);
-    setProcessingLabel('Confirming transaction...');
-    await wait(900);
-    setProcessingTransfer(false);
+  const playSuccessFeedback = async () => {
+    // Haptic feedback for premium completion feel
+    try {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (_) {
+      // ignore haptic errors
+    }
+
+    // Soft completion chime (falls back silently if unavailable/offline)
+    try {
+      const { sound } = await Audio.Sound.createAsync({
+        uri: 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3',
+      });
+      await sound.playAsync();
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status?.didJustFinish) {
+          sound.unloadAsync();
+        }
+      });
+    } catch (_) {
+      // ignore sound errors
+    }
+  };
+
+  const completeTransfer = async () => {
+    await playSuccessFeedback();
     navigation.navigate('PaymentSuccess', {
       amount: amount,
       recipient: transferRecipient,
       ref: 'RXP' + Date.now(),
     });
+  };
+
+  const runTransferProcessing = async ({ isRetry = false } = {}) => {
+    setProcessingTransfer(true);
+    setProcessingLabel('Sending money...');
+    const totalDuration = 1500 + Math.floor(Math.random() * 1001); // 1500-2500ms
+    const firstLeg = Math.floor(totalDuration * 0.45);
+    const secondLeg = totalDuration - firstLeg;
+    await wait(firstLeg);
+    setProcessingLabel('Confirming transaction...');
+    await wait(secondLeg);
+
+    // Simulated network/timeout errors. Lower chance on retry.
+    const failChance = isRetry ? 0.12 : 0.22;
+    const shouldFail = Math.random() < failChance;
+
+    setProcessingTransfer(false);
+    if (shouldFail) {
+      setTransferFailureReason('Network timeout while confirming transfer.');
+      setShowTransferFailedModal(true);
+      return;
+    }
+    await completeTransfer();
+  };
+
+  const handlePinSuccess = async () => {
+    setShowPinModal(false);
+    await runTransferProcessing();
   };
 
   const handleRecentTap = (item) => {
@@ -468,6 +518,35 @@ export default function TransferScreen() {
           </View>
         </View>
       </Modal>
+
+      <Modal visible={showTransferFailedModal} transparent animationType="fade">
+        <View style={styles.processingOverlay}>
+          <View style={[styles.processingCard, { backgroundColor: colors.background, borderColor: colors.border }]}>
+            <View style={[styles.failedIconWrap, { backgroundColor: colors.primaryLight }]}>
+              <MaterialIcons name="wifi-off" size={22} color={colors.error} />
+            </View>
+            <Text style={[styles.failedTitle, { color: colors.textPrimary }]}>Transfer delayed</Text>
+            <Text style={[styles.failedSub, { color: colors.textSecondary }]}>{transferFailureReason}</Text>
+            <View style={styles.failedActions}>
+              <TouchableOpacity
+                style={[styles.cancelBtn, { borderColor: colors.border }]}
+                onPress={() => setShowTransferFailedModal(false)}
+              >
+                <Text style={[styles.cancelText, { color: colors.textSecondary }]}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.confirmBtn, { backgroundColor: colors.primary }]}
+                onPress={async () => {
+                  setShowTransferFailedModal(false);
+                  await runTransferProcessing({ isRetry: true });
+                }}
+              >
+                <Text style={styles.confirmText}>Retry</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -686,4 +765,27 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 10,
   },
+  failedIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginTop: 4,
+  },
+  failedTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginTop: 10,
+  },
+  failedSub: {
+    textAlign: 'center',
+    fontSize: 13,
+    lineHeight: 18,
+    marginTop: 8,
+    marginBottom: 14,
+  },
+  failedActions: { flexDirection: 'row', gap: 12 },
 });
