@@ -12,6 +12,8 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Animated,
+  Easing,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -22,7 +24,6 @@ import { Audio } from 'expo-av';
 import { resolveAccount } from '../services/bankService';
 import { NIGERIAN_BANKS } from '../data/nigerianBanks';
 import PinEntryModal from '../components/PinEntryModal';
-import AppLoader from '../components/AppLoader';
 
 const RECENT_RECIPIENTS = [
   {
@@ -75,6 +76,25 @@ export default function TransferScreen() {
   const [processingLabel, setProcessingLabel] = useState('Sending money...');
   const [showTransferFailedModal, setShowTransferFailedModal] = useState(false);
   const [transferFailureReason, setTransferFailureReason] = useState('Network timeout while confirming transfer.');
+  const loaderSpin = useState(new Animated.Value(0))[0];
+
+  useEffect(() => {
+    if (!processingTransfer) {
+      loaderSpin.stopAnimation();
+      loaderSpin.setValue(0);
+      return;
+    }
+    const loop = Animated.loop(
+      Animated.timing(loaderSpin, {
+        toValue: 1,
+        duration: 1100,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [processingTransfer, loaderSpin]);
 
   const cleanAccount = accountNumber.replace(/\D/g, '');
   const canResolve = cleanAccount.length === 10 && selectedBank;
@@ -511,7 +531,33 @@ export default function TransferScreen() {
       <Modal visible={processingTransfer} transparent animationType="fade">
         <View style={styles.processingOverlay}>
           <View style={[styles.processingCard, { backgroundColor: colors.background, borderColor: colors.border }]}>
-            <AppLoader mode="inline" label={processingLabel} />
+            <View style={styles.brandLoaderWrap}>
+              <Animated.View
+                style={[
+                  styles.brandLoaderRing,
+                  {
+                    borderTopColor: colors.primary,
+                    borderRightColor: 'rgba(46, 99, 246, 0.35)',
+                    borderBottomColor: 'rgba(46, 99, 246, 0.2)',
+                    borderLeftColor: 'rgba(46, 99, 246, 0.08)',
+                    transform: [
+                      {
+                        rotate: loaderSpin.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ['0deg', '360deg'],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              />
+              <View style={[styles.brandLoaderCore, { backgroundColor: colors.primary }]}>
+                <View style={styles.brandLoaderGlow}>
+                  <Text style={styles.brandLoaderR}>R</Text>
+                </View>
+              </View>
+            </View>
+            <Text style={[styles.processingLabel, { color: colors.textPrimary }]}>{processingLabel}</Text>
             <Text style={[styles.processingSubtext, { color: colors.textSecondary }]}>
               Please wait while we complete your transfer securely.
             </Text>
@@ -757,12 +803,54 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 16,
+  },
+  brandLoaderWrap: {
+    width: 90,
+    height: 90,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  brandLoaderRing: {
+    position: 'absolute',
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    borderWidth: 4,
+  },
+  brandLoaderCore: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  brandLoaderGlow: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  brandLoaderR: {
+    color: '#FFF',
+    fontSize: 24,
+    fontWeight: '800',
+    letterSpacing: 0.3,
+  },
+  processingLabel: {
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '700',
+    marginTop: 14,
   },
   processingSubtext: {
     textAlign: 'center',
     fontSize: 12,
-    marginTop: 4,
+    marginTop: 6,
     marginBottom: 10,
   },
   failedIconWrap: {
