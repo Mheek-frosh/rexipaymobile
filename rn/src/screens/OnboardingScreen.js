@@ -12,7 +12,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useTheme } from '../theme/ThemeContext';
 import PrimaryButton from '../components/PrimaryButton';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -25,33 +24,33 @@ export const carouselItems = [
     imageUri:
       'https://plus.unsplash.com/premium_photo-1663088910348-ec43f3e595e2?q=80&w=2409&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     icon: 'security',
-    headerHighlight: 'Your Security',
-    headerRest: 'Comes First',
-    subHeader: 'Bank-Grade Protection',
+    headerHighlight: 'Your security',
+    headerRest: 'comes first',
+    subHeader: 'Bank-grade protection',
     description:
-      'We use military-grade encryption to keep your money and personal information completely safe. Your trust is our top priority.',
+      'We use strong encryption to keep your money and personal information safe. Your trust is our top priority.',
   },
   {
     id: '2',
     imageUri:
       'https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     icon: 'phone-iphone',
-    headerHighlight: 'Financial Control',
-    headerRest: 'In Your Hands',
-    subHeader: 'Access Your Money Anytime',
+    headerHighlight: 'Financial control',
+    headerRest: 'in your hands',
+    subHeader: 'Your money, your pace',
     description:
-      'Send money, pay bills, and manage investments even without internet. We keep essential services available offline when you need them most.',
+      'Send money, pay bills, and stay on top of spending from one place—online or offline when it matters most.',
   },
   {
     id: '3',
     imageUri:
       'https://images.unsplash.com/photo-1553877522-43269d4ea984?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
     icon: 'people',
-    headerHighlight: "We're Here",
-    headerRest: 'For You',
-    subHeader: '24/7 Human Support',
+    headerHighlight: "We're here",
+    headerRest: 'for you',
+    subHeader: 'Real support, anytime',
     description:
-      "Real people ready to help whenever you need assistance. From account questions to investment advice, we're just a tap away.",
+      'Questions about your account or transactions? Our team is a tap away whenever you need help.',
   },
 ];
 
@@ -75,19 +74,38 @@ function CarouselSlide({ item }) {
   );
 }
 
+const AUTO_LOOP_MS = 4200;
+
 export default function OnboardingScreen() {
-  const { colors } = useTheme();
   const navigation = useNavigation();
   const scrollRef = useRef(null);
+  const activeIndexRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
 
   const loopData = [carouselItems[2], carouselItems[0], carouselItems[1], carouselItems[2], carouselItems[0]];
+
+  useEffect(() => {
+    activeIndexRef.current = activeIndex;
+  }, [activeIndex]);
 
   useEffect(() => {
     const t = setTimeout(() => {
       scrollRef.current?.scrollTo({ x: SCREEN_WIDTH, animated: false });
     }, 50);
     return () => clearTimeout(t);
+  }, []);
+
+  // Auto-advance through the three slides on a repeating loop (synced with infinite scroll clones)
+  useEffect(() => {
+    const id = setInterval(() => {
+      const i = activeIndexRef.current;
+      if (i < 2) {
+        scrollRef.current?.scrollTo({ x: (i + 2) * SCREEN_WIDTH, animated: true });
+      } else {
+        scrollRef.current?.scrollTo({ x: 4 * SCREEN_WIDTH, animated: true });
+      }
+    }, AUTO_LOOP_MS);
+    return () => clearInterval(id);
   }, []);
 
   const handleScroll = (e) => {
