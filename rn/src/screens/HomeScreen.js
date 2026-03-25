@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationContext';
 import { useTheme } from '../theme/ThemeContext';
 import { AccountSwitcherSheet } from '../components/BottomSheet';
 import AppLoader from '../components/AppLoader';
@@ -38,6 +39,7 @@ const ITEM_WIDTH = (width - SIDE * 2 - GAP * (COLS - 1)) / COLS;
 export default function HomeScreen() {
   const { colors, isDark } = useTheme();
   const { userName } = useAuth();
+  const { notifications } = useNotifications();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
@@ -104,6 +106,11 @@ export default function HomeScreen() {
   const firstName = (userName || 'User').split(' ')[0];
   const currentAccount = CURRENCY_ACCOUNTS.find((a) => a.id === selectedAccount) || CURRENCY_ACCOUNTS[0];
 
+  const unreadNotificationCount = useMemo(
+    () => notifications.filter((n) => !n.read).length,
+    [notifications]
+  );
+
   const handleQuickService = (item) => {
     if (item.route) {
       navigation.navigate(item.route);
@@ -153,8 +160,17 @@ export default function HomeScreen() {
               <TouchableOpacity
                 onPress={() => navigation.navigate('Notifications')}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                style={styles.notifBtn}
+                activeOpacity={0.85}
               >
                 <MaterialIcons name="notifications" size={28} color="#FFF" />
+                {unreadNotificationCount > 0 ? (
+                  <View style={styles.notifBadge}>
+                    <Text style={styles.notifBadgeText}>
+                      {unreadNotificationCount > 99 ? '99+' : String(unreadNotificationCount)}
+                    </Text>
+                  </View>
+                ) : null}
               </TouchableOpacity>
             </View>
           </View>
@@ -497,6 +513,31 @@ const styles = StyleSheet.create({
   },
   topRowLeft: { flex: 1, alignItems: 'flex-start' },
   topRowRight: { flex: 1, alignItems: 'flex-end' },
+  notifBtn: {
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notifBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -6,
+    minWidth: 20,
+    height: 20,
+    paddingHorizontal: 5,
+    borderRadius: 10,
+    backgroundColor: '#EF4444',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#2E63F6',
+  },
+  notifBadgeText: {
+    color: '#FFF',
+    fontSize: 11,
+    fontWeight: '800',
+    lineHeight: 13,
+  },
   toggle: {
     flexDirection: 'row',
     backgroundColor: 'rgba(255,255,255,0.24)',
