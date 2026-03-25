@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, { useMemo, useCallback, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -15,64 +15,9 @@ import { Swipeable, RectButton } from 'react-native-gesture-handler';
 import * as Haptics from 'expo-haptics';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
+import { useNotifications, NOTIFICATION_TYPES } from '../context/NotificationContext';
 
-const NOTIFICATION_TYPES = {
-  transfer: { icon: 'swap-horiz', color: '#2E63F6', bg: 'rgba(46, 99, 246, 0.12)' },
-  security: { icon: 'verified-user', color: '#7C3AED', bg: 'rgba(124, 58, 237, 0.12)' },
-  promo: { icon: 'card-giftcard', color: '#EA580C', bg: 'rgba(234, 88, 12, 0.12)' },
-  system: { icon: 'notifications-active', color: '#059669', bg: 'rgba(5, 150, 105, 0.12)' },
-  alert: { icon: 'info-outline', color: '#CA8A04', bg: 'rgba(202, 138, 4, 0.12)' },
-};
-
-const INITIAL_NOTIFICATIONS = [
-  {
-    id: '1',
-    type: 'transfer',
-    title: 'Transfer successful',
-    body: 'You sent ₦25,000 to Divine Chiamaka · Ref #RX88291',
-    time: '2 min ago',
-    section: 'today',
-    read: false,
-  },
-  {
-    id: '2',
-    type: 'security',
-    title: 'OTP sent',
-    body: 'A verification code was sent to your registered number.',
-    time: '1 hour ago',
-    section: 'today',
-    read: false,
-  },
-  {
-    id: '3',
-    type: 'system',
-    title: 'Welcome to RexiPay',
-    body: 'Your account is ready. Add money to start sending and paying bills.',
-    time: 'Yesterday',
-    section: 'earlier',
-    read: true,
-  },
-  {
-    id: '4',
-    type: 'promo',
-    title: 'Cashback on airtime',
-    body: 'Get 2% back on airtime purchases this week. Tap to see details.',
-    time: '2 days ago',
-    section: 'earlier',
-    read: true,
-  },
-  {
-    id: '5',
-    type: 'alert',
-    title: 'Verify your email',
-    body: 'Confirm your email to unlock higher limits and statements.',
-    time: '3 days ago',
-    section: 'earlier',
-    read: true,
-  },
-];
-
-function NotificationRow({ item, colors, onPress, onDelete, swipeRef, onSwipeableOpen }) {
+function NotificationRow({ item, colors, onOpenDetail, onDelete, swipeRef, onSwipeableOpen }) {
   const meta = NOTIFICATION_TYPES[item.type] || NOTIFICATION_TYPES.system;
   const unread = !item.read;
 
@@ -111,7 +56,7 @@ function NotificationRow({ item, colors, onPress, onDelete, swipeRef, onSwipeabl
             },
             unread && styles.rowUnread,
           ]}
-          onPress={() => onPress(item.id)}
+          onPress={() => onOpenDetail(item.id)}
         >
           {unread && <View style={[styles.unreadBar, { backgroundColor: colors.primary }]} />}
           <View style={[styles.iconCircle, { backgroundColor: meta.bg }]}>
@@ -136,7 +81,7 @@ function NotificationRow({ item, colors, onPress, onDelete, swipeRef, onSwipeabl
   );
 }
 
-function NotificationSwipeRow({ item, colors, onPress, onDelete, openSwipeRef }) {
+function NotificationSwipeRow({ item, colors, onOpenDetail, onDelete, openSwipeRef }) {
   const swipeRef = useRef(null);
   const onSwipeableOpen = () => {
     if (openSwipeRef.current && openSwipeRef.current !== swipeRef.current) {
@@ -149,7 +94,7 @@ function NotificationSwipeRow({ item, colors, onPress, onDelete, openSwipeRef })
     <NotificationRow
       item={item}
       colors={colors}
-      onPress={onPress}
+      onOpenDetail={onOpenDetail}
       onDelete={onDelete}
       swipeRef={swipeRef}
       onSwipeableOpen={onSwipeableOpen}
@@ -161,39 +106,42 @@ export default function NotificationsScreen() {
   const { colors } = useTheme();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const [items, setItems] = useState(INITIAL_NOTIFICATIONS);
+  const { notifications, markRead, markAllRead, remove } = useNotifications();
   const [refreshing, setRefreshing] = useState(false);
 
-  const unreadCount = useMemo(() => items.filter((n) => !n.read).length, [items]);
+  const unreadCount = useMemo(() => notifications.filter((n) => !n.read).length, [notifications]);
 
   const sections = useMemo(() => {
-    const today = items.filter((n) => n.section === 'today');
-    const earlier = items.filter((n) => n.section === 'earlier');
+    const today = notifications.filter((n) => n.section === 'today');
+    const earlier = notifications.filter((n) => n.section === 'earlier');
     const out = [];
     if (today.length) out.push({ title: 'Today', data: today });
     if (earlier.length) out.push({ title: 'Earlier', data: earlier });
     return out;
-  }, [items]);
+  }, [notifications]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     setTimeout(() => setRefreshing(false), 900);
   }, []);
 
-  const markAllRead = useCallback(() => {
-    setItems((prev) => prev.map((n) => ({ ...n, read: true })));
-  }, []);
-
-  const markOneRead = useCallback((id) => {
-    setItems((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
-  }, []);
-
   const openSwipeRef = useRef(null);
 
-  const removeNotification = useCallback((id) => {
-    openSwipeRef.current = null;
-    setItems((prev) => prev.filter((n) => n.id !== id));
-  }, []);
+  const removeNotification = useCallback(
+    (id) => {
+      openSwipeRef.current = null;
+      remove(id);
+    },
+    [remove]
+  );
+
+  const openDetail = useCallback(
+    (id) => {
+      markRead(id);
+      navigation.navigate('NotificationDetail', { id });
+    },
+    [markRead, navigation]
+  );
 
   const listEmpty = sections.length === 0;
 
@@ -226,14 +174,19 @@ export default function NotificationsScreen() {
             </View>
           )}
         </View>
-        <View style={styles.headerSide}>
+        <View style={[styles.headerRight, { minWidth: 88 }]}>
           {unreadCount > 0 ? (
-            <TouchableOpacity onPress={markAllRead} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <Text style={[styles.markAll, { color: colors.primary }]}>Mark all read</Text>
+            <TouchableOpacity onPress={markAllRead} hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}>
+              <Text style={[styles.markAll, { color: colors.primary }]}>Mark all</Text>
             </TouchableOpacity>
-          ) : (
-            <View style={{ width: 40 }} />
-          )}
+          ) : null}
+          <TouchableOpacity
+            onPress={() => navigation.navigate('NotificationSettings')}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            style={styles.settingsBtn}
+          >
+            <MaterialIcons name="tune" size={24} color={colors.primary} />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -244,7 +197,7 @@ export default function NotificationsScreen() {
           <NotificationSwipeRow
             item={item}
             colors={colors}
-            onPress={markOneRead}
+            onOpenDetail={openDetail}
             onDelete={removeNotification}
             openSwipeRef={openSwipeRef}
           />
@@ -277,6 +230,14 @@ export default function NotificationsScreen() {
             <Text style={[styles.emptySub, { color: colors.textSecondary }]}>
               New alerts for transfers, security, and offers will show up here.
             </Text>
+            <TouchableOpacity
+              style={[styles.prefsLink, { borderColor: colors.border }]}
+              onPress={() => navigation.navigate('NotificationSettings')}
+              activeOpacity={0.7}
+            >
+              <MaterialIcons name="tune" size={20} color={colors.primary} />
+              <Text style={[styles.prefsLinkText, { color: colors.primary }]}>Notification preferences</Text>
+            </TouchableOpacity>
           </View>
         }
       />
@@ -294,10 +255,17 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   headerSide: {
-    minWidth: 72,
+    minWidth: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 4,
+  },
+  settingsBtn: { padding: 6 },
   backBtn: { padding: 8 },
   headerCenter: {
     flex: 1,
@@ -422,4 +390,15 @@ const styles = StyleSheet.create({
   },
   emptyTitle: { fontSize: 20, fontWeight: '700', textAlign: 'center', marginBottom: 8 },
   emptySub: { fontSize: 15, lineHeight: 22, textAlign: 'center' },
+  prefsLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    borderRadius: 14,
+    borderWidth: 1,
+  },
+  prefsLinkText: { fontSize: 15, fontWeight: '600' },
 });

@@ -37,14 +37,16 @@ const SETTINGS_SECTIONS = [
     title: 'Notifications',
     items: [
       {
-        icon: 'notifications-outlined',
-        title: 'Push Notifications',
-        subtitle: 'Receive transaction alerts',
+        icon: 'notifications',
+        title: 'Push notifications',
+        subtitle: 'Transaction alerts, security, and offers',
+        route: 'NotificationSettings',
       },
       {
-        icon: 'email-outlined',
-        title: 'Email Notifications',
-        subtitle: 'Receive updates via email',
+        icon: 'email',
+        title: 'Email & preferences',
+        subtitle: 'Receipts, statements, and channel settings',
+        route: 'NotificationSettings',
       },
     ],
   },

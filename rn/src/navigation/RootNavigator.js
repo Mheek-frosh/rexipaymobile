@@ -15,6 +15,8 @@ import MainTabs from './MainTabs';
 import TransferScreen from '../screens/TransferScreen';
 import TransactionsScreen from '../screens/TransactionsScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
+import NotificationDetailScreen from '../screens/NotificationDetailScreen';
+import NotificationSettingsScreen from '../screens/NotificationSettingsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import SupportScreen from '../screens/SupportScreen';
 import DataPrivacyScreen from '../screens/DataPrivacyScreen';
@@ -71,6 +73,8 @@ export default function RootNavigator() {
         <Stack.Screen name="Transfer" component={TransferScreen} />
         <Stack.Screen name="Transactions" component={TransactionsScreen} />
         <Stack.Screen name="Notifications" component={NotificationsScreen} />
+        <Stack.Screen name="NotificationDetail" component={NotificationDetailScreen} />
+        <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="Support" component={SupportScreen} />
         <Stack.Screen name="DataPrivacy" component={DataPrivacyScreen} />
