@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert, Switch } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../theme/ThemeContext';
 
 export default function AccountDetailsScreen() {
-  const { colors, isDark, toggleTheme } = useTheme();
+  const { colors } = useTheme();
   const { userName, userPhone, userEmail, logout } = useAuth();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
@@ -45,14 +45,19 @@ export default function AccountDetailsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 20), borderBottomColor: colors.border }]}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={[styles.headerText, { color: colors.textPrimary }]}>Profile</Text>
-        <View style={{ width: 24 }} />
+        <View style={styles.headerSide}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.headerTitleRow}>
+          <Text style={styles.headerFlag}>🇳🇬</Text>
+          <Text style={[styles.headerText, { color: colors.textPrimary }]}>Account details</Text>
+        </View>
+        <View style={styles.headerSide} />
       </View>
 
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 30 }]} showsVerticalScrollIndicator={false}>
@@ -76,45 +81,13 @@ export default function AccountDetailsScreen() {
           </View>
         </View>
 
-        {/* Info Section */}
-        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Personal Information</Text>
+        {/* Personal information */}
         <View style={[styles.sectionCard, { backgroundColor: colors.cardBackground }]}>
           {renderSettingItem('badge', 'Account Number', accountNumber)}
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
           {renderSettingItem('email', 'Email Address', userEmail || 'Not provided')}
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
           {renderSettingItem('phone', 'Phone Number', `+234 ${userPhone || ''}`)}
-        </View>
-
-        {/* Preferences */}
-        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Preferences</Text>
-        <View style={[styles.sectionCard, { backgroundColor: colors.cardBackground }]}>
-          <View style={styles.settingItem}>
-            <View style={[styles.settingIconWrap, { backgroundColor: `${colors.primary}15` }]}>
-              <MaterialIcons name="dark-mode" size={22} color={colors.primary} />
-            </View>
-            <View style={styles.settingBody}>
-              <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>Dark Mode</Text>
-            </View>
-            <Switch
-              value={isDark}
-              onValueChange={toggleTheme}
-              trackColor={{ false: '#767577', true: colors.primary }}
-              thumbColor="#FFF"
-            />
-          </View>
-          <View style={[styles.divider, { backgroundColor: colors.border }]} />
-          {renderSettingItem('lock', 'Security Settings', null, () => Alert.alert('Coming Soon'))}
-          <View style={[styles.divider, { backgroundColor: colors.border }]} />
-          {renderSettingItem('notifications', 'Notifications', null, () => Alert.alert('Coming Soon'))}
-        </View>
-
-        {/* Help & Support */}
-        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Help & Support</Text>
-        <View style={[styles.sectionCard, { backgroundColor: colors.cardBackground }]}>
-          {renderSettingItem('help-center', 'FAQ & Support', null, () => Alert.alert('Coming Soon'))}
-          <View style={[styles.divider, { backgroundColor: colors.border }]} />
-          {renderSettingItem('description', 'Terms & Conditions', null, () => Alert.alert('Coming Soon'))}
         </View>
 
         {/* Logout */}
@@ -131,10 +104,25 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingBottom: 16,
     borderBottomWidth: 1,
+  },
+  headerSide: {
+    width: 40,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
+  headerTitleRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  headerFlag: {
+    fontSize: 22,
+    lineHeight: 26,
   },
   headerText: { fontSize: 18, fontWeight: '700' },
   content: { padding: 20 },
@@ -188,14 +176,6 @@ const styles = StyleSheet.create({
   tierText: {
     fontSize: 12,
     fontWeight: '600',
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 10,
-    marginLeft: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
   },
   sectionCard: {
     borderRadius: 16,
