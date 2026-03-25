@@ -76,7 +76,7 @@ export default function PersonalInfoScreen() {
           <Text style={[styles.label, { color: colors.textPrimary }]}>Full Name</Text>
           <TextInput
             style={[styles.input, { color: colors.textPrimary, borderColor: colors.border }]}
-            placeholder="Michael Usidamen"
+            placeholder="Enter your full name"
             placeholderTextColor={colors.textSecondary}
             value={fullName}
             onChangeText={setFullName}

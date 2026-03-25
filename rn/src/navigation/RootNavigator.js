@@ -19,6 +19,9 @@ import SettingsScreen from '../screens/SettingsScreen';
 import SupportScreen from '../screens/SupportScreen';
 import DataPrivacyScreen from '../screens/DataPrivacyScreen';
 import AccountDetailsScreen from '../screens/AccountDetailsScreen';
+import BankStatementRequestScreen from '../screens/BankStatementRequestScreen';
+import BankStatementSuccessScreen from '../screens/BankStatementSuccessScreen';
+import DeleteAccountScreen from '../screens/DeleteAccountScreen';
 import PaymentSuccessScreen from '../screens/PaymentSuccessScreen';
 import AirtimeScreen from '../screens/AirtimeScreen';
 import ChangeLimitScreen from '../screens/ChangeLimitScreen';
@@ -72,6 +75,9 @@ export default function RootNavigator() {
         <Stack.Screen name="Support" component={SupportScreen} />
         <Stack.Screen name="DataPrivacy" component={DataPrivacyScreen} />
         <Stack.Screen name="AccountDetails" component={AccountDetailsScreen} />
+        <Stack.Screen name="BankStatementRequest" component={BankStatementRequestScreen} />
+        <Stack.Screen name="BankStatementSuccess" component={BankStatementSuccessScreen} />
+        <Stack.Screen name="DeleteAccount" component={DeleteAccountScreen} />
         <Stack.Screen name="Airtime" component={AirtimeScreen} />
         <Stack.Screen name="AllServices" component={AllServicesScreen} />
         <Stack.Screen name="SavingsHome" component={SavingsHomeScreen} />

@@ -75,7 +75,7 @@ export default function AddCardScreen() {
                   styles.input,
                   { backgroundColor: colors.surfaceVariant, color: colors.textPrimary },
                 ]}
-                placeholder="Enter Full Name"
+                placeholder="Enter your full name"
                 placeholderTextColor={colors.textSecondary}
                 value={name}
                 onChangeText={setName}

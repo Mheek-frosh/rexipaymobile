@@ -83,7 +83,7 @@ export default function SignupScreen() {
           <Text style={[styles.label, { color: colors.textPrimary }]}>Full Name</Text>
           <TextInput
             style={[styles.input, { color: colors.textPrimary, borderColor: colors.border }]}
-            placeholder="e.g. Michael Ozeluah"
+            placeholder="Enter your full name"
             placeholderTextColor={colors.textSecondary}
             value={name}
             onChangeText={setName}
@@ -106,7 +106,7 @@ export default function SignupScreen() {
                 styles.phoneInput,
                 { color: colors.textPrimary, borderColor: colors.border },
               ]}
-              placeholder="90 3444 8700"
+              placeholder="Enter phone number"
               placeholderTextColor={colors.textSecondary}
               value={phone}
               onChangeText={setPhone}

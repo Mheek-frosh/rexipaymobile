@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -8,16 +8,9 @@ import { useTheme } from '../theme/ThemeContext';
 
 export default function AccountDetailsScreen() {
   const { colors } = useTheme();
-  const { userName, userPhone, userEmail, logout } = useAuth();
+  const { userName, userPhone, userEmail, userAddress } = useAuth();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-
-  const handleLogout = () => {
-    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Sign Out', style: 'destructive', onPress: logout },
-    ]);
-  };
 
   const username = `@${(userName || 'user').replace(/\s/g, '').toLowerCase()}`;
   const accountNumber = (userPhone || '0000000000').replace(/\D/g, '').slice(-10);
@@ -88,11 +81,31 @@ export default function AccountDetailsScreen() {
           {renderSettingItem('email', 'Email Address', userEmail || 'Not provided')}
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
           {renderSettingItem('phone', 'Phone Number', `+234 ${userPhone || ''}`)}
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+          {renderSettingItem(
+            'home',
+            'House address',
+            userAddress?.trim() ? userAddress : 'Not set'
+          )}
         </View>
 
-        {/* Logout */}
-        <View style={[styles.sectionCard, { backgroundColor: colors.cardBackground, marginTop: 10 }]}>
-          {renderSettingItem('logout', 'Sign Out', null, handleLogout, true)}
+        <View style={[styles.sectionCard, { backgroundColor: colors.cardBackground }]}>
+          {renderSettingItem(
+            'receipt-long',
+            'Request bank statement',
+            null,
+            () => navigation.navigate('BankStatementRequest')
+          )}
+        </View>
+
+        <View style={[styles.sectionCard, { backgroundColor: colors.cardBackground }]}>
+          {renderSettingItem(
+            'delete-forever',
+            'Delete account',
+            null,
+            () => navigation.navigate('DeleteAccount'),
+            true
+          )}
         </View>
       </ScrollView>
     </View>

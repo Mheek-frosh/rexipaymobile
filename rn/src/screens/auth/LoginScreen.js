@@ -70,7 +70,7 @@ export default function LoginScreen() {
               styles.phoneInput,
               { color: colors.textPrimary, borderColor: colors.border },
             ]}
-            placeholder="90 3444 8700"
+            placeholder="Enter phone number"
             placeholderTextColor={colors.textSecondary}
             value={phone}
             onChangeText={setPhone}

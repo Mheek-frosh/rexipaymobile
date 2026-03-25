@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
   const [userName, setUserName] = useState('');
   const [userPhone, setUserPhone] = useState('');
   const [userEmail, setUserEmail] = useState('');
+  const [userAddress, setUserAddress] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [pendingUser, setPendingUser] = useState(null);
 
@@ -22,6 +23,7 @@ export const AuthProvider = ({ children }) => {
     setUserName(displayName);
     setUserPhone(phone || '');
     setUserEmail(`${phone || 'user'}@rexipay.com`);
+    setUserAddress('');
     setIsAuthenticated(true);
   }, []);
 
@@ -34,6 +36,7 @@ export const AuthProvider = ({ children }) => {
     setUserName(userData?.name || userData?.firstName || 'User');
     setUserPhone((userData?.phone || '').replace(/\D/g, ''));
     setUserEmail(`${(userData?.phone || '').replace(/\D/g, '')}@rexipay.com`);
+    setUserAddress(userData?.address || '');
     setPendingUser(null);
     setIsAuthenticated(true);
   }, []);
@@ -42,6 +45,7 @@ export const AuthProvider = ({ children }) => {
     setUser((prev) => ({ ...prev, ...updates }));
     if (updates.name) setUserName(updates.name);
     if (updates.phone) setUserPhone(String(updates.phone).replace(/\D/g, ''));
+    if (updates.address !== undefined) setUserAddress(updates.address || '');
   }, []);
 
   const logout = useCallback(() => {
@@ -49,6 +53,7 @@ export const AuthProvider = ({ children }) => {
     setUserName('');
     setUserPhone('');
     setUserEmail('');
+    setUserAddress('');
     setIsAuthenticated(false);
   }, []);
 
@@ -59,6 +64,7 @@ export const AuthProvider = ({ children }) => {
         userName,
         userPhone,
         userEmail,
+        userAddress,
         isAuthenticated,
         pendingUser,
         login,

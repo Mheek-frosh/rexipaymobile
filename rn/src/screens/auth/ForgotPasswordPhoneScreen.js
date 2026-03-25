@@ -81,7 +81,7 @@ export default function ForgotPasswordPhoneScreen() {
               styles.phoneInput,
               { color: colors.textPrimary, borderColor: colors.border },
             ]}
-            placeholder="801 234 5678"
+            placeholder="Enter phone number"
             placeholderTextColor={colors.textSecondary}
             value={phone}
             onChangeText={(t) => setPhone(t.replace(/\D/g, ''))}
