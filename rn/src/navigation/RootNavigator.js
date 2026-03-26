@@ -29,11 +29,11 @@ import AirtimeScreen from '../screens/AirtimeScreen';
 import ChangeLimitScreen from '../screens/transferscreen/ChangeLimitScreen';
 import BankReceiveScreen from '../screens/transferscreen/BankReceiveScreen';
 import BankConvertScreen from '../screens/transferscreen/BankConvertScreen';
-import CryptoReceiveScreen from '../screens/CryptoReceiveScreen';
-import CryptoSellScreen from '../screens/CryptoSellScreen';
+import CryptoReceiveScreen from '../screens/crypto/CryptoReceiveScreen';
+import CryptoSellScreen from '../screens/crypto/CryptoSellScreen';
 import AddMoneyScreen from '../screens/AddMoneyScreen';
-import SendCryptoScreen from '../screens/SendCryptoScreen';
-import SendCryptoAssetScreen from '../screens/SendCryptoAssetScreen';
+import SendCryptoScreen from '../screens/crypto/SendCryptoScreen';
+import SendCryptoAssetScreen from '../screens/crypto/SendCryptoAssetScreen';
 import TransactionDetailScreen from '../screens/transferscreen/TransactionDetailScreen';
 import DebitCardTransactionDetailScreen from '../screens/transferscreen/DebitCardTransactionDetailScreen';
 import AddCardScreen from '../screens/AddCardScreen';
@@ -54,8 +54,8 @@ import ElectricityBillScreen from '../screens/ElectricityBillScreen';
 import ShoppingHubScreen from '../screens/ShoppingHubScreen';
 import DealsHubScreen from '../screens/DealsHubScreen';
 import HealthHubScreen from '../screens/HealthHubScreen';
-import CryptoMarketScreen from '../screens/CryptoMarketScreen';
-import CryptoAssetDetailScreen from '../screens/CryptoAssetDetailScreen';
+import CryptoMarketScreen from '../screens/crypto/CryptoMarketScreen';
+import CryptoAssetDetailScreen from '../screens/crypto/CryptoAssetDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
