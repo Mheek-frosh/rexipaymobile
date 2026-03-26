@@ -6,7 +6,7 @@ import { Card, Chart2, More } from 'iconsax-react-native';
 import HomeScreen from '../screens/HomeScreen';
 import CardsScreen from '../screens/CardsScreen';
 import StatsScreen from '../screens/StatsScreen';
-import ProfileScreen from '../screens/ProfileScreen';
+import ProfileScreen from '../screens/profile/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
