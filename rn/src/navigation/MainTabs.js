@@ -4,8 +4,8 @@ import { useTheme } from '../theme/ThemeContext';
 import Icon from 'react-native-remix-icon';
 import { Card, Chart2, More } from 'iconsax-react-native';
 import HomeScreen from '../screens/home/HomeScreen';
-import CardsScreen from '../screens/CardsScreen';
-import StatsScreen from '../screens/StatsScreen';
+import CardsScreen from '../screens/cards/CardsScreen';
+import StatsScreen from '../screens/stats/StatsScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
