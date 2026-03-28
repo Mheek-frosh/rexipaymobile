@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../theme/ThemeContext';
 import Icon from 'react-native-remix-icon';
 import { Card, Chart2, More } from 'iconsax-react-native';
-import HomeScreen from '../screens/HomeScreen';
+import HomeScreen from '../screens/home/HomeScreen';
 import CardsScreen from '../screens/CardsScreen';
 import StatsScreen from '../screens/StatsScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
