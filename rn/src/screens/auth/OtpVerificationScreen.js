@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Pressable,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
@@ -23,9 +24,9 @@ export default function OtpVerificationScreen() {
 
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
-  const [resendSeconds, setResendSeconds] = useState(60); // 60-second countdown for resending OTP
+  const [resendSeconds, setResendSeconds] = useState(60);
+  const inputRef = useRef(null);
 
-  // Timer effect to decrement the `resendSeconds` every second
   useEffect(() => {
     let t;
     if (resendSeconds > 0) {
@@ -34,23 +35,22 @@ export default function OtpVerificationScreen() {
     return () => clearInterval(t);
   }, [resendSeconds]);
 
-  // Handles OTP submission to the backend API (`verifyOtp`)
   const handleVerify = async () => {
-    // Only proceed if exactly 6 digits are entered
     if (otp.length !== 6) return;
-
     setLoading(true);
     try {
       const result = await verifyOtp(phone, otp, countryCode, name);
       if (result.success && result.user) {
         if (isSignup) {
-          // If this is during signup, move to the next step (PersonalInfo)
           setPendingSignupUser(result.user);
           navigation.navigate('PersonalInfo');
         } else {
-          // If this is a login returning user, complete auth and go to main app
-          signupComplete(result.user);
-          navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
+          try {
+            await signupComplete(result.user);
+            navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
+          } catch (err) {
+            console.error(err);
+          }
         }
       } else {
         Alert.alert('Verification Failed', result.error || 'Invalid or expired code');
@@ -62,11 +62,8 @@ export default function OtpVerificationScreen() {
     }
   };
 
-  // Handles requesting a new OTP from the backend (`sendOtp`)
   const handleResend = async () => {
-    // Prevent resending if timer is still active
     if (resendSeconds > 0) return;
-
     const result = await sendOtp(phone, countryCode);
     if (result.success) {
       setResendSeconds(60);
@@ -78,6 +75,46 @@ export default function OtpVerificationScreen() {
   const formattedPhone = `${countryCode} ${phone}`;
   const isComplete = otp.length === 6;
 
+  // Render the 6 digit boxes
+  const renderOtpBoxes = () => {
+    return (
+      <Pressable style={styles.otpContainer} onPress={() => inputRef.current?.focus()}>
+        {[0, 1, 2, 3, 4, 5].map((index) => {
+          const digit = otp[index] || '';
+          const isCurrent = otp.length === index;
+          const isActive = isCurrent || (otp.length === 6 && index === 5);
+
+          return (
+            <View
+              key={index}
+              style={[
+                styles.otpBox,
+                {
+                  backgroundColor: colors.surface || '#FAFAFA',
+                  borderColor: isActive ? colors.primary : colors.border,
+                },
+                isActive && { borderWidth: 2, transform: [{ scale: 1.05 }] },
+                digit && { borderColor: colors.primary },
+              ]}
+            >
+              <Text style={[styles.otpText, { color: colors.textPrimary }]}>{digit}</Text>
+            </View>
+          );
+        })}
+        <TextInput
+          ref={inputRef}
+          style={styles.hiddenInput}
+          value={otp}
+          onChangeText={(t) => setOtp(t.replace(/\D/g, '').slice(0, 6))}
+          keyboardType="number-pad"
+          maxLength={6}
+          autoFocus={true}
+          caretHidden={true}
+        />
+      </Pressable>
+    );
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <SegmentedProgressBar totalSteps={4} currentStep={2} />
@@ -86,25 +123,15 @@ export default function OtpVerificationScreen() {
         We sent a 6-digit code to {formattedPhone}
       </Text>
 
-      <TextInput
-        style={[styles.otpInput, { color: colors.textPrimary, borderColor: colors.border }]}
-        placeholder="000000"
-        placeholderTextColor={colors.textSecondary}
-        value={otp}
-        // Strips any non-numeric characters and limits to 6 digits
-        onChangeText={(t) => setOtp(t.replace(/\D/g, '').slice(0, 6))}
-        keyboardType="number-pad"
-        maxLength={6}
-      />
+      {renderOtpBoxes()}
 
-      {/* Conditionally render the countdown timer OR the "Resend" button */}
       {resendSeconds > 0 ? (
         <Text style={[styles.resend, { color: colors.textSecondary }]}>
           Resend code in {resendSeconds}s
         </Text>
       ) : (
-        <TouchableOpacity onPress={handleResend}>
-          <Text style={[styles.resend, { color: colors.primary, fontWeight: '600' }]}>
+        <TouchableOpacity onPress={handleResend} style={styles.resendBtn}>
+          <Text style={[styles.resendActive, { color: colors.primary }]}>
             Didn't get a code? Resend
           </Text>
         </TouchableOpacity>
@@ -114,7 +141,7 @@ export default function OtpVerificationScreen() {
       <PrimaryButton
         text={loading ? 'Verifying...' : 'Verify Number'}
         onPress={handleVerify}
-        disabled={!isComplete}
+        disabled={!isComplete || loading}
         loading={loading}
         style={styles.btn}
       />
@@ -125,19 +152,48 @@ export default function OtpVerificationScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
   title: { fontSize: 28, fontWeight: '700', marginTop: 40 },
-  subtitle: { fontSize: 15, marginTop: 10 },
-  otpInput: {
-    borderWidth: 1,
-    borderBottomWidth: 2,
-    borderRadius: 8,
-    padding: 16,
-    fontSize: 24,
-    fontWeight: '600',
+  subtitle: { fontSize: 15, marginTop: 10, lineHeight: 22 },
+  
+  otpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginTop: 50,
-    textAlign: 'center',
-    letterSpacing: 8,
+    position: 'relative',
+    paddingHorizontal: 5,
   },
-  resend: { fontSize: 14, marginTop: 24, textAlign: 'center' },
+  otpBox: {
+    width: 50,
+    height: 60,
+    borderRadius: 12,
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  otpText: {
+    fontSize: 24,
+    fontWeight: '700',
+  },
+  hiddenInput: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    opacity: 0,
+  },
+  
+  resendBtn: {
+    marginTop: 32,
+    alignItems: 'center',
+    alignSelf: 'center',
+    padding: 8,
+  },
+  resend: { fontSize: 15, marginTop: 32, textAlign: 'center', fontWeight: '500' },
+  resendActive: { fontSize: 15, fontWeight: '700', textAlign: 'center' },
+  
   spacer: { flex: 1 },
-  btn: { marginTop: 20 },
+  btn: { marginTop: 20, marginBottom: 20 },
 });
