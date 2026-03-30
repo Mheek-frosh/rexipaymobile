@@ -90,15 +90,14 @@ export default function OtpVerificationScreen() {
               key={index}
               style={[
                 styles.otpBox,
-                {
-                  backgroundColor: colors.surface || '#FAFAFA',
-                  borderColor: isActive ? colors.primary : colors.border,
-                },
-                isActive && { borderWidth: 2, transform: [{ scale: 1.05 }] },
-                digit && { borderColor: colors.primary },
+                { backgroundColor: '#FFFFFF' }, // Force white background per image design
+                isActive && styles.otpBoxActive,
+                digit && styles.otpBoxFilled,
               ]}
             >
-              <Text style={[styles.otpText, { color: colors.textPrimary }]}>{digit}</Text>
+              <Text style={[styles.otpText, { color: colors.textPrimary || '#1A1A1A' }]}>
+                {digit}
+              </Text>
             </View>
           );
         })}
@@ -175,23 +174,31 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 50,
     position: 'relative',
-    paddingHorizontal: 5,
+    paddingHorizontal: 4,
   },
   otpBox: {
-    width: 50,
+    width: 52,
     height: 60,
-    borderRadius: 12,
-    borderWidth: 1,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  otpBoxActive: {
+    transform: [{ scale: 1.05 }],
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  otpBoxFilled: {
+    // Optionally style filled boxes
   },
   otpText: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '700',
   },
   hiddenInput: {

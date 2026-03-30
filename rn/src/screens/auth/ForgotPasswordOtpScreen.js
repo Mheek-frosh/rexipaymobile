@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -20,9 +21,9 @@ export default function ForgotPasswordOtpScreen() {
   const { phone, countryCode = '+234' } = route.params || {};
 
   const [otp, setOtp] = useState('');
-  const [resendSeconds, setResendSeconds] = useState(60); // 60s cooldown timer for resending OTP
+  const [resendSeconds, setResendSeconds] = useState(60);
+  const inputRef = useRef(null);
 
-  // Timer effect to decrement the `resendSeconds` until it reaches 0
   useEffect(() => {
     let t;
     if (resendSeconds > 0) {
@@ -31,15 +32,11 @@ export default function ForgotPasswordOtpScreen() {
     return () => clearInterval(t);
   }, [resendSeconds]);
 
-  // Step 2 of Password Reset: Verify OTP and proceed to set a new password
   const handleContinue = () => {
     if (otp.length !== 6) return;
-
-    // Pass the verified phone number and OTP to the final screen for the physical reset operation
     navigation.navigate('ForgotPasswordSetPassword', { phone, countryCode, otp });
   };
 
-  // Restarts the OTP countdown timer and triggers a backend resend in a real app
   const handleResend = () => {
     if (resendSeconds > 0) return;
     setResendSeconds(60);
@@ -47,6 +44,44 @@ export default function ForgotPasswordOtpScreen() {
 
   const formattedPhone = `${countryCode} ${phone}`;
   const isComplete = otp.length === 6;
+
+  const renderOtpBoxes = () => {
+    return (
+      <Pressable style={styles.otpContainer} onPress={() => inputRef.current?.focus()}>
+        {[0, 1, 2, 3, 4, 5].map((index) => {
+          const digit = otp[index] || '';
+          const isCurrent = otp.length === index;
+          const isActive = isCurrent || (otp.length === 6 && index === 5);
+
+          return (
+            <View
+              key={index}
+              style={[
+                styles.otpBox,
+                { backgroundColor: '#FFFFFF' },
+                isActive && styles.otpBoxActive,
+                digit && styles.otpBoxFilled,
+              ]}
+            >
+              <Text style={[styles.otpText, { color: colors.textPrimary || '#1A1A1A' }]}>
+                {digit}
+              </Text>
+            </View>
+          );
+        })}
+        <TextInput
+          ref={inputRef}
+          style={styles.hiddenInput}
+          value={otp}
+          onChangeText={(t) => setOtp(t.replace(/\D/g, '').slice(0, 6))}
+          keyboardType="number-pad"
+          maxLength={6}
+          autoFocus={true}
+          caretHidden={true}
+        />
+      </Pressable>
+    );
+  };
 
   return (
     <KeyboardAvoidingView
@@ -68,24 +103,15 @@ export default function ForgotPasswordOtpScreen() {
         </TouchableOpacity>
       </View>
 
-      <TextInput
-        style={[styles.otpInput, { color: colors.textPrimary, borderColor: colors.border }]}
-        placeholder="000000"
-        placeholderTextColor={colors.textSecondary}
-        value={otp}
-        onChangeText={(t) => setOtp(t.replace(/\D/g, '').slice(0, 6))}
-        keyboardType="number-pad"
-        maxLength={6}
-        autoFocus
-      />
+      {renderOtpBoxes()}
 
       {resendSeconds > 0 ? (
         <Text style={[styles.resend, { color: colors.textSecondary }]}>
           Resend code in {resendSeconds}s
         </Text>
       ) : (
-        <TouchableOpacity onPress={handleResend}>
-          <Text style={[styles.resend, { color: colors.primary, fontWeight: '600' }]}>
+        <TouchableOpacity onPress={handleResend} style={styles.resendBtn}>
+          <Text style={[styles.resendActive, { color: colors.primary }]}>
             Didn't get a code? Resend
           </Text>
         </TouchableOpacity>
@@ -116,16 +142,50 @@ const styles = StyleSheet.create({
     padding: 4,
     marginLeft: 8,
   },
-  otpInput: {
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 18,
-    fontSize: 24,
-    fontWeight: '600',
-    textAlign: 'center',
-    letterSpacing: 10,
+  otpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+    position: 'relative',
+    paddingHorizontal: 4,
+  },
+  otpBox: {
+    width: 52,
+    height: 60,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  otpBoxActive: {
+    transform: [{ scale: 1.05 }],
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  otpBoxFilled: {},
+  otpText: {
+    fontSize: 26,
+    fontWeight: '700',
+  },
+  hiddenInput: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    opacity: 0,
+  },
+  resendBtn: {
+    marginTop: 20,
+    alignItems: 'center',
+    alignSelf: 'center',
+    padding: 8,
   },
   resend: { fontSize: 14, marginTop: 20, textAlign: 'center' },
+  resendActive: { fontSize: 14, fontWeight: '700', textAlign: 'center' },
   spacer: { flex: 1 },
   btn: { marginTop: 20 },
 });
