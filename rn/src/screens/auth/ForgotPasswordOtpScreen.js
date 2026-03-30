@@ -58,9 +58,15 @@ export default function ForgotPasswordOtpScreen() {
       </TouchableOpacity>
 
       <Text style={[styles.title, { color: colors.textPrimary }]}>Enter verification code</Text>
-      <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-        We sent a 6-digit code to {formattedPhone}
-      </Text>
+      
+      <View style={styles.phoneDisplayRow}>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+          We sent a 6-digit code to {formattedPhone}
+        </Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.editIconBtn}>
+          <MaterialIcons name="edit" size={18} color={colors.primary} />
+        </TouchableOpacity>
+      </View>
 
       <TextInput
         style={[styles.otpInput, { color: colors.textPrimary, borderColor: colors.border }]}
@@ -100,7 +106,16 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
   back: { marginTop: 50, marginBottom: 24 },
   title: { fontSize: 24, fontWeight: '700', marginBottom: 8 },
-  subtitle: { fontSize: 15, marginBottom: 32 },
+  phoneDisplayRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  subtitle: { fontSize: 15 },
+  editIconBtn: {
+    padding: 4,
+    marginLeft: 8,
+  },
   otpInput: {
     borderWidth: 1,
     borderRadius: 12,

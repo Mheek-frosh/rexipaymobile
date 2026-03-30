@@ -8,6 +8,7 @@ import {
   Alert,
   Pressable,
 } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../theme/ThemeContext';
@@ -119,9 +120,15 @@ export default function OtpVerificationScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <SegmentedProgressBar totalSteps={4} currentStep={2} />
       <Text style={[styles.title, { color: colors.textPrimary }]}>Confirm your phone</Text>
-      <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-        We sent a 6-digit code to {formattedPhone}
-      </Text>
+      
+      <View style={styles.phoneDisplayRow}>
+        <Text style={[styles.subtitle, { color: colors.textSecondary, marginTop: 0 }]}>
+          We sent a 6-digit code to {formattedPhone}
+        </Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.editIconBtn}>
+          <MaterialIcons name="edit" size={18} color={colors.primary} />
+        </TouchableOpacity>
+      </View>
 
       {renderOtpBoxes()}
 
@@ -152,7 +159,16 @@ export default function OtpVerificationScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
   title: { fontSize: 28, fontWeight: '700', marginTop: 40 },
-  subtitle: { fontSize: 15, marginTop: 10, lineHeight: 22 },
+  phoneDisplayRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  subtitle: { fontSize: 15, lineHeight: 22 },
+  editIconBtn: {
+    padding: 4,
+    marginLeft: 8,
+  },
   
   otpContainer: {
     flexDirection: 'row',
