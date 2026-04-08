@@ -41,6 +41,8 @@ const FALLBACK = {
     { id: 'shein', name: 'SHEIN', tag: 'Fashion', icon: 'checkroom', brandColor: '#E91E8C', url: 'https://www.shein.com' },
     { id: 'takealot', name: 'Takealot', tag: 'South Africa', icon: 'inventory-2', brandColor: '#2AB7B3', url: 'https://www.takealot.com' },
     { id: 'ebay', name: 'eBay', tag: 'Auctions', icon: 'gavel', brandColor: '#0064D2', url: 'https://www.ebay.com' },
+    { id: 'slot', name: 'SLOT', tag: 'Electronics · NG', icon: 'devices', brandColor: '#C41230', url: 'https://slot.ng' },
+    { id: 'payporte', name: 'Payporte', tag: 'Fashion & lifestyle', icon: 'redeem', brandColor: '#00A651', url: 'https://payporte.com' },
   ],
   healthOptions: [
     { id: '1', title: 'HMO & plans', desc: 'Compare health cover (coming soon)', icon: 'local-hospital' },
@@ -68,6 +70,11 @@ export const fetchReferralOverview = () => resolve('/api/referrals/overview', 'r
 export const fetchRewardsOverview = () => resolve('/api/rewards/overview', 'rewardsOverview');
 export const fetchDeals = () => resolve('/api/deals', 'deals');
 export const fetchShoppingStores = () => resolve('/api/shopping/stores', 'shoppingStores');
+
+/** Curated list when the API returns an empty array — same entries as offline fallback */
+export function getDefaultShoppingStores() {
+  return [...FALLBACK.shoppingStores];
+}
 export const fetchHealthOptions = () => resolve('/api/health/options', 'healthOptions');
 export const fetchNetworks = () => resolve('/api/mobile/networks', 'networks');
 export const fetchDiscos = () => resolve('/api/electricity/discos', 'discos');
