@@ -17,7 +17,6 @@ export default function App() {
     return () => unsub?.();
   }, []);
 
-  d
   if (!splashDone) {
     return (
       <GestureHandlerRootView style={{ flex: 1 }}>
