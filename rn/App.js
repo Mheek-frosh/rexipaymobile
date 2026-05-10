@@ -7,7 +7,7 @@ import { NotificationProvider } from './src/context/NotificationContext';
 import { ThemeProvider } from './src/theme/ThemeContext';
 import { startNetworkMonitoring } from './src/services/offlineSyncService';
 import RootNavigator from './src/navigation/RootNavigator';
-import SplashScreen from './src/screens/SplashScreen';
+import SplashScreen from './src/screens/splash/SplashScreen';
 
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);

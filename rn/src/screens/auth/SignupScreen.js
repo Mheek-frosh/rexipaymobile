@@ -14,7 +14,6 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../theme/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
-import { sendOtp } from '../../services/authService';
 import PrimaryButton from '../../components/PrimaryButton';
 import SegmentedProgressBar from '../../components/SegmentedProgressBar';
 import CountryPickerSheet from '../../components/CountryPickerSheet';

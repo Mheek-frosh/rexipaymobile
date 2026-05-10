@@ -517,6 +517,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 4,
   },
   notifBadge: {
     position: 'absolute',
@@ -552,8 +553,7 @@ const styles = StyleSheet.create({
   },
   toggleActive: { backgroundColor: '#2E63F6' },
   toggleText: { color: '#FFF', fontSize: 13, fontWeight: '600' },
-  rightIcons: { flexDirection: 'row', alignItems: 'center', gap: 15 },
-  notifBtn: { padding: 4 },
+
   greeting: { color: '#FFF', fontSize: 16, fontWeight: '600', textAlign: 'center', marginTop: 30 },
   ngRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 10 },
   ngFlag: { fontSize: 18 },
@@ -727,7 +727,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
   },
-  cryptoPreviewLoadingText: { fontSize: 13 },
+
   cryptoEmpty: { padding: 20, textAlign: 'center', fontSize: 13, lineHeight: 18 },
   assetDivider: { height: 1, marginLeft: 76 },
 });
