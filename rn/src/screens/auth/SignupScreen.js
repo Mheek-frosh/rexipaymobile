@@ -1,30 +1,32 @@
+import { useSignUp } from '@clerk/clerk-expo';
+import { useNavigation } from '@react-navigation/native';
+import { Eye, EyeSlash } from 'iconsax-react-native';
 import React, { useState } from 'react';
 import {
-  View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Alert,
-  SafeAreaView,
+  View,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useTheme } from '../../theme/ThemeContext';
-import { useAuth } from '../../context/AuthContext';
+import CountryPickerSheet from '../../components/CountryPickerSheet';
 import PrimaryButton from '../../components/PrimaryButton';
 import SegmentedProgressBar from '../../components/SegmentedProgressBar';
-import CountryPickerSheet from '../../components/CountryPickerSheet';
-import { Eye, EyeSlash } from 'iconsax-react-native';
+import { useAuth } from '../../context/AuthContext';
 import { COUNTRIES } from '../../data/countries';
+import { useTheme } from '../../theme/ThemeContext';
 
 const defaultCountry = COUNTRIES[0];
 
 export default function SignupScreen() {
   const { colors } = useTheme();
   const { setPendingSignupUser } = useAuth();
+  const { signUp, isLoaded, setActive } = useSignUp();
   const navigation = useNavigation();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -33,28 +35,42 @@ export default function SignupScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
   const [showCountryPicker, setShowCountryPicker] = useState(false);
-  // Checks if the required fields (name and phone) are filled before allowing submission
-  const canSubmit = name.trim() && phone.trim();
+  
+  const canSubmit = name.trim() && phone.trim() && password.trim().length >= 8;
 
-  // Handles the initial signup step
   const handleSignUp = async () => {
-    if (!canSubmit) return;
+    if (!isLoaded || !canSubmit) return;
+    
     setLoading(true);
     try {
-      // NOTE: For development purposes, this skips the actual OTP verification step 
-      // and goes directly to the `PersonalInfo` screen. 
-      // The `pendingSignupUser` state temporarily stores user data during this flow.
-      const userData = {
-        name: name.trim(),
-        phone: phone.trim(),
-        firstName: name.trim().split(' ')[0] || 'User',
-        countryCode: selectedCountry.dialCode,
-      };
+      const fullPhone = `${selectedCountry.dialCode}${phone.replace(/^0+/, '')}`;
+      const [firstName, ...lastNameParts] = name.trim().split(' ');
+      const lastName = lastNameParts.join(' ') || '';
 
-      setPendingSignupUser(userData);
-      navigation.navigate('PersonalInfo', { skipOtp: true });
-    } catch (e) {
-      Alert.alert('Error', e.message || 'Something went wrong');
+      await signUp.create({
+        phoneNumber: fullPhone,
+        password: password,
+        firstName: firstName,
+        lastName: lastName,
+      });
+
+      await signUp.preparePhoneNumberVerification({ strategy: 'phone_code' });
+
+      // Store data for context if needed after verification
+      setPendingSignupUser({
+        name: name.trim(),
+        phone: fullPhone,
+        firstName: firstName,
+        countryCode: selectedCountry.dialCode,
+      });
+
+      navigation.navigate('OtpVerification', {
+        phone: fullPhone,
+        mode: 'signup'
+      });
+    } catch (err) {
+      console.error(err);
+      Alert.alert('Signup Error', err.errors?.[0]?.longMessage || 'An error occurred during signup');
     } finally {
       setLoading(false);
     }
@@ -71,14 +87,12 @@ export default function SignupScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Step 1 of the 4-step signup progess */}
           <SegmentedProgressBar totalSteps={4} currentStep={1} />
           <Text style={[styles.title, { color: colors.textPrimary }]}>Create Account</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             Enter your mobile number to verify your account
           </Text>
 
-          {/* Full Name Input Box */}
           <Text style={[styles.label, { color: colors.textPrimary }]}>Full Name</Text>
           <TextInput
             style={[styles.input, { color: colors.textPrimary, borderColor: colors.border }]}
@@ -117,7 +131,7 @@ export default function SignupScreen() {
           <View style={styles.passwordWrap}>
             <TextInput
               style={[styles.input, styles.passwordInput, { color: colors.textPrimary, borderColor: colors.border }]}
-              placeholder="••••••••••"
+              placeholder="Minimum 8 characters"
               placeholderTextColor={colors.textSecondary}
               value={password}
               onChangeText={setPassword}
@@ -137,16 +151,14 @@ export default function SignupScreen() {
 
           <View style={styles.spacer} />
 
-          {/* Submit Button: Disabled until user inputs name and phone */}
           <PrimaryButton
             text="Sign Up"
             onPress={handleSignUp}
-            disabled={!canSubmit}
+            disabled={!canSubmit || loading}
             loading={loading}
             style={styles.btn}
           />
 
-          {/* Navigation back to Login Screen for existing users */}
           <TouchableOpacity
             style={styles.linkWrap}
             onPress={() => navigation.navigate('Login')}

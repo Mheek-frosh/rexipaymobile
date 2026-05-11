@@ -1,27 +1,30 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useSignIn, useSignUp } from '@clerk/clerk-expo';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  View,
+  Alert,
+  Pressable,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  Alert,
-  Pressable,
+  View,
 } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../theme/ThemeContext';
-import { verifyOtp, sendOtp, getResendStatus } from '../../services/authService';
 import PrimaryButton from '../../components/PrimaryButton';
 import SegmentedProgressBar from '../../components/SegmentedProgressBar';
+import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../theme/ThemeContext';
 
 export default function OtpVerificationScreen() {
   const { colors } = useTheme();
-  const { signupComplete, setPendingSignupUser } = useAuth();
+  const { signupComplete, setPendingSignupUser, pendingUser } = useAuth();
   const navigation = useNavigation();
   const route = useRoute();
-  const { isSignup, name, phone, countryCode = '+234' } = route.params || {};
+  const { mode, phone } = route.params || {};
+
+  const { signIn, setActive: setActiveSignIn, isLoaded: isSignInLoaded } = useSignIn();
+  const { signUp, setActive: setActiveSignUp, isLoaded: isSignUpLoaded } = useSignUp();
 
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
@@ -40,24 +43,45 @@ export default function OtpVerificationScreen() {
     if (otp.length !== 6) return;
     setLoading(true);
     try {
-      const result = await verifyOtp(phone, otp, countryCode, name);
-      if (result.success && result.user) {
-        if (isSignup) {
-          setPendingSignupUser(result.user);
-          navigation.navigate('PersonalInfo');
+      if (mode === 'signup') {
+        if (!isSignUpLoaded) return;
+        const result = await signUp.attemptPhoneNumberVerification({
+          code: otp,
+        });
+
+        if (result.status === 'complete') {
+          await setActiveSignUp({ session: result.createdSessionId });
+          // After setting session, we might want to update our local context
+          await signupComplete({
+            ...pendingUser,
+            id: result.createdUserId,
+          });
+          navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
         } else {
-          try {
-            await signupComplete(result.user);
-            navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
-          } catch (err) {
-            console.error(err);
-          }
+          Alert.alert('Verification Failed', 'Verification could not be completed.');
         }
       } else {
-        Alert.alert('Verification Failed', result.error || 'Invalid or expired code');
+        if (!isSignInLoaded) return;
+        const result = await signIn.attemptFirstFactor({
+          strategy: 'phone_code',
+          code: otp,
+        });
+
+        if (result.status === 'complete') {
+          await setActiveSignIn({ session: result.createdSessionId });
+          // Update local context
+          await signupComplete({
+            phone: phone,
+            name: result.userData?.firstName || 'User',
+          });
+          navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
+        } else {
+          Alert.alert('Verification Failed', 'Invalid or expired code');
+        }
       }
-    } catch (e) {
-      Alert.alert('Error', e.message || 'Something went wrong');
+    } catch (err) {
+      console.error(err);
+      Alert.alert('Verification Error', err.errors?.[0]?.longMessage || 'An error occurred during verification');
     } finally {
       setLoading(false);
     }
@@ -65,18 +89,23 @@ export default function OtpVerificationScreen() {
 
   const handleResend = async () => {
     if (resendSeconds > 0) return;
-    const result = await sendOtp(phone, countryCode);
-    if (result.success) {
+    try {
+      if (mode === 'signup') {
+        await signUp.preparePhoneNumberVerification({ strategy: 'phone_code' });
+      } else {
+        const { supportedFirstFactors } = await signIn.create({ identifier: phone });
+        const factor = supportedFirstFactors.find(f => f.strategy === 'phone_code');
+        await signIn.prepareFirstFactor({ strategy: 'phone_code', phoneNumberId: factor.phoneNumberId });
+      }
       setResendSeconds(60);
-    } else {
-      Alert.alert('Error', result.error);
+      setOtp('');
+    } catch (err) {
+      Alert.alert('Error', err.errors?.[0]?.longMessage || 'Failed to resend code');
     }
   };
 
-  const formattedPhone = `${countryCode} ${phone}`;
   const isComplete = otp.length === 6;
 
-  // Render the 6 digit boxes
   const renderOtpBoxes = () => {
     return (
       <Pressable style={styles.otpContainer} onPress={() => inputRef.current?.focus()}>
@@ -90,7 +119,7 @@ export default function OtpVerificationScreen() {
               key={index}
               style={[
                 styles.otpBox,
-                { backgroundColor: '#FFFFFF' }, // Force white background per image design
+                { backgroundColor: '#FFFFFF' },
                 isActive && styles.otpBoxActive,
                 digit && styles.otpBoxFilled,
               ]}
@@ -122,7 +151,7 @@ export default function OtpVerificationScreen() {
       
       <View style={styles.phoneDisplayRow}>
         <Text style={[styles.subtitle, { color: colors.textSecondary, marginTop: 0 }]}>
-          We sent a 6-digit code to {formattedPhone}
+          We sent a 6-digit code to {phone}
         </Text>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.editIconBtn}>
           <MaterialIcons name="edit" size={18} color={colors.primary} />

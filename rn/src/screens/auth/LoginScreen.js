@@ -1,36 +1,72 @@
+import { useSignIn } from '@clerk/clerk-expo';
+import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../theme/ThemeContext';
-import PrimaryButton from '../../components/PrimaryButton';
 import CountryPickerSheet from '../../components/CountryPickerSheet';
+import PrimaryButton from '../../components/PrimaryButton';
 import { COUNTRIES } from '../../data/countries';
+import { useTheme } from '../../theme/ThemeContext';
 
 const defaultCountry = COUNTRIES[0];
 
 export default function LoginScreen() {
   const { colors } = useTheme();
-  const { login } = useAuth();
+  const { signIn, setActive, isLoaded } = useSignIn();
   const navigation = useNavigation();
   const [phone, setPhone] = useState('');
   const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
   const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Handles the login submission.
-  // In a real app, this would validate the phone number format and authenticate via an API.
-  // Currently, it triggers the `login` function from AuthContext to set authentication state.
-  const handleLogin = () => {
-    login(phone.trim() || '9034448700', phone.trim() ? 'User' : 'User');
+  const handleLogin = async () => {
+    if (!isLoaded) return;
+    if (!phone) {
+      Alert.alert('Error', 'Please enter your phone number');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const fullPhone = `${selectedCountry.dialCode}${phone.replace(/^0+/, '')}`;
+      
+      const { supportedFirstFactors } = await signIn.create({
+        identifier: fullPhone,
+      });
+
+      const isPhoneCodeSupported = supportedFirstFactors.find(
+        (f) => f.strategy === 'phone_code'
+      );
+
+      if (isPhoneCodeSupported) {
+        await signIn.prepareFirstFactor({
+          strategy: 'phone_code',
+          phoneNumberId: isPhoneCodeSupported.phoneNumberId,
+        });
+
+        navigation.navigate('OtpVerification', {
+          phone: fullPhone,
+          strategy: 'phone_code',
+          mode: 'login'
+        });
+      } else {
+        Alert.alert('Error', 'Phone number login is not supported for this account.');
+      }
+    } catch (err) {
+      console.error(err);
+      Alert.alert('Login Failed', err.errors?.[0]?.longMessage || 'An error occurred during login');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -89,7 +125,7 @@ export default function LoginScreen() {
         <View style={styles.spacer} />
 
         {/* Submit Button */}
-        <PrimaryButton text="Login" onPress={handleLogin} style={styles.btn} />
+        <PrimaryButton text={loading ? "Please wait..." : "Login"} onPress={handleLogin} style={styles.btn} disabled={loading} />
 
         {/* Navigation to Signup Screen */}
         <TouchableOpacity
