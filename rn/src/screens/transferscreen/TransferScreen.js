@@ -20,7 +20,6 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as Haptics from 'expo-haptics';
-import { Audio } from 'expo-av';
 import { resolveAccount } from '../../services/bankService';
 import { NIGERIAN_BANKS } from '../../data/nigerianBanks';
 import PinEntryModal from '../../components/PinEntryModal';
@@ -181,8 +180,10 @@ export default function TransferScreen() {
       // ignore haptic errors
     }
 
-    // Soft completion chime (falls back silently if unavailable/offline)
+    // Soft completion chime — load expo-av only here so missing/outdated native
+    // ExponentAV (Expo Go mismatch, dev client, etc.) does not crash app startup.
     try {
+      const { Audio } = await import('expo-av');
       const { sound } = await Audio.Sound.createAsync({
         uri: 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3',
       });

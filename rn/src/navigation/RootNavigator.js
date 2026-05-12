@@ -131,7 +131,7 @@ export default function RootNavigator() {
   // before the user is authenticated.
   return (
     <Stack.Navigator
-      initialRoute="Onboarding"
+      initialRouteName="Onboarding"
       screenOptions={{ headerShown: false }}
     >
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
