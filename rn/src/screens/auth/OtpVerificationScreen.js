@@ -4,7 +4,12 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
+  SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -12,7 +17,6 @@ import {
   View,
 } from 'react-native';
 import PrimaryButton from '../../components/PrimaryButton';
-import SegmentedProgressBar from '../../components/SegmentedProgressBar';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../theme/ThemeContext';
 
@@ -42,8 +46,17 @@ export default function OtpVerificationScreen() {
     return () => clearInterval(t);
   }, [resendSeconds]);
 
+  useEffect(() => {
+    if (otp.length === 6) {
+      Keyboard.dismiss();
+      inputRef.current?.blur?.();
+    }
+  }, [otp]);
+
   const handleVerify = async () => {
     if (otp.length !== 6) return;
+    Keyboard.dismiss();
+    inputRef.current?.blur?.();
     setLoading(true);
     try {
       if (mode === 'signup') {
@@ -93,6 +106,8 @@ export default function OtpVerificationScreen() {
 
   const handleResend = async () => {
     if (resendSeconds > 0) return;
+    Keyboard.dismiss();
+    inputRef.current?.blur?.();
     try {
       if (mode === 'signup') {
         if (verificationMethod === 'email') {
@@ -125,14 +140,18 @@ export default function OtpVerificationScreen() {
           return (
             <View
               key={index}
+              pointerEvents="none"
               style={[
                 styles.otpBox,
-                { backgroundColor: '#FFFFFF' },
+                {
+                  backgroundColor: colors.cardBackground,
+                  borderColor: isActive ? colors.primary : colors.border,
+                },
                 isActive && styles.otpBoxActive,
-                digit && styles.otpBoxFilled,
+                digit ? styles.otpBoxFilled : null,
               ]}
             >
-              <Text style={[styles.otpText, { color: colors.textPrimary || '#1A1A1A' }]}>
+              <Text style={[styles.otpText, { color: colors.textPrimary }]}>
                 {digit}
               </Text>
             </View>
@@ -144,59 +163,87 @@ export default function OtpVerificationScreen() {
           value={otp}
           onChangeText={(t) => setOtp(t.replace(/\D/g, '').slice(0, 6))}
           keyboardType="number-pad"
+          textContentType="oneTimeCode"
           maxLength={6}
-          autoFocus={true}
-          caretHidden={true}
+          autoFocus
+          caretHidden
+          importantForAutofill="yes"
+          underlineColorAndroid="transparent"
         />
       </Pressable>
     );
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <SegmentedProgressBar totalSteps={4} currentStep={2} />
-      <Text style={[styles.title, { color: colors.textPrimary }]}>
-        {verificationMethod === 'email' ? 'Confirm your email' : 'Confirm your phone'}
-      </Text>
-
-      <View style={styles.phoneDisplayRow}>
-        <Text style={[styles.subtitle, { color: colors.textSecondary, marginTop: 0 }]}>
-          We sent a 6-digit code to {displayContact}
-        </Text>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.editIconBtn}>
-          <MaterialIcons name="edit" size={18} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
-
-      {renderOtpBoxes()}
-
-      {resendSeconds > 0 ? (
-        <Text style={[styles.resend, { color: colors.textSecondary }]}>
-          Resend code in {resendSeconds}s
-        </Text>
-      ) : (
-        <TouchableOpacity onPress={handleResend} style={styles.resendBtn}>
-          <Text style={[styles.resendActive, { color: colors.primary }]}>
-            Didn't get a code? Resend
+    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          showsVerticalScrollIndicator={false}
+        >
+          <Text style={[styles.title, { color: colors.textPrimary }]}>
+            {verificationMethod === 'email' ? 'Confirm your email' : 'Confirm your phone'}
           </Text>
-        </TouchableOpacity>
-      )}
 
-      <View style={styles.spacer} />
-      <PrimaryButton
-        text={loading ? 'Verifying...' : verificationMethod === 'email' ? 'Verify email' : 'Verify number'}
-        onPress={handleVerify}
-        disabled={!isComplete || loading}
-        loading={loading}
-        style={styles.btn}
-      />
-    </View>
+          <View style={styles.phoneDisplayRow}>
+            <Text style={[styles.subtitle, { color: colors.textSecondary, marginTop: 0 }]}>
+              We sent a 6-digit code to {displayContact}
+            </Text>
+            <TouchableOpacity
+              onPress={() => {
+                Keyboard.dismiss();
+                navigation.goBack();
+              }}
+              style={styles.editIconBtn}
+            >
+              <MaterialIcons name="edit" size={18} color={colors.primary} />
+            </TouchableOpacity>
+          </View>
+
+          {renderOtpBoxes()}
+
+          {resendSeconds > 0 ? (
+            <Text style={[styles.resend, { color: colors.textSecondary }]}>
+              Resend code in {resendSeconds}s
+            </Text>
+          ) : (
+            <TouchableOpacity onPress={handleResend} style={styles.resendBtn}>
+              <Text style={[styles.resendActive, { color: colors.primary }]}>
+                Didn't get a code? Resend
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          <View style={styles.spacer} />
+          <PrimaryButton
+            text={loading ? 'Verifying...' : verificationMethod === 'email' ? 'Verify email' : 'Verify number'}
+            onPress={handleVerify}
+            disabled={!isComplete || loading}
+            loading={loading}
+            style={styles.btn}
+          />
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  title: { fontSize: 28, fontWeight: '700', marginTop: 40 },
+  safe: { flex: 1 },
+  flex: { flex: 1 },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 32,
+  },
+  title: { fontSize: 28, fontWeight: '700', marginTop: 8 },
   phoneDisplayRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -219,6 +266,7 @@ const styles = StyleSheet.create({
     width: 52,
     height: 60,
     borderRadius: 16,
+    borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -242,9 +290,14 @@ const styles = StyleSheet.create({
   },
   hiddenInput: {
     position: 'absolute',
-    width: '100%',
-    height: '100%',
-    opacity: 0,
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    opacity: 0.02,
+    color: 'transparent',
+    zIndex: 10,
+    fontSize: 1,
   },
   
   resendBtn: {
