@@ -38,7 +38,7 @@ const ITEM_WIDTH = (width - SIDE * 2 - GAP * (COLS - 1)) / COLS;
 
 export default function HomeScreen() {
   const { colors, isDark } = useTheme();
-  const { userName } = useAuth();
+  const { userName, userAccountNumber } = useAuth();
   const { notifications } = useNotifications();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
@@ -176,6 +176,11 @@ export default function HomeScreen() {
           </View>
 
           <Text style={styles.greeting}>Hello, {firstName}!</Text>
+          {userAccountNumber ? (
+            <View style={styles.accountNumberBadge}>
+              <Text style={styles.accountNumberBadgeText}>Acct: {userAccountNumber}</Text>
+            </View>
+          ) : null}
 
           {/* Account Selector Button: Shows the current fiat currency flag and name. 
               Tapping it opens a bottom sheet to switch between NGN, USD, GBP, etc. */}
@@ -555,6 +560,15 @@ const styles = StyleSheet.create({
   toggleText: { color: '#FFF', fontSize: 13, fontWeight: '600' },
 
   greeting: { color: '#FFF', fontSize: 16, fontWeight: '600', textAlign: 'center', marginTop: 30 },
+  accountNumberBadge: {
+    alignSelf: 'center',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginTop: 6,
+  },
+  accountNumberBadgeText: { color: 'rgba(255,255,255,0.9)', fontSize: 12, fontWeight: '600', letterSpacing: 1 },
   ngRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 10 },
   ngFlag: { fontSize: 18 },
   ngText: { color: 'rgba(255,255,255,0.7)', fontSize: 14 },

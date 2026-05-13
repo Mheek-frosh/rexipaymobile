@@ -58,7 +58,7 @@ export default function SignupScreen() {
       const lastName = lastNameParts.join(' ') || '';
 
       if (isEmailMode) {
-        const email = contact.trim();
+        const email = contact.trim().toLowerCase();
         if (!isValidEmail(email)) {
           Alert.alert('Invalid email', 'Enter a valid email address.');
           return;

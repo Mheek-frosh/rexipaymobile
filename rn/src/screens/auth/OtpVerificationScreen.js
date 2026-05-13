@@ -20,6 +20,68 @@ import PrimaryButton from '../../components/PrimaryButton';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../theme/ThemeContext';
 
+function clerkFirstError(err) {
+  if (!err) return null;
+  return err.errors?.[0] || err.clerkError?.errors?.[0] || null;
+}
+
+function isAlreadyVerifiedClerkError(err) {
+  const e = clerkFirstError(err);
+  if (!e) return false;
+  const code = String(e.code || '').toLowerCase();
+  const msg = String(e.longMessage || e.message || '').toLowerCase();
+  return (
+    (code.includes('already') && (code.includes('verif') || code.includes('completed'))) ||
+    msg.includes('already been verified') ||
+    msg.includes('already verified') ||
+    msg.includes('verification has already') ||
+    msg.includes('has already been verified')
+  );
+}
+
+function missingHas(missing, snake, camel) {
+  return missing.some((m) => m === snake || m === camel);
+}
+
+/**
+ * Clerk often returns `missing_requirements` after OTP (e.g. username, legal).
+ * Apply common patches so sign-up can complete without a second Verify tap.
+ */
+async function satisfyClerkSignupMissing(signUp, { pendingUser, displayContact }) {
+  let s = signUp;
+  for (let attempt = 0; attempt < 8; attempt++) {
+    if (s.status === 'complete' && s.createdSessionId) {
+      return s;
+    }
+    const missing = s.missingFields || [];
+    if (!missing.length) {
+      return s;
+    }
+    const patch = {};
+    if (missingHas(missing, 'legal_accepted', 'legalAccepted')) {
+      patch.legalAccepted = true;
+    }
+    if (missingHas(missing, 'username', 'username')) {
+      const raw = String(pendingUser?.email || displayContact || 'user')
+        .split('@')[0]
+        .replace(/[^a-z0-9_]/gi, '')
+        .slice(0, 14);
+      patch.username = `${raw || 'user'}_${Math.random().toString(36).slice(2, 8)}`;
+    }
+    if (missingHas(missing, 'first_name', 'firstName') && pendingUser?.firstName) {
+      patch.firstName = pendingUser.firstName;
+    }
+    if (missingHas(missing, 'last_name', 'lastName')) {
+      patch.lastName = pendingUser?.lastName ?? '';
+    }
+    if (Object.keys(patch).length === 0) {
+      return s;
+    }
+    s = await signUp.update(patch);
+  }
+  return s;
+}
+
 export default function OtpVerificationScreen() {
   const { colors } = useTheme();
   const { signupComplete, pendingUser } = useAuth();
@@ -37,6 +99,7 @@ export default function OtpVerificationScreen() {
   const [loading, setLoading] = useState(false);
   const [resendSeconds, setResendSeconds] = useState(60);
   const inputRef = useRef(null);
+  const verificationLockRef = useRef(false);
 
   useEffect(() => {
     let t;
@@ -54,43 +117,128 @@ export default function OtpVerificationScreen() {
   }, [otp]);
 
   const handleVerify = async () => {
-    if (otp.length !== 6) return;
+    if (otp.length !== 6 || verificationLockRef.current || loading) return;
     Keyboard.dismiss();
     inputRef.current?.blur?.();
+    verificationLockRef.current = true;
     setLoading(true);
+
+    const finalizeSignup = async (sessionId, userId) => {
+      if (!sessionId) {
+        Alert.alert('Verification Failed', 'No session was created. Please try signing up again.');
+        return;
+      }
+      await setActiveSignUp({ session: sessionId });
+      const userPayload = {
+        ...(pendingUser || {}),
+        id: userId,
+      };
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'AccountSuccess', params: { user: userPayload } }],
+      });
+    };
+
+    const tryRecoverSignupAfterAlreadyVerified = async () => {
+      let sessionId = signUp.createdSessionId;
+      let userId = signUp.createdUserId;
+      if (signUp.status === 'complete' && sessionId) {
+        try {
+          await finalizeSignup(sessionId, userId);
+          return true;
+        } catch (finalizeErr) {
+          console.error(finalizeErr);
+        }
+      }
+      try {
+        if (typeof signUp.reload === 'function') {
+          await signUp.reload();
+        }
+      } catch (_) {
+        /* ignore */
+      }
+      sessionId = signUp.createdSessionId;
+      userId = signUp.createdUserId;
+      if (signUp.status === 'complete' && sessionId) {
+        try {
+          await finalizeSignup(sessionId, userId);
+          return true;
+        } catch (finalizeErr) {
+          console.error(finalizeErr);
+        }
+      }
+      return false;
+    };
+
     try {
       if (mode === 'signup') {
         if (!isSignUpLoaded) return;
-        const result =
-          verificationMethod === 'email'
-            ? await signUp.attemptEmailAddressVerification({ code: otp })
-            : await signUp.attemptPhoneNumberVerification({ code: otp });
 
-        if (result.status === 'complete') {
-          await setActiveSignUp({ session: result.createdSessionId });
-          // After setting session, we might want to update our local context
-          await signupComplete({
-            ...pendingUser,
-            id: result.createdUserId,
-          });
-          navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
-        } else {
-          Alert.alert('Verification Failed', 'Verification could not be completed.');
+        let result;
+        try {
+          result =
+            verificationMethod === 'email'
+              ? await signUp.attemptEmailAddressVerification({ code: otp })
+              : await signUp.attemptPhoneNumberVerification({ code: otp });
+        } catch (attemptErr) {
+          if (isAlreadyVerifiedClerkError(attemptErr)) {
+            const recovered = await tryRecoverSignupAfterAlreadyVerified();
+            if (recovered) return;
+          }
+          throw attemptErr;
         }
+
+        let sessionId = result.createdSessionId || signUp.createdSessionId;
+        let userId = result.createdUserId || signUp.createdUserId;
+
+        if (result.status === 'complete' && sessionId) {
+          await finalizeSignup(sessionId, userId);
+          return;
+        }
+
+        if (result.status === 'missing_requirements') {
+          try {
+            await satisfyClerkSignupMissing(signUp, { pendingUser, displayContact });
+          } catch (patchErr) {
+            console.error(patchErr);
+          }
+          sessionId = signUp.createdSessionId;
+          userId = signUp.createdUserId;
+          if (signUp.status === 'complete' && sessionId) {
+            await finalizeSignup(sessionId, userId);
+            return;
+          }
+        }
+
+        if (signUp.status === 'complete' && (signUp.createdSessionId || sessionId)) {
+          await finalizeSignup(signUp.createdSessionId || sessionId, signUp.createdUserId || userId);
+          return;
+        }
+
+        const stillMissing = signUp.missingFields || result.missingFields || [];
+        Alert.alert(
+          'Finish sign-up in Clerk',
+          stillMissing.length
+            ? `Your Clerk project still requires: ${stillMissing.join(', ')}. In the Clerk dashboard open User & authentication → Email, phone, username and either collect these in your app or turn them off as required for sign-up.`
+            : 'Sign-up could not be completed. Check Clerk dashboard settings for required fields.',
+        );
+        return;
       } else {
         if (!isSignInLoaded) return;
         const result = await signIn.attemptFirstFactor({
-          strategy: 'phone_code',
+          strategy: verificationMethod === 'email' ? 'email_code' : 'phone_code',
           code: otp,
         });
 
         if (result.status === 'complete') {
           await setActiveSignIn({ session: result.createdSessionId });
-          // Update local context
-          await signupComplete({
-            phone: displayContact,
-            name: result.userData?.firstName || 'User',
-          });
+          const first = result.userData?.firstName;
+          const name = first || result.userData?.username || 'User';
+          await signupComplete(
+            verificationMethod === 'email'
+              ? { email: displayContact.trim().toLowerCase(), name }
+              : { phone: displayContact, name }
+          );
           navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
         } else {
           Alert.alert('Verification Failed', 'Invalid or expired code');
@@ -98,9 +246,20 @@ export default function OtpVerificationScreen() {
       }
     } catch (err) {
       console.error(err);
-      Alert.alert('Verification Error', err.errors?.[0]?.longMessage || 'An error occurred during verification');
+      if (mode === 'signup') {
+        if (isAlreadyVerifiedClerkError(err)) {
+          const recovered = await tryRecoverSignupAfterAlreadyVerified();
+          if (recovered) return;
+        }
+        const e0 = clerkFirstError(err);
+        Alert.alert('Verification Error', e0?.longMessage || e0?.message || 'An error occurred during verification');
+      } else {
+        const e0 = clerkFirstError(err);
+        Alert.alert('Verification Error', e0?.longMessage || e0?.message || 'An error occurred during verification');
+      }
     } finally {
       setLoading(false);
+      verificationLockRef.current = false;
     }
   };
 
@@ -117,8 +276,27 @@ export default function OtpVerificationScreen() {
         }
       } else {
         const { supportedFirstFactors } = await signIn.create({ identifier: displayContact });
-        const factor = supportedFirstFactors.find((f) => f.strategy === 'phone_code');
-        await signIn.prepareFirstFactor({ strategy: 'phone_code', phoneNumberId: factor.phoneNumberId });
+        if (verificationMethod === 'email') {
+          const factor = supportedFirstFactors.find((f) => f.strategy === 'email_code');
+          if (!factor?.emailAddressId) {
+            Alert.alert('Error', 'Could not resend email code.');
+            return;
+          }
+          await signIn.prepareFirstFactor({
+            strategy: 'email_code',
+            emailAddressId: factor.emailAddressId,
+          });
+        } else {
+          const factor = supportedFirstFactors.find((f) => f.strategy === 'phone_code');
+          if (!factor?.phoneNumberId) {
+            Alert.alert('Error', 'Could not resend SMS code.');
+            return;
+          }
+          await signIn.prepareFirstFactor({
+            strategy: 'phone_code',
+            phoneNumberId: factor.phoneNumberId,
+          });
+        }
       }
       setResendSeconds(60);
       setOtp('');
