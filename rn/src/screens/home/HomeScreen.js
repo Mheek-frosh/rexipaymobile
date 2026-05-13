@@ -176,11 +176,6 @@ export default function HomeScreen() {
           </View>
 
           <Text style={styles.greeting}>Hello, {firstName}!</Text>
-          {userAccountNumber ? (
-            <View style={styles.accountNumberBadge}>
-              <Text style={styles.accountNumberBadgeText}>Acct: {userAccountNumber}</Text>
-            </View>
-          ) : null}
 
           {/* Account Selector Button: Shows the current fiat currency flag and name. 
               Tapping it opens a bottom sheet to switch between NGN, USD, GBP, etc. */}

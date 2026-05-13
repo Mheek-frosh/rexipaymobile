@@ -1,5 +1,6 @@
 import { useSignIn } from '@clerk/clerk-expo';
 import { useNavigation } from '@react-navigation/native';
+import { Eye, EyeSlash } from 'iconsax-react-native';
 import React, { useMemo, useState } from 'react';
 import {
   Alert,
@@ -32,13 +33,15 @@ export default function LoginScreen() {
   const [isEmailMode, setIsEmailMode] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
   const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const canLogin = useMemo(() => {
-    if (!contact.trim()) return false;
+    if (!contact.trim() || password.trim().length < 8) return false;
     if (isEmailMode) return isValidEmail(contact);
     return true;
-  }, [contact, isEmailMode]);
+  }, [contact, password, isEmailMode]);
 
   const handleLogin = async () => {
     if (!isLoaded) return;
@@ -49,52 +52,28 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      if (isEmailMode) {
-        const email = contact.trim().toLowerCase();
-        const { supportedFirstFactors } = await signIn.create({
-          identifier: email,
-        });
+      const identifier = isEmailMode ? contact.trim().toLowerCase() : `${selectedCountry.dialCode}${contact.replace(/^0+/, '')}`;
 
-        const emailFactor = supportedFirstFactors.find((f) => f.strategy === 'email_code');
-        if (!emailFactor?.emailAddressId) {
-          Alert.alert('Error', 'Email code login is not available for this account.');
-          return;
-        }
+      const result = await signIn.create({
+        identifier,
+        password,
+      });
 
-        await signIn.prepareFirstFactor({
-          strategy: 'email_code',
-          emailAddressId: emailFactor.emailAddressId,
-        });
+      if (result.status === 'complete') {
+        const first = result.userData?.firstName;
+        const name = first || result.userData?.username || 'User';
+        const email = isEmailMode ? identifier : result.userData?.emailAddresses?.[0]?.emailAddress || `${identifier}@rexipay.com`;
 
-        navigation.navigate('OtpVerification', {
-          contact: email,
-          verificationMethod: 'email',
-          mode: 'login',
+        navigation.navigate('LoginBiometricsSetup', {
+          userPayload: {
+            contact: identifier,
+            name,
+            clerkUserId: result.createdUserId,
+            email,
+          },
         });
       } else {
-        const fullPhone = `${selectedCountry.dialCode}${contact.replace(/^0+/, '')}`;
-
-        const { supportedFirstFactors } = await signIn.create({
-          identifier: fullPhone,
-        });
-
-        const phoneFactor = supportedFirstFactors.find((f) => f.strategy === 'phone_code');
-
-        if (!phoneFactor?.phoneNumberId) {
-          Alert.alert('Error', 'Phone number login is not supported for this account.');
-          return;
-        }
-
-        await signIn.prepareFirstFactor({
-          strategy: 'phone_code',
-          phoneNumberId: phoneFactor.phoneNumberId,
-        });
-
-        navigation.navigate('OtpVerification', {
-          contact: fullPhone,
-          verificationMethod: 'phone',
-          mode: 'login',
-        });
+        Alert.alert('Login Incomplete', 'Further steps are required to complete login. Please contact support.');
       }
     } catch (err) {
       console.error(err);
@@ -197,6 +176,28 @@ export default function LoginScreen() {
           </View>
         )}
 
+        <Text style={[styles.label, { color: colors.textPrimary }]}>Password</Text>
+        <View style={styles.passwordWrap}>
+          <TextInput
+            style={[styles.input, styles.passwordInput, { color: colors.textPrimary, borderColor: colors.border }]}
+            placeholder="Enter your password"
+            placeholderTextColor={colors.textSecondary}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+          />
+          <TouchableOpacity
+            style={styles.eyeBtn}
+            onPress={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? (
+              <Eye size={22} color={colors.textSecondary} />
+            ) : (
+              <EyeSlash size={22} color={colors.textSecondary} />
+            )}
+          </TouchableOpacity>
+        </View>
+
         {/* Forgot Password Link */}
         <TouchableOpacity
           style={styles.forgotWrap}
@@ -278,6 +279,9 @@ const styles = StyleSheet.create({
   btn: { marginTop: 20 },
   forgotWrap: { alignSelf: 'flex-end', marginTop: 8 },
   forgotText: { fontSize: 15, fontWeight: '500' },
+  passwordWrap: { position: 'relative' },
+  passwordInput: { paddingRight: 48 },
+  eyeBtn: { position: 'absolute', right: 14, top: 0, bottom: 0, justifyContent: 'center' },
   linkWrap: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
   linkText: { fontSize: 15 },
 });

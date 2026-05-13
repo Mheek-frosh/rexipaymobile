@@ -8,6 +8,7 @@ import OtpVerificationScreen from '../screens/auth/OtpVerificationScreen';
 import PersonalInfoScreen from '../screens/auth/PersonalInfoScreen';
 import NINAndFaceScreen from '../screens/auth/NINAndFaceScreen';
 import AccountSuccessScreen from '../screens/auth/AccountSuccessScreen';
+import LoginBiometricsSetupScreen from '../screens/auth/LoginBiometricsSetupScreen';
 import ForgotPasswordPhoneScreen from '../screens/auth/ForgotPasswordPhoneScreen';
 import ForgotPasswordOtpScreen from '../screens/auth/ForgotPasswordOtpScreen';
 import ForgotPasswordSetPasswordScreen from '../screens/auth/ForgotPasswordSetPasswordScreen';
@@ -155,6 +156,11 @@ export default function RootNavigator() {
       <Stack.Screen
         name="AccountSuccess"
         component={AccountSuccessScreen}
+        options={{ animation: 'fade', animationDuration: 300 }}
+      />
+      <Stack.Screen
+        name="LoginBiometricsSetup"
+        component={LoginBiometricsSetupScreen}
         options={{ animation: 'fade', animationDuration: 300 }}
       />
 

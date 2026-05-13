@@ -8,12 +8,12 @@ import { useTheme } from '../../theme/ThemeContext';
 
 export default function AccountDetailsScreen() {
   const { colors } = useTheme();
-  const { userName, userPhone, userEmail, userAddress } = useAuth();
+  const { userName, userPhone, userEmail, userAddress, userAccountNumber } = useAuth();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
   const username = `@${(userName || 'user').replace(/\s/g, '').toLowerCase()}`;
-  const accountNumber = (userPhone || '0000000000').replace(/\D/g, '').slice(-10);
+  const accountNumber = userAccountNumber || (userPhone || '0000000000').replace(/\D/g, '').slice(-10);
 
   const renderSettingItem = (icon, label, value = null, onPress = null, isDestructive = false) => (
     <TouchableOpacity
