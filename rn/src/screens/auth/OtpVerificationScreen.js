@@ -18,10 +18,13 @@ import { useTheme } from '../../theme/ThemeContext';
 
 export default function OtpVerificationScreen() {
   const { colors } = useTheme();
-  const { signupComplete, setPendingSignupUser, pendingUser } = useAuth();
+  const { signupComplete, pendingUser } = useAuth();
   const navigation = useNavigation();
   const route = useRoute();
-  const { mode, phone } = route.params || {};
+  const { mode, phone, contact, verificationMethod: verificationMethodParam } = route.params || {};
+  const displayContact = contact || phone || '';
+  const verificationMethod =
+    verificationMethodParam || (displayContact.includes('@') ? 'email' : 'phone');
 
   const { signIn, setActive: setActiveSignIn, isLoaded: isSignInLoaded } = useSignIn();
   const { signUp, setActive: setActiveSignUp, isLoaded: isSignUpLoaded } = useSignUp();
@@ -45,9 +48,10 @@ export default function OtpVerificationScreen() {
     try {
       if (mode === 'signup') {
         if (!isSignUpLoaded) return;
-        const result = await signUp.attemptPhoneNumberVerification({
-          code: otp,
-        });
+        const result =
+          verificationMethod === 'email'
+            ? await signUp.attemptEmailAddressVerification({ code: otp })
+            : await signUp.attemptPhoneNumberVerification({ code: otp });
 
         if (result.status === 'complete') {
           await setActiveSignUp({ session: result.createdSessionId });
@@ -71,7 +75,7 @@ export default function OtpVerificationScreen() {
           await setActiveSignIn({ session: result.createdSessionId });
           // Update local context
           await signupComplete({
-            phone: phone,
+            phone: displayContact,
             name: result.userData?.firstName || 'User',
           });
           navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
@@ -91,10 +95,14 @@ export default function OtpVerificationScreen() {
     if (resendSeconds > 0) return;
     try {
       if (mode === 'signup') {
-        await signUp.preparePhoneNumberVerification({ strategy: 'phone_code' });
+        if (verificationMethod === 'email') {
+          await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
+        } else {
+          await signUp.preparePhoneNumberVerification({ strategy: 'phone_code' });
+        }
       } else {
-        const { supportedFirstFactors } = await signIn.create({ identifier: phone });
-        const factor = supportedFirstFactors.find(f => f.strategy === 'phone_code');
+        const { supportedFirstFactors } = await signIn.create({ identifier: displayContact });
+        const factor = supportedFirstFactors.find((f) => f.strategy === 'phone_code');
         await signIn.prepareFirstFactor({ strategy: 'phone_code', phoneNumberId: factor.phoneNumberId });
       }
       setResendSeconds(60);
@@ -147,11 +155,13 @@ export default function OtpVerificationScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <SegmentedProgressBar totalSteps={4} currentStep={2} />
-      <Text style={[styles.title, { color: colors.textPrimary }]}>Confirm your phone</Text>
-      
+      <Text style={[styles.title, { color: colors.textPrimary }]}>
+        {verificationMethod === 'email' ? 'Confirm your email' : 'Confirm your phone'}
+      </Text>
+
       <View style={styles.phoneDisplayRow}>
         <Text style={[styles.subtitle, { color: colors.textSecondary, marginTop: 0 }]}>
-          We sent a 6-digit code to {phone}
+          We sent a 6-digit code to {displayContact}
         </Text>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.editIconBtn}>
           <MaterialIcons name="edit" size={18} color={colors.primary} />
@@ -174,7 +184,7 @@ export default function OtpVerificationScreen() {
 
       <View style={styles.spacer} />
       <PrimaryButton
-        text={loading ? 'Verifying...' : 'Verify Number'}
+        text={loading ? 'Verifying...' : verificationMethod === 'email' ? 'Verify email' : 'Verify number'}
         onPress={handleVerify}
         disabled={!isComplete || loading}
         loading={loading}

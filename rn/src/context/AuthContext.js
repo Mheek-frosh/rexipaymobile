@@ -35,7 +35,10 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
     setUserName(userData?.name || userData?.firstName || 'User');
     setUserPhone((userData?.phone || '').replace(/\D/g, ''));
-    setUserEmail(`${(userData?.phone || '').replace(/\D/g, '')}@rexipay.com`);
+    const syntheticEmail = userData?.phone
+      ? `${String(userData.phone).replace(/\D/g, '')}@rexipay.com`
+      : '';
+    setUserEmail(userData?.email?.trim() || syntheticEmail || 'user@rexipay.com');
     setUserAddress(userData?.address || '');
     setPendingUser(null);
     setIsAuthenticated(true);

@@ -1,7 +1,7 @@
 import { useSignUp } from '@clerk/clerk-expo';
 import { useNavigation } from '@react-navigation/native';
 import { Eye, EyeSlash } from 'iconsax-react-native';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -23,51 +23,93 @@ import { useTheme } from '../../theme/ThemeContext';
 
 const defaultCountry = COUNTRIES[0];
 
+function isValidEmail(value) {
+  const t = value.trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t);
+}
+
 export default function SignupScreen() {
   const { colors } = useTheme();
   const { setPendingSignupUser } = useAuth();
-  const { signUp, isLoaded, setActive } = useSignUp();
+  const { signUp, isLoaded } = useSignUp();
   const navigation = useNavigation();
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [contact, setContact] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
   const [showCountryPicker, setShowCountryPicker] = useState(false);
-  
-  const canSubmit = name.trim() && phone.trim() && password.trim().length >= 8;
+  const [isEmailMode, setIsEmailMode] = useState(false);
+
+  const canSubmit = useMemo(() => {
+    if (!name.trim() || password.trim().length < 8) return false;
+    if (!contact.trim()) return false;
+    if (isEmailMode) return isValidEmail(contact);
+    return true;
+  }, [name, password, contact, isEmailMode]);
 
   const handleSignUp = async () => {
     if (!isLoaded || !canSubmit) return;
     
     setLoading(true);
     try {
-      const fullPhone = `${selectedCountry.dialCode}${phone.replace(/^0+/, '')}`;
       const [firstName, ...lastNameParts] = name.trim().split(' ');
       const lastName = lastNameParts.join(' ') || '';
 
-      await signUp.create({
-        phoneNumber: fullPhone,
-        password: password,
-        firstName: firstName,
-        lastName: lastName,
-      });
+      if (isEmailMode) {
+        const email = contact.trim();
+        if (!isValidEmail(email)) {
+          Alert.alert('Invalid email', 'Enter a valid email address.');
+          return;
+        }
 
-      await signUp.preparePhoneNumberVerification({ strategy: 'phone_code' });
+        await signUp.create({
+          emailAddress: email,
+          password,
+          firstName,
+          lastName,
+        });
 
-      // Store data for context if needed after verification
-      setPendingSignupUser({
-        name: name.trim(),
-        phone: fullPhone,
-        firstName: firstName,
-        countryCode: selectedCountry.dialCode,
-      });
+        await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
 
-      navigation.navigate('OtpVerification', {
-        phone: fullPhone,
-        mode: 'signup'
-      });
+        setPendingSignupUser({
+          name: name.trim(),
+          email,
+          firstName,
+          lastName,
+        });
+
+        navigation.navigate('OtpVerification', {
+          contact: email,
+          mode: 'signup',
+          verificationMethod: 'email',
+        });
+      } else {
+        const fullPhone = `${selectedCountry.dialCode}${contact.replace(/^0+/, '')}`;
+
+        await signUp.create({
+          phoneNumber: fullPhone,
+          password,
+          firstName,
+          lastName,
+        });
+
+        await signUp.preparePhoneNumberVerification({ strategy: 'phone_code' });
+
+        setPendingSignupUser({
+          name: name.trim(),
+          phone: fullPhone,
+          firstName,
+          countryCode: selectedCountry.dialCode,
+        });
+
+        navigation.navigate('OtpVerification', {
+          contact: fullPhone,
+          mode: 'signup',
+          verificationMethod: 'phone',
+        });
+      }
     } catch (err) {
       console.error(err);
       Alert.alert('Signup Error', err.errors?.[0]?.longMessage || 'An error occurred during signup');
@@ -90,7 +132,7 @@ export default function SignupScreen() {
           <SegmentedProgressBar totalSteps={4} currentStep={1} />
           <Text style={[styles.title, { color: colors.textPrimary }]}>Create Account</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            Enter your mobile number to verify your account
+            Enter your phone number or email—we will send a code to verify your account
           </Text>
 
           <Text style={[styles.label, { color: colors.textPrimary }]}>Full Name</Text>
@@ -103,29 +145,79 @@ export default function SignupScreen() {
             autoCapitalize="words"
           />
 
-          <Text style={[styles.label, { color: colors.textPrimary }]}>Phone</Text>
-          <View style={styles.phoneRow}>
-            <TouchableOpacity
-              style={[styles.countryBox, { borderColor: colors.border }]}
-              onPress={() => setShowCountryPicker(true)}
-            >
-              <Text style={[styles.countryText, { color: colors.textPrimary }]}>
-                {selectedCountry.flag} {selectedCountry.dialCode}
-              </Text>
-            </TouchableOpacity>
+          <Text style={[styles.label, { color: colors.textPrimary }]}>
+            {isEmailMode ? 'Email' : 'Phone number'}
+          </Text>
+          {isEmailMode ? (
             <TextInput
-              style={[
-                styles.input,
-                styles.phoneInput,
-                { color: colors.textPrimary, borderColor: colors.border },
-              ]}
-              placeholder="Enter phone number"
+              style={[styles.input, { color: colors.textPrimary, borderColor: colors.border }]}
+              placeholder="you@example.com"
               placeholderTextColor={colors.textSecondary}
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
+              value={contact}
+              onChangeText={setContact}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="email"
+              textContentType="emailAddress"
             />
-          </View>
+          ) : (
+            <View style={styles.phoneRow}>
+              <TouchableOpacity
+                style={[styles.countryBox, { borderColor: colors.border }]}
+                onPress={() => setShowCountryPicker(true)}
+              >
+                <Text style={[styles.countryText, { color: colors.textPrimary }]}>
+                  {selectedCountry.flag} {selectedCountry.dialCode}
+                </Text>
+              </TouchableOpacity>
+              <TextInput
+                style={[
+                  styles.input,
+                  styles.phoneInput,
+                  { color: colors.textPrimary, borderColor: colors.border },
+                ]}
+                placeholder="Enter phone number"
+                placeholderTextColor={colors.textSecondary}
+                value={contact}
+                onChangeText={setContact}
+                keyboardType="phone-pad"
+              />
+            </View>
+          )}
+          {isEmailMode ? (
+            <View style={styles.hintRow}>
+              <Text style={[styles.hintMuted, { color: colors.textSecondary }]}>Or </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setIsEmailMode(false);
+                  setContact('');
+                }}
+                hitSlop={{ top: 10, bottom: 10, left: 4, right: 4 }}
+                accessibilityRole="button"
+                accessibilityLabel="Switch to phone number sign up"
+              >
+                <Text style={[styles.hintLink, { color: colors.primary }]}>phone number</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.hintRow}>
+              <Text style={[styles.hintMuted, { color: colors.textSecondary }]}>
+                Tip: use your mobile number, or{' '}
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setIsEmailMode(true);
+                  setContact('');
+                }}
+                hitSlop={{ top: 10, bottom: 10, left: 4, right: 4 }}
+                accessibilityRole="button"
+                accessibilityLabel="Switch to email sign up"
+              >
+                <Text style={[styles.hintLink, { color: colors.primary }]}>Email</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
           <Text style={[styles.label, { color: colors.textPrimary }]}>Password</Text>
           <View style={styles.passwordWrap}>
@@ -206,6 +298,23 @@ const styles = StyleSheet.create({
   },
   countryText: { fontSize: 15 },
   phoneInput: { flex: 1 },
+  hintRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  hintMuted: {
+    fontSize: 14,
+    lineHeight: 22,
+    fontWeight: '500',
+  },
+  hintLink: {
+    fontSize: 14,
+    lineHeight: 22,
+    fontWeight: '700',
+    textDecorationLine: 'underline',
+  },
   passwordWrap: { position: 'relative' },
   passwordInput: { paddingRight: 48 },
   eyeBtn: { position: 'absolute', right: 14, top: 0, bottom: 0, justifyContent: 'center' },
