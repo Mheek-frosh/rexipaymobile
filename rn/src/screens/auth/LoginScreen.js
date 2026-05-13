@@ -1,4 +1,4 @@
-import { useSignIn } from '@clerk/clerk-expo';
+import { useSignIn, useAuth as useClerkAuth } from '@clerk/clerk-expo';
 import { useNavigation } from '@react-navigation/native';
 import { Eye, EyeSlash } from 'iconsax-react-native';
 import React, { useMemo, useState } from 'react';
@@ -28,6 +28,7 @@ function isValidEmail(value) {
 export default function LoginScreen() {
   const { colors } = useTheme();
   const { signIn, isLoaded } = useSignIn();
+  const { signOut } = useClerkAuth();
   const navigation = useNavigation();
   const [contact, setContact] = useState('');
   const [isEmailMode, setIsEmailMode] = useState(false);
@@ -52,6 +53,14 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
+      // If the user already has an active session in Clerk, sign them out first 
+      // so we don't get the "You're already signed in" error.
+      try {
+        await signOut();
+      } catch (e) {
+        // ignore
+      }
+
       const identifier = isEmailMode ? contact.trim().toLowerCase() : `${selectedCountry.dialCode}${contact.replace(/^0+/, '')}`;
 
       const result = await signIn.create({
