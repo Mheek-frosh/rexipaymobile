@@ -11,10 +11,10 @@ import { startNetworkMonitoring } from './src/services/offlineSyncService';
 import RootNavigator from './src/navigation/RootNavigator';
 import SplashScreen from './src/screens/splash/SplashScreen';
 
-const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_test_bGFzdGluZy13YWxsZXllLTMuY2xlcmsuYWNjb3VudHMuZGV2JA';
+const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 if (!CLERK_PUBLISHABLE_KEY) {
-  console.warn('Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY. Please set it in your .env file.');
+  console.warn('Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY. Set it in rn/.env (see Clerk dashboard).');
 }
 
 const tokenCache = {
