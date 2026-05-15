@@ -233,13 +233,20 @@ export default function OtpVerificationScreen() {
         if (result.status === 'complete') {
           await setActiveSignIn({ session: result.createdSessionId });
           const first = result.userData?.firstName;
-          const name = first || result.userData?.username || 'User';
-          await signupComplete(
-            verificationMethod === 'email'
-              ? { email: displayContact.trim().toLowerCase(), name }
-              : { phone: displayContact, name }
-          );
-          navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
+          const last = result.userData?.lastName;
+          const name = [first, last].filter(Boolean).join(' ') || result.userData?.username || 'User';
+          const email = verificationMethod === 'email' 
+            ? displayContact.trim().toLowerCase() 
+            : result.userData?.emailAddresses?.[0]?.emailAddress || `${displayContact}@rexipay.com`;
+
+          navigation.navigate('LoginBiometricsSetup', {
+            userPayload: {
+              contact: displayContact,
+              name,
+              clerkUserId: result.createdUserId,
+              email,
+            },
+          });
         } else {
           Alert.alert('Verification Failed', 'Invalid or expired code');
         }

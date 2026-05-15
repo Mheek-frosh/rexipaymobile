@@ -27,7 +27,7 @@ function isValidEmail(value) {
 
 export default function LoginScreen() {
   const { colors } = useTheme();
-  const { signIn, isLoaded } = useSignIn();
+  const { signIn, isLoaded, setActive } = useSignIn();
   const { signOut } = useClerkAuth();
   const navigation = useNavigation();
   const [contact, setContact] = useState('');
@@ -69,8 +69,12 @@ export default function LoginScreen() {
       });
 
       if (result.status === 'complete') {
+        // Very important: Set the session active in Clerk so useUser() and other hooks work
+        await setActive({ session: result.createdSessionId });
+
         const first = result.userData?.firstName;
-        const name = first || result.userData?.username || 'User';
+        const last = result.userData?.lastName;
+        const name = [first, last].filter(Boolean).join(' ') || result.userData?.username || 'User';
         const email = isEmailMode ? identifier : result.userData?.emailAddresses?.[0]?.emailAddress || `${identifier}@rexipay.com`;
 
         navigation.navigate('LoginBiometricsSetup', {

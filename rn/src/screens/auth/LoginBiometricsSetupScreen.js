@@ -4,12 +4,14 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as LocalAuthentication from 'expo-local-authentication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUser } from '@clerk/clerk-expo';
 import { useTheme } from '../../theme/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import PrimaryButton from '../../components/PrimaryButton';
 
 export default function LoginBiometricsSetupScreen() {
   const { colors } = useTheme();
+  const { user: clerkUser } = useUser();
   const navigation = useNavigation();
   const route = useRoute();
   const { userPayload } = route.params || {};
@@ -42,14 +44,21 @@ export default function LoginBiometricsSetupScreen() {
   }, []);
 
   const finishLogin = () => {
+    // Priority: clerkUser details > userPayload > "User"
+    const finalName = 
+      clerkUser?.fullName || 
+      clerkUser?.firstName || 
+      userPayload?.name || 
+      'User';
+
     if (userPayload) {
-      login(userPayload.contact, userPayload.name, {
-        clerkUserId: userPayload.clerkUserId,
-        email: userPayload.email,
+      login(userPayload.contact, finalName, {
+        clerkUserId: clerkUser?.id || userPayload.clerkUserId,
+        email: clerkUser?.primaryEmailAddress?.emailAddress || userPayload.email,
       });
     } else {
       // Fallback
-      login('user', 'User', {});
+      login('user', finalName, {});
     }
   };
 
