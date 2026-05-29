@@ -223,20 +223,22 @@ export default function NotificationsScreen() {
         }
         ListEmptyComponent={
           <View style={styles.emptyWrap}>
-            <View style={[styles.emptyIcon, { backgroundColor: `${colors.primary}12` }]}>
-              <MaterialIcons name="notifications-none" size={40} color={colors.primary} />
+            <View style={[styles.emptyIconOuter, { borderColor: `${colors.primary}25` }]}>
+              <View style={[styles.emptyIconInner, { backgroundColor: `${colors.primary}10` }]}>
+                <MaterialIcons name="notifications-off" size={36} color={colors.primary} />
+              </View>
             </View>
-            <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>You're all caught up</Text>
+            <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>No notifications yet</Text>
             <Text style={[styles.emptySub, { color: colors.textSecondary }]}>
-              New alerts for transfers, security, and offers will show up here.
+              We'll notify you here about transaction updates, security alerts, and exclusive offers.
             </Text>
             <TouchableOpacity
-              style={[styles.prefsLink, { borderColor: colors.border }]}
+              style={[styles.prefsLink, { borderColor: colors.border, backgroundColor: colors.cardBackground }]}
               onPress={() => navigation.navigate('NotificationSettings')}
               activeOpacity={0.7}
             >
-              <MaterialIcons name="tune" size={20} color={colors.primary} />
-              <Text style={[styles.prefsLinkText, { color: colors.primary }]}>Notification preferences</Text>
+              <MaterialIcons name="tune" size={18} color={colors.primary} />
+              <Text style={[styles.prefsLinkText, { color: colors.textPrimary }]}>Configure Settings</Text>
             </TouchableOpacity>
           </View>
         }
@@ -380,16 +382,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     paddingVertical: 48,
   },
-  emptyIcon: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
+  emptyIconOuter: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
   },
-  emptyTitle: { fontSize: 20, fontWeight: '700', textAlign: 'center', marginBottom: 8 },
-  emptySub: { fontSize: 15, lineHeight: 22, textAlign: 'center' },
+  emptyIconInner: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyTitle: { fontSize: 19, fontWeight: '700', textAlign: 'center', marginBottom: 8, letterSpacing: -0.2 },
+  emptySub: { fontSize: 14, lineHeight: 22, textAlign: 'center', maxWidth: 280, opacity: 0.8 },
   prefsLink: {
     flexDirection: 'row',
     alignItems: 'center',
