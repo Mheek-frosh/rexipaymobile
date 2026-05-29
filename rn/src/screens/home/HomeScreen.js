@@ -329,15 +329,10 @@ export default function HomeScreen() {
                         <Text style={styles.promoCardSubDark} numberOfLines={2}>
                           Invite friends and win rewards when they join RexiPay.
                         </Text>
-                        <View style={styles.referralCta}>
-                          <Text style={styles.referralCtaText}>Refer now</Text>
-                        </View>
                       </View>
-                      <Image
-                        source={require('../../../assets/images/thumbs.png')}
-                        style={styles.referralSlideImage}
-                        resizeMode="contain"
-                      />
+                      <View style={styles.referralCta}>
+                        <Text style={styles.referralCtaText}>Refer now</Text>
+                      </View>
                     </View>
                   </TouchableOpacity>
                 </View>
@@ -670,15 +665,14 @@ const styles = StyleSheet.create({
   promoCardTitleDark: { color: '#FFF', fontWeight: '800', fontSize: 16 },
   promoCardSubDark: { color: 'rgba(255,255,255,0.95)', fontSize: 12, marginTop: 6, lineHeight: 16 },
   referralCta: {
-    marginTop: 10,
     backgroundColor: '#FFF',
-    paddingVertical: 8,
+    paddingVertical: 10,
     paddingHorizontal: 16,
-    borderRadius: 8,
-    alignSelf: 'flex-start',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  referralCtaText: { color: '#FF9800', fontWeight: '700', fontSize: 12 },
-  referralSlideImage: { width: 72, height: 72 },
+  referralCtaText: { color: '#FF9800', fontWeight: '700', fontSize: 13 },
   promoCardRewards: {
     backgroundColor: '#047857',
   },
