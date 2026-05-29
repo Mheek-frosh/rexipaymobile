@@ -39,54 +39,69 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   const canLogin = useMemo(() => {
-    if (!contact.trim() || password.trim().length < 8) return false;
+    if (!contact.trim()) return false;
     if (isEmailMode) return isValidEmail(contact);
-    return true;
+    return password.trim().length >= 8;
   }, [contact, password, isEmailMode]);
 
   const handleLogin = async () => {
     if (!isLoaded) return;
     if (!canLogin) {
-      Alert.alert('Error', isEmailMode ? 'Enter a valid email address.' : 'Please enter your phone number');
+      Alert.alert('Error', isEmailMode ? 'Enter a valid email address.' : 'Please enter your phone number and password');
       return;
     }
 
     setLoading(true);
     try {
-      // If the user already has an active session in Clerk, sign them out first 
-      // so we don't get the "You're already signed in" error.
       try {
         await signOut();
       } catch (e) {
         // ignore
       }
 
-      const identifier = isEmailMode ? contact.trim().toLowerCase() : `${selectedCountry.dialCode}${contact.replace(/^0+/, '')}`;
+      if (isEmailMode) {
+        const email = contact.trim().toLowerCase();
+        const result = await signIn.create({ identifier: email });
+        const factor = result.supportedFirstFactors?.find((f) => f.strategy === 'email_code');
 
-      const result = await signIn.create({
-        identifier,
-        password,
-      });
+        if (!factor?.emailAddressId) {
+          Alert.alert('Login Failed', 'Email OTP login is not available for this account.');
+          return;
+        }
 
-      if (result.status === 'complete') {
-        // Very important: Set the session active in Clerk so useUser() and other hooks work
-        await setActive({ session: result.createdSessionId });
+        await signIn.prepareFirstFactor({
+          strategy: 'email_code',
+          emailAddressId: factor.emailAddressId,
+        });
 
-        const first = result.userData?.firstName;
-        const last = result.userData?.lastName;
-        const name = [first, last].filter(Boolean).join(' ') || result.userData?.username || 'User';
-        const email = isEmailMode ? identifier : result.userData?.emailAddresses?.[0]?.emailAddress || `${identifier}@rexipay.com`;
-
-        navigation.navigate('LoginBiometricsSetup', {
-          userPayload: {
-            contact: identifier,
-            name,
-            clerkUserId: result.createdUserId,
-            email,
-          },
+        navigation.navigate('OtpVerification', {
+          contact: email,
+          mode: 'signin',
+          verificationMethod: 'email',
         });
       } else {
-        Alert.alert('Login Incomplete', 'Further steps are required to complete login. Please contact support.');
+        const identifier = `${selectedCountry.dialCode}${contact.replace(/^0+/, '')}`;
+        const result = await signIn.create({ identifier, password });
+
+        if (result.status === 'complete') {
+          await setActive({ session: result.createdSessionId });
+
+          const first = result.userData?.firstName;
+          const last = result.userData?.lastName;
+          const name = [first, last].filter(Boolean).join(' ') || result.userData?.username || 'User';
+          const email = result.userData?.emailAddresses?.[0]?.emailAddress || `${identifier}@rexipay.com`;
+
+          navigation.navigate('LoginBiometricsSetup', {
+            userPayload: {
+              contact: identifier,
+              name,
+              clerkUserId: result.createdUserId,
+              email,
+            },
+          });
+        } else {
+          Alert.alert('Login Incomplete', 'Further steps are required to complete login. Please contact support.');
+        }
       }
     } catch (err) {
       console.error(err);
@@ -112,10 +127,12 @@ export default function LoginScreen() {
 
         <Text style={[styles.title, { color: colors.textPrimary }]}>Log in to RexiPay</Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-          Enter your registered phone number or email
+          {isEmailMode
+            ? 'Enter your registered email and we will send a login code to your inbox.'
+            : 'Enter your registered phone number and password to log in.'}
         </Text>
 
-        <Text style={[styles.label, { color: colors.textPrimary }]}>
+        <Text style={[styles.label, { color: colors.textPrimary }]}> 
           {isEmailMode ? 'Email' : 'Phone number'}
         </Text>
         {isEmailMode ? (
@@ -137,7 +154,7 @@ export default function LoginScreen() {
               style={[styles.countryBox, { borderColor: colors.border }]}
               onPress={() => setShowCountryPicker(true)}
             >
-              <Text style={[styles.countryText, { color: colors.textPrimary }]}>
+              <Text style={[styles.countryText, { color: colors.textPrimary }]}> 
                 {selectedCountry.flag} {selectedCountry.dialCode}
               </Text>
             </TouchableOpacity>
@@ -172,8 +189,8 @@ export default function LoginScreen() {
           </View>
         ) : (
           <View style={styles.hintRow}>
-            <Text style={[styles.hintMuted, { color: colors.textSecondary }]}>
-              Tip: use your registered number, or{' '}
+            <Text style={[styles.hintMuted, { color: colors.textSecondary }]}> 
+              Tip: use email to receive a secure login code.
             </Text>
             <TouchableOpacity
               onPress={() => {
@@ -189,41 +206,45 @@ export default function LoginScreen() {
           </View>
         )}
 
-        <Text style={[styles.label, { color: colors.textPrimary }]}>Password</Text>
-        <View style={styles.passwordWrap}>
-          <TextInput
-            style={[styles.input, styles.passwordInput, { color: colors.textPrimary, borderColor: colors.border }]}
-            placeholder="Enter your password"
-            placeholderTextColor={colors.textSecondary}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!showPassword}
-          />
-          <TouchableOpacity
-            style={styles.eyeBtn}
-            onPress={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? (
-              <Eye size={22} color={colors.textSecondary} />
-            ) : (
-              <EyeSlash size={22} color={colors.textSecondary} />
-            )}
-          </TouchableOpacity>
-        </View>
+        {!isEmailMode && (
+          <>
+            <Text style={[styles.label, { color: colors.textPrimary }]}>Password</Text>
+            <View style={styles.passwordWrap}>
+              <TextInput
+                style={[styles.input, styles.passwordInput, { color: colors.textPrimary, borderColor: colors.border }]}
+                placeholder="Enter your password"
+                placeholderTextColor={colors.textSecondary}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+              />
+              <TouchableOpacity
+                style={styles.eyeBtn}
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <Eye size={22} color={colors.textSecondary} />
+                ) : (
+                  <EyeSlash size={22} color={colors.textSecondary} />
+                )}
+              </TouchableOpacity>
+            </View>
 
-        {/* Forgot Password Link */}
-        <TouchableOpacity
-          style={styles.forgotWrap}
-          onPress={() => navigation.navigate('ForgotPasswordPhone')}
-        >
-          <Text style={[styles.forgotText, { color: colors.primary }]}>Forgot password?</Text>
-        </TouchableOpacity>
+            {/* Forgot Password Link */}
+            <TouchableOpacity
+              style={styles.forgotWrap}
+              onPress={() => navigation.navigate('ForgotPasswordPhone')}
+            >
+              <Text style={[styles.forgotText, { color: colors.primary }]}>Forgot password?</Text>
+            </TouchableOpacity>
 
-        <View style={styles.spacer} />
+            <View style={styles.spacer} />
+          </>
+        )}
 
         {/* Submit Button */}
         <PrimaryButton
-          text={loading ? 'Please wait...' : 'Login'}
+          text={loading ? 'Please wait...' : isEmailMode ? 'Send code' : 'Login'}
           onPress={handleLogin}
           style={styles.btn}
           disabled={loading || !canLogin}

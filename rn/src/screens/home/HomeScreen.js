@@ -653,7 +653,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF9800',
     flexDirection: 'column',
     alignItems: 'stretch',
-    minHeight: 120,
+    justifyContent: 'center',
+    minHeight: 100,
   },
   referralSlideInner: {
     flexDirection: 'row',
