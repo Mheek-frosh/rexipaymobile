@@ -21,13 +21,31 @@
       "adaptiveIcon": {
         "backgroundColor": "#2E63F6"
       },
-      "package": "com.rexipay.app"
+      "package": "com.rexipay.app",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "plugins": [
       "@react-native-community/datetimepicker",
       "expo-camera",
       "expo-web-browser",
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "2dac65e9-9b14-4f01-9221-65fa0733fd94"
+      }
+    },
+    "owner": "mikeusidamen",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/2dac65e9-9b14-4f01-9221-65fa0733fd94"
+    }
   }
 }

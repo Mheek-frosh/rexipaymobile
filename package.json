@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "npm run --prefix rn start",
-    "start": "npm run --prefix rn start",
-    "android": "npm run --prefix rn android",
-    "ios": "npm run --prefix rn ios",
+    "dev": "cd rn && npm start",
+    "start": "cd rn && npm start",
+    "android": "cd rn && npm run android",
+    "ios": "cd rn && npm run ios",
     "server": "npm run --prefix server start",
     "server:dev": "npm run --prefix server dev",
-    "share": "npm run --prefix rn share"
+    "share": "cd rn && npm run share"
   },
   "dependencies": {
     "expo": "^55.0.23",
