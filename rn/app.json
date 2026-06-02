@@ -7,8 +7,9 @@
     "userInterfaceStyle": "automatic",
     "icon": "./assets/images/rexilogo.png",
     "splash": {
+      "image": "./assets/images/rx.png",
       "resizeMode": "contain",
-      "backgroundColor": "#2E63F6"
+      "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -20,7 +21,7 @@
     "android": {
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
-        "backgroundColor": "#2E63F6",
+        "backgroundColor": "#ffffff",
         "foregroundImage": "./assets/images/rexilogo.png"
       },
       "package": "com.rexipay.app",
