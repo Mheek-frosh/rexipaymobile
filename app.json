@@ -8,6 +8,17 @@
     },
     "android": {
       "package": "com.rexipay.mobile"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "67c8b23b-6208-4f52-9ed9-34327fdaadd7"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/67c8b23b-6208-4f52-9ed9-34327fdaadd7"
     }
   }
 }

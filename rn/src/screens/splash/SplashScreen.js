@@ -60,8 +60,6 @@ export default function SplashScreen({ onFinish }) {
           ]}
           resizeMode="contain"
         />
-        <Text style={styles.appName}>RexiPay</Text>
-        <Text style={styles.tagline}>Your money, simplified</Text>
       </Animated.View>
     </View>
   );
@@ -73,6 +71,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingBottom: 32,
   },
   content: {
     alignItems: 'center',
@@ -82,15 +81,9 @@ const styles = StyleSheet.create({
     height: width * 0.34,
     marginBottom: 20,
   },
-  appName: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#1B1B1F',
-    letterSpacing: 1,
-  },
-  tagline: {
-    fontSize: 14,
+  copyright: {
+    fontSize: 13,
     color: '#6B7280',
-    marginTop: 8,
+    marginTop: 24,
   },
 });
