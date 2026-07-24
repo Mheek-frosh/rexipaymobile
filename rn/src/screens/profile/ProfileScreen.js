@@ -12,6 +12,7 @@ import * as Clipboard from 'expo-clipboard';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { useAuth as useClerkAuth } from '@clerk/clerk-expo';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../theme/ThemeContext';
 import { LogoutBottomSheet } from '../../components/BottomSheet';
@@ -36,6 +37,7 @@ const MENU_ITEMS = [
 export default function ProfileScreen() {
   const { colors, isDark, toggleTheme } = useTheme();
   const { userName, userPhone, logout } = useAuth();
+  const { signOut } = useClerkAuth();
   const navigation = useNavigation();
   const [showLogoutSheet, setShowLogoutSheet] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
@@ -77,6 +79,16 @@ export default function ProfileScreen() {
       setShowLogoutSheet(true);
     } else if (item.route) {
       navigation.navigate(item.route);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Clerk sign out failed', error);
+    } finally {
+      logout();
     }
   };
 
@@ -202,7 +214,7 @@ export default function ProfileScreen() {
       <LogoutBottomSheet
         visible={showLogoutSheet}
         onClose={() => setShowLogoutSheet(false)}
-        onConfirm={logout}
+        onConfirm={handleLogout}
       />
       <Toast
         visible={toastVisible}

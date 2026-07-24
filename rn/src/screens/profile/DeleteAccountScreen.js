@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useAuth as useClerkAuth } from '@clerk/clerk-expo';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../theme/ThemeContext';
@@ -22,6 +23,7 @@ const DELETE_PHRASE = 'DELETE';
 export default function DeleteAccountScreen() {
   const { colors } = useTheme();
   const { logout } = useAuth();
+  const { signOut } = useClerkAuth();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
@@ -41,9 +43,15 @@ export default function DeleteAccountScreen() {
         {
           text: 'Delete account',
           style: 'destructive',
-          onPress: () => {
+          onPress: async () => {
             // In production: POST /account/delete with reason; then:
-            logout();
+            try {
+              await signOut();
+            } catch (error) {
+              console.error('Clerk sign out failed', error);
+            } finally {
+              logout();
+            }
           },
         },
       ]

@@ -10,6 +10,7 @@ import { ThemeProvider } from './src/theme/ThemeContext';
 import { startNetworkMonitoring } from './src/services/offlineSyncService';
 import RootNavigator from './src/navigation/RootNavigator';
 import SplashScreen from './src/screens/splash/SplashScreen';
+import AppLockGate from './src/components/AppLockGate';
 
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
@@ -67,12 +68,14 @@ export default function App() {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <ThemeProvider>
             <AuthProvider>
-              <NotificationProvider>
-                <NavigationContainer>
-                  <StatusBar style="auto" />
-                  <RootNavigator />
-                </NavigationContainer>
-              </NotificationProvider>
+              <AppLockGate>
+                <NotificationProvider>
+                  <NavigationContainer>
+                    <StatusBar style="auto" />
+                    <RootNavigator />
+                  </NavigationContainer>
+                </NotificationProvider>
+              </AppLockGate>
             </AuthProvider>
           </ThemeProvider>
         </GestureHandlerRootView>
