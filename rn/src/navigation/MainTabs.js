@@ -13,7 +13,7 @@ import ProfileScreen from '../screens/profile/ProfileScreen';
 const Tab = createBottomTabNavigator();
 
 const TabIcon = ({ name, focused, color }) => {
-  const size = focused ? 21 : 24;
+  const size = focused ? 23 : 28;
   const iconColor = focused ? '#FFFFFF' : color;
   let icon = null;
 
@@ -37,14 +37,18 @@ const TabIcon = ({ name, focused, color }) => {
   );
 };
 
-const GlassTabButton = ({ children, style, ...props }) => {
+const GlassTabButton = ({ children, style, isDark, ...props }) => {
   const focused = props['aria-selected'];
 
   return (
     <Pressable {...props} style={[style, styles.tabButton]}>
       <View
         pointerEvents="none"
-        style={[styles.tabButtonContent, focused && styles.focusedTab]}
+        style={[
+          styles.tabButtonContent,
+          focused && styles.focusedTab,
+          focused && isDark && styles.focusedTabDark,
+        ]}
       >
         {children}
       </View>
@@ -60,18 +64,18 @@ export default function MainTabs() {
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarInactiveTintColor: isDark ? '#F5F5F7' : '#111111',
         tabBarStyle: {
           position: 'absolute',
           left: 16,
           right: 16,
           bottom: 12,
-          height: 78,
-          paddingHorizontal: 8,
-          paddingVertical: 8,
+          height: 88,
+          paddingHorizontal: 7,
+          paddingVertical: 7,
           backgroundColor: 'transparent',
           borderTopWidth: 0,
-          borderRadius: 26,
+          borderRadius: 40,
           shadowColor: '#000000',
           shadowOffset: { width: 0, height: 10 },
           shadowOpacity: isDark ? 0.32 : 0.14,
@@ -80,7 +84,7 @@ export default function MainTabs() {
         },
         tabBarBackground: () => (
           <BlurView
-            intensity={70}
+            intensity={60}
             tint={isDark ? 'systemThinMaterialDark' : 'systemThinMaterialLight'}
             experimentalBlurMethod="dimezisBlurView"
             style={[
@@ -88,8 +92,8 @@ export default function MainTabs() {
               styles.glassBackground,
               {
                 backgroundColor: isDark
-                  ? 'rgba(31, 34, 43, 0.72)'
-                  : 'rgba(255, 255, 255, 0.72)',
+                  ? 'rgba(31, 34, 43, 0.78)'
+                  : 'rgba(255, 255, 255, 0.84)',
                 borderColor: isDark
                   ? 'rgba(255, 255, 255, 0.12)'
                   : 'rgba(255, 255, 255, 0.9)',
@@ -97,7 +101,7 @@ export default function MainTabs() {
             ]}
           />
         ),
-        tabBarButton: (props) => <GlassTabButton {...props} />,
+        tabBarButton: (props) => <GlassTabButton {...props} isDark={isDark} />,
         tabBarLabelStyle: styles.tabLabel,
         tabBarIcon: ({ focused, color }) => (
           <TabIcon name={route.name} focused={focused} color={color} />
@@ -114,7 +118,7 @@ export default function MainTabs() {
 
 const styles = StyleSheet.create({
   glassBackground: {
-    borderRadius: 26,
+    borderRadius: 40,
     borderWidth: 1,
     overflow: 'hidden',
   },
@@ -126,28 +130,30 @@ const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
+    borderRadius: 32,
   },
   focusedTab: {
-    backgroundColor: 'rgba(120, 120, 128, 0.16)',
+    backgroundColor: 'rgba(120, 120, 128, 0.18)',
+  },
+  focusedTabDark: {
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
   },
   focusedIcon: {
-    width: 32,
-    height: 32,
+    width: 36,
+    height: 36,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 9,
+    borderRadius: 10,
   },
   inactiveIcon: {
-    height: 32,
+    height: 36,
     alignItems: 'center',
     justifyContent: 'center',
-    opacity: 0.72,
+    opacity: 1,
   },
   tabLabel: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '800',
     marginTop: 1,
   },
 });
-

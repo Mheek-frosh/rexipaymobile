@@ -40,14 +40,20 @@ export default function LoginScreen() {
 
   const canLogin = useMemo(() => {
     if (!contact.trim()) return false;
+    if (password.length < 8) return false;
     if (isEmailMode) return isValidEmail(contact);
-    return password.trim().length >= 8;
+    return true;
   }, [contact, password, isEmailMode]);
 
   const handleLogin = async () => {
     if (!isLoaded) return;
     if (!canLogin) {
-      Alert.alert('Error', isEmailMode ? 'Enter a valid email address.' : 'Please enter your phone number and password');
+      Alert.alert(
+        'Unable to log in',
+        isEmailMode
+          ? 'Enter a valid email address and your passcode.'
+          : 'Enter your phone number and password.',
+      );
       return;
     }
 
@@ -59,49 +65,38 @@ export default function LoginScreen() {
         // ignore
       }
 
-      if (isEmailMode) {
-        const email = contact.trim().toLowerCase();
-        const result = await signIn.create({ identifier: email });
-        const factor = result.supportedFirstFactors?.find((f) => f.strategy === 'email_code');
+      const identifier = isEmailMode
+        ? contact.trim().toLowerCase()
+        : `${selectedCountry.dialCode}${contact.replace(/^0+/, '')}`;
+      const result = await signIn.create({
+        strategy: 'password',
+        identifier,
+        password,
+      });
 
-        if (!factor?.emailAddressId) {
-          Alert.alert('Login Failed', 'Email OTP login is not available for this account.');
-          return;
-        }
+      if (result.status === 'complete') {
+        await setActive({ session: result.createdSessionId });
 
-        await signIn.prepareFirstFactor({
-          strategy: 'email_code',
-          emailAddressId: factor.emailAddressId,
-        });
+        const first = result.userData?.firstName;
+        const last = result.userData?.lastName;
+        const name = [first, last].filter(Boolean).join(' ') || result.userData?.username || 'User';
+        const email =
+          result.userData?.emailAddresses?.[0]?.emailAddress ||
+          (isEmailMode ? identifier : `${identifier}@rexipay.com`);
 
-        navigation.navigate('OtpVerification', {
-          contact: email,
-          mode: 'signin',
-          verificationMethod: 'email',
+        navigation.navigate('LoginBiometricsSetup', {
+          userPayload: {
+            contact: identifier,
+            name,
+            clerkUserId: result.createdUserId,
+            email,
+          },
         });
       } else {
-        const identifier = `${selectedCountry.dialCode}${contact.replace(/^0+/, '')}`;
-        const result = await signIn.create({ identifier, password });
-
-        if (result.status === 'complete') {
-          await setActive({ session: result.createdSessionId });
-
-          const first = result.userData?.firstName;
-          const last = result.userData?.lastName;
-          const name = [first, last].filter(Boolean).join(' ') || result.userData?.username || 'User';
-          const email = result.userData?.emailAddresses?.[0]?.emailAddress || `${identifier}@rexipay.com`;
-
-          navigation.navigate('LoginBiometricsSetup', {
-            userPayload: {
-              contact: identifier,
-              name,
-              clerkUserId: result.createdUserId,
-              email,
-            },
-          });
-        } else {
-          Alert.alert('Login Incomplete', 'Further steps are required to complete login. Please contact support.');
-        }
+        Alert.alert(
+          'Login Incomplete',
+          'Further verification is required for this account. Please contact support.',
+        );
       }
     } catch (err) {
       console.error(err);
@@ -128,7 +123,7 @@ export default function LoginScreen() {
         <Text style={[styles.title, { color: colors.textPrimary }]}>Log in to RexiPay</Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
           {isEmailMode
-            ? 'Enter your registered email and we will send a login code to your inbox.'
+            ? 'Enter your registered email and the passcode you created during sign-up.'
             : 'Enter your registered phone number and password to log in.'}
         </Text>
 
@@ -190,7 +185,7 @@ export default function LoginScreen() {
         ) : (
           <View style={styles.hintRow}>
             <Text style={[styles.hintMuted, { color: colors.textSecondary }]}> 
-              Tip: use email to receive a secure login code.
+              You can also log in securely with your registered email.
             </Text>
             <TouchableOpacity
               onPress={() => {
@@ -206,45 +201,50 @@ export default function LoginScreen() {
           </View>
         )}
 
+        <Text style={[styles.label, { color: colors.textPrimary }]}>
+          {isEmailMode ? 'Passcode' : 'Password'}
+        </Text>
+        <View style={styles.passwordWrap}>
+          <TextInput
+            style={[styles.input, styles.passwordInput, { color: colors.textPrimary, borderColor: colors.border }]}
+            placeholder={isEmailMode ? 'Enter your passcode' : 'Enter your password'}
+            placeholderTextColor={colors.textSecondary}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="current-password"
+            textContentType="password"
+          />
+          <TouchableOpacity
+            style={styles.eyeBtn}
+            onPress={() => setShowPassword(!showPassword)}
+            accessibilityRole="button"
+            accessibilityLabel={showPassword ? 'Hide passcode' : 'Show passcode'}
+          >
+            {showPassword ? (
+              <Eye size={22} color={colors.textSecondary} />
+            ) : (
+              <EyeSlash size={22} color={colors.textSecondary} />
+            )}
+          </TouchableOpacity>
+        </View>
+
         {!isEmailMode && (
-          <>
-            <Text style={[styles.label, { color: colors.textPrimary }]}>Password</Text>
-            <View style={styles.passwordWrap}>
-              <TextInput
-                style={[styles.input, styles.passwordInput, { color: colors.textPrimary, borderColor: colors.border }]}
-                placeholder="Enter your password"
-                placeholderTextColor={colors.textSecondary}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-              />
-              <TouchableOpacity
-                style={styles.eyeBtn}
-                onPress={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <Eye size={22} color={colors.textSecondary} />
-                ) : (
-                  <EyeSlash size={22} color={colors.textSecondary} />
-                )}
-              </TouchableOpacity>
-            </View>
-
-            {/* Forgot Password Link */}
-            <TouchableOpacity
-              style={styles.forgotWrap}
-              onPress={() => navigation.navigate('ForgotPasswordPhone')}
-            >
-              <Text style={[styles.forgotText, { color: colors.primary }]}>Forgot password?</Text>
-            </TouchableOpacity>
-
-            <View style={styles.spacer} />
-          </>
+          <TouchableOpacity
+            style={styles.forgotWrap}
+            onPress={() => navigation.navigate('ForgotPasswordPhone')}
+          >
+            <Text style={[styles.forgotText, { color: colors.primary }]}>Forgot password?</Text>
+          </TouchableOpacity>
         )}
+
+        <View style={styles.spacer} />
 
         {/* Submit Button */}
         <PrimaryButton
-          text={loading ? 'Please wait...' : isEmailMode ? 'Send code' : 'Login'}
+          text={loading ? 'Logging in...' : 'Login'}
           onPress={handleLogin}
           style={styles.btn}
           disabled={loading || !canLogin}
