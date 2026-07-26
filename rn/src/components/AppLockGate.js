@@ -1,4 +1,4 @@
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth as useClerkAuth, useUser } from '@clerk/clerk-expo';
 import * as Haptics from 'expo-haptics';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -13,8 +13,10 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../theme/ThemeContext';
 
@@ -44,6 +46,26 @@ function lockRequiredKey(email) {
   return `rexipay_app_lock_required_${accountStorageSuffix(email)}`;
 }
 
+function FaceIdIcon({ color, size = 34 }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 48 48" fill="none">
+      <Path
+        d="M15 4H10a6 6 0 0 0-6 6v5M33 4h5a6 6 0 0 1 6 6v5M15 44H10a6 6 0 0 1-6-6v-5M33 44h5a6 6 0 0 0 6-6v-5"
+        stroke={color}
+        strokeWidth="3.2"
+        strokeLinecap="round"
+      />
+      <Path
+        d="M16 17v4M32 17v4M24 16v9.5c0 2-1.2 3.2-3.2 3.2M17.5 34c1.8 2 4 3 6.5 3s4.7-1 6.5-3"
+        stroke={color}
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
 function AppLockScreen({
   colors,
   displayName,
@@ -56,6 +78,45 @@ function AppLockScreen({
   onKeyPress,
   onLogout,
 }) {
+  const { width, height } = useWindowDimensions();
+  const compact = height < 720;
+  const medium = height >= 720 && height < 840;
+  const horizontalPadding = width < 360 ? 18 : 24;
+  const pinGap = width < 360 ? 10 : 14;
+  const pinSize = Math.min(
+    compact ? 64 : medium ? 70 : 74,
+    Math.floor((width - horizontalPadding * 2 - pinGap * 3) / 4),
+  );
+  const keyHeight = compact ? 61 : medium ? 72 : 82;
+  const avatarSize = compact ? 52 : medium ? 58 : 62;
+  const responsiveStyles = {
+    screen: { paddingHorizontal: horizontalPadding },
+    header: { marginTop: compact ? 10 : medium ? 18 : 25 },
+    avatar: {
+      width: avatarSize,
+      height: avatarSize,
+      borderRadius: avatarSize / 2,
+      marginBottom: compact ? 24 : medium ? 34 : 48,
+    },
+    avatarInitial: { fontSize: compact ? 20 : 23 },
+    welcome: {
+      fontSize: compact ? 25 : medium ? 28 : 30,
+      lineHeight: compact ? 31 : medium ? 34 : 36,
+    },
+    instruction: {
+      fontSize: compact ? 17 : medium ? 18 : 20,
+      lineHeight: compact ? 22 : medium ? 24 : 27,
+    },
+    pinArea: { marginTop: compact ? 25 : medium ? 36 : 49 },
+    pinRow: { gap: pinGap },
+    pinBox: { width: pinSize, height: pinSize },
+    key: { height: keyHeight },
+    logoutRow: {
+      marginTop: compact ? 7 : 14,
+      paddingBottom: compact ? 7 : 16,
+    },
+    logoutText: { fontSize: compact ? 16 : 18 },
+  };
   const nameParts = String(displayName || email || 'User')
     .trim()
     .split(/\s+/)
@@ -68,22 +129,48 @@ function AppLockScreen({
   const firstName = nameParts[0] || 'there';
 
   return (
-    <SafeAreaView style={[styles.lockScreen, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
+    <SafeAreaView
+      style={[
+        styles.lockScreen,
+        responsiveStyles.screen,
+        { backgroundColor: colors.background },
+      ]}
+    >
+      <View style={[styles.header, responsiveStyles.header]}>
         <View
           style={[
             styles.avatar,
+            responsiveStyles.avatar,
             {
               backgroundColor: colors.surfaceVariant,
             },
           ]}
         >
-          <Text style={[styles.avatarInitial, { color: colors.textPrimary }]}>{initials}</Text>
+          <Text
+            style={[
+              styles.avatarInitial,
+              responsiveStyles.avatarInitial,
+              { color: colors.textPrimary },
+            ]}
+          >
+            {initials}
+          </Text>
         </View>
-        <Text style={[styles.welcome, { color: colors.textPrimary }]} numberOfLines={1}>
+        <Text
+          style={[styles.welcome, responsiveStyles.welcome, { color: colors.textPrimary }]}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.78}
+        >
           Welcome Back {firstName}
         </Text>
-        <Text style={[styles.instruction, { color: colors.textSecondary }]}>
+        <Text
+          style={[
+            styles.instruction,
+            responsiveStyles.instruction,
+            { color: colors.textSecondary },
+          ]}
+        >
           Enter your 4-Digit PIN
         </Text>
       </View>
@@ -91,17 +178,19 @@ function AppLockScreen({
       <Animated.View
         style={[
           styles.pinArea,
+          responsiveStyles.pinArea,
           {
             transform: [{ translateX: shakeValue }],
           },
         ]}
       >
-        <View style={styles.pinRow}>
+        <View style={[styles.pinRow, responsiveStyles.pinRow]}>
           {[0, 1, 2, 3].map((index) => (
             <View
               key={index}
               style={[
                 styles.pinBox,
+                responsiveStyles.pinBox,
                 {
                   borderColor: error ? colors.error : colors.border,
                   backgroundColor: colors.background,
@@ -140,6 +229,7 @@ function AppLockScreen({
               key={key}
               style={[
                 styles.key,
+                responsiveStyles.key,
                 disabled && styles.keyDisabled,
               ]}
               activeOpacity={0.65}
@@ -155,11 +245,7 @@ function AppLockScreen({
               }
             >
               {isBiometric ? (
-                <MaterialCommunityIcons
-                  name="face-recognition"
-                  size={31}
-                  color={colors.textPrimary}
-                />
+                <FaceIdIcon color={colors.textPrimary} size={compact ? 31 : 34} />
               ) : isBackspace ? (
                 <MaterialIcons name="chevron-left" size={37} color={colors.error} />
               ) : (
@@ -170,8 +256,14 @@ function AppLockScreen({
         })}
       </View>
 
-      <View style={styles.logoutRow}>
-        <Text style={[styles.logoutPrompt, { color: colors.textPrimary }]}>
+      <View style={[styles.logoutRow, responsiveStyles.logoutRow]}>
+        <Text
+          style={[
+            styles.logoutPrompt,
+            responsiveStyles.logoutText,
+            { color: colors.textPrimary },
+          ]}
+        >
           Not your account?
         </Text>
         <TouchableOpacity
@@ -180,7 +272,15 @@ function AppLockScreen({
           accessibilityRole="button"
           accessibilityLabel="Log out"
         >
-          <Text style={[styles.logoutLink, { color: colors.textPrimary }]}>Log out</Text>
+          <Text
+            style={[
+              styles.logoutLink,
+              responsiveStyles.logoutText,
+              { color: colors.textPrimary },
+            ]}
+          >
+            Log out
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -537,9 +637,6 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   pinBox: {
-    flex: 1,
-    maxWidth: 74,
-    aspectRatio: 1,
     borderRadius: 9,
     borderWidth: 1,
     alignItems: 'center',
