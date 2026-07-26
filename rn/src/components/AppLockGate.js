@@ -1,5 +1,5 @@
-import { MaterialIcons } from '@expo/vector-icons';
-import { useUser } from '@clerk/clerk-expo';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { useAuth as useClerkAuth, useUser } from '@clerk/clerk-expo';
 import * as Haptics from 'expo-haptics';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as SecureStore from 'expo-secure-store';
@@ -9,7 +9,6 @@ import {
   ActivityIndicator,
   Animated,
   AppState,
-  Image,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -49,47 +48,43 @@ function AppLockScreen({
   colors,
   displayName,
   email,
-  imageUrl,
   pin,
   error,
   biometricAvailable,
   verifying,
   shakeValue,
   onKeyPress,
+  onLogout,
 }) {
-  const initial = String(displayName || email || 'U').trim().charAt(0).toUpperCase();
+  const nameParts = String(displayName || email || 'User')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  const initials = nameParts
+    .slice(0, 2)
+    .map((part) => part.charAt(0))
+    .join('')
+    .toUpperCase();
+  const firstName = nameParts[0] || 'there';
 
   return (
     <SafeAreaView style={[styles.lockScreen, { backgroundColor: colors.background }]}>
-      <View style={styles.topBar}>
-        <View style={[styles.brandMark, { backgroundColor: colors.primary }]}>
-          <Text style={styles.brandMarkText}>R</Text>
-        </View>
-        <Text style={[styles.brandName, { color: colors.textPrimary }]}>RexiPay</Text>
-      </View>
-
-      <View style={styles.identitySection}>
+      <View style={styles.header}>
         <View
           style={[
             styles.avatar,
             {
-              backgroundColor: colors.primaryLight,
-              borderColor: colors.cardBackground,
+              backgroundColor: colors.surfaceVariant,
             },
           ]}
         >
-          {imageUrl ? (
-            <Image source={{ uri: imageUrl }} style={styles.avatarImage} />
-          ) : (
-            <Text style={[styles.avatarInitial, { color: colors.primary }]}>{initial}</Text>
-          )}
+          <Text style={[styles.avatarInitial, { color: colors.textPrimary }]}>{initials}</Text>
         </View>
-        <Text style={[styles.welcome, { color: colors.textSecondary }]}>Welcome back</Text>
-        <Text style={[styles.userName, { color: colors.textPrimary }]} numberOfLines={1}>
-          {displayName}
+        <Text style={[styles.welcome, { color: colors.textPrimary }]} numberOfLines={1}>
+          Welcome Back {firstName}
         </Text>
         <Text style={[styles.instruction, { color: colors.textSecondary }]}>
-          Enter your 4-digit passcode to continue
+          Enter your 4-Digit PIN
         </Text>
       </View>
 
@@ -106,19 +101,21 @@ function AppLockScreen({
             <View
               key={index}
               style={[
-                styles.pinCircle,
+                styles.pinBox,
                 {
                   borderColor: error ? colors.error : colors.border,
-                  backgroundColor:
-                    index < pin.length
-                      ? error
-                        ? colors.error
-                        : colors.primary
-                      : colors.cardBackground,
+                  backgroundColor: colors.background,
                 },
               ]}
             >
-              {index < pin.length ? <View style={styles.pinDot} /> : null}
+              {index < pin.length ? (
+                <View
+                  style={[
+                    styles.pinDot,
+                    { backgroundColor: error ? colors.error : colors.textPrimary },
+                  ]}
+                />
+              ) : null}
             </View>
           ))}
         </View>
@@ -143,13 +140,6 @@ function AppLockScreen({
               key={key}
               style={[
                 styles.key,
-                {
-                  backgroundColor:
-                    isBiometric || isBackspace
-                      ? 'transparent'
-                      : colors.cardBackground,
-                  borderColor: colors.border,
-                },
                 disabled && styles.keyDisabled,
               ]}
               activeOpacity={0.65}
@@ -165,9 +155,13 @@ function AppLockScreen({
               }
             >
               {isBiometric ? (
-                <MaterialIcons name="fingerprint" size={32} color={colors.primary} />
+                <MaterialCommunityIcons
+                  name="face-recognition"
+                  size={31}
+                  color={colors.textPrimary}
+                />
               ) : isBackspace ? (
-                <MaterialIcons name="backspace" size={25} color={colors.textPrimary} />
+                <MaterialIcons name="chevron-left" size={37} color={colors.error} />
               ) : (
                 <Text style={[styles.keyText, { color: colors.textPrimary }]}>{key}</Text>
               )}
@@ -176,11 +170,18 @@ function AppLockScreen({
         })}
       </View>
 
-      <View style={styles.securityNote}>
-        <MaterialIcons name="lock-outline" size={15} color={colors.textSecondary} />
-        <Text style={[styles.securityText, { color: colors.textSecondary }]}>
-          Your session is securely locked
+      <View style={styles.logoutRow}>
+        <Text style={[styles.logoutPrompt, { color: colors.textPrimary }]}>
+          Not your account?
         </Text>
+        <TouchableOpacity
+          onPress={onLogout}
+          activeOpacity={0.65}
+          accessibilityRole="button"
+          accessibilityLabel="Log out"
+        >
+          <Text style={[styles.logoutLink, { color: colors.textPrimary }]}>Log out</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -194,12 +195,14 @@ export default function AppLockGate({ children }) {
     userPhone,
     userEmail,
     login,
+    logout,
   } = useAuth();
   const {
     isLoaded: isClerkLoaded,
     isSignedIn,
     user: clerkUser,
   } = useUser();
+  const { signOut } = useClerkAuth();
 
   const [sessionChecked, setSessionChecked] = useState(false);
   const [lockConfigurationReady, setLockConfigurationReady] = useState(false);
@@ -429,6 +432,22 @@ export default function AppLockGate({ children }) {
     [handleBiometricUnlock, pin, verifying, verifyPasscode],
   );
 
+  const handleLogout = useCallback(async () => {
+    setPin('');
+    setError('');
+    setLocked(false);
+    try {
+      if (email) {
+        await SecureStore.setItemAsync(lockRequiredKey(email), 'false');
+      }
+      await signOut();
+    } catch (logoutError) {
+      console.error('Could not sign out from the lock screen', logoutError);
+    } finally {
+      logout();
+    }
+  }, [email, logout, signOut]);
+
   const gateLoading = !sessionChecked || (isAuthenticated && !lockConfigurationReady);
   const contentStyle = useMemo(
     () => [styles.content, { backgroundColor: colors.background }],
@@ -451,13 +470,13 @@ export default function AppLockGate({ children }) {
           colors={colors}
           displayName={displayName}
           email={email}
-          imageUrl={clerkUser?.imageUrl}
           pin={pin}
           error={error}
           biometricAvailable={biometricAvailable}
           verifying={verifying}
           shakeValue={shakeValue}
           onKeyPress={handleKeyPress}
+          onLogout={handleLogout}
         />
       ) : null}
     </View>
@@ -477,144 +496,104 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     zIndex: 1000,
     elevation: 1000,
-    paddingHorizontal: 28,
+    paddingHorizontal: 24,
   },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 12,
-  },
-  brandMark: {
-    width: 30,
-    height: 30,
-    borderRadius: 9,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 8,
-  },
-  brandMarkText: {
-    color: '#FFFFFF',
-    fontSize: 17,
-    fontWeight: '900',
-  },
-  brandName: {
-    fontSize: 19,
-    fontWeight: '800',
-    letterSpacing: -0.3,
-  },
-  identitySection: {
-    alignItems: 'center',
-    marginTop: 38,
+  header: {
+    alignItems: 'flex-start',
+    marginTop: 25,
   },
   avatar: {
-    width: 78,
-    height: 78,
-    borderRadius: 39,
+    width: 62,
+    height: 62,
+    borderRadius: 31,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 4,
     overflow: 'hidden',
-    marginBottom: 18,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
-  },
-  avatarImage: {
-    width: '100%',
-    height: '100%',
+    marginBottom: 48,
   },
   avatarInitial: {
-    fontSize: 30,
-    fontWeight: '800',
+    fontSize: 23,
+    fontWeight: '400',
   },
   welcome: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 5,
-  },
-  userName: {
-    maxWidth: '92%',
-    fontSize: 27,
-    lineHeight: 34,
+    maxWidth: '100%',
+    fontSize: 30,
+    lineHeight: 36,
     fontWeight: '800',
-    letterSpacing: -0.6,
-    textAlign: 'center',
+    letterSpacing: -0.8,
   },
   instruction: {
-    fontSize: 14,
-    lineHeight: 20,
-    textAlign: 'center',
-    marginTop: 8,
+    fontSize: 20,
+    lineHeight: 27,
+    marginTop: 5,
   },
   pinArea: {
-    alignItems: 'center',
-    marginTop: 30,
+    alignItems: 'flex-start',
+    marginTop: 49,
   },
   pinRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 16,
-  },
-  pinCircle: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pinDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#FFFFFF',
-  },
-  errorText: {
-    height: 18,
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 12,
-    textAlign: 'center',
-  },
-  keypad: {
     width: '100%',
-    maxWidth: 330,
-    alignSelf: 'center',
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    columnGap: 24,
-    rowGap: 13,
-    marginTop: 8,
+    gap: 14,
   },
-  key: {
-    width: 72,
-    height: 60,
-    borderRadius: 20,
+  pinBox: {
+    flex: 1,
+    maxWidth: 74,
+    aspectRatio: 1,
+    borderRadius: 9,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  pinDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  errorText: {
+    width: '100%',
+    height: 17,
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 7,
+    textAlign: 'left',
+  },
+  keypad: {
+    width: '100%',
+    alignSelf: 'center',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 'auto',
+  },
+  key: {
+    width: '27%',
+    height: 84,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   keyText: {
-    fontSize: 24,
+    fontSize: 25,
     fontWeight: '700',
   },
   keyDisabled: {
     opacity: 0.3,
   },
-  securityNote: {
+  logoutRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 24,
-    paddingBottom: 12,
+    gap: 8,
+    marginTop: 14,
+    paddingBottom: 16,
   },
-  securityText: {
-    fontSize: 12,
-    fontWeight: '500',
-    marginLeft: 5,
+  logoutPrompt: {
+    fontSize: 18,
+    fontWeight: '400',
+  },
+  logoutLink: {
+    fontSize: 18,
+    fontWeight: '700',
+    textDecorationLine: 'underline',
   },
 });
