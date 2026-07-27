@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -26,17 +26,18 @@ export default function TransactionDetailScreen() {
   const [generating, setGenerating] = useState(false);
   const [genType, setGenType] = useState('');
 
-  const tx = transaction || {
-    id: '1',
-    name: 'Divine Chiamaka',
-    amount: '25,000',
-    type: 'sent',
-    date: 'Today',
-    time: '2:30 PM',
-    ref: 'REF' + Date.now(),
-    status: 'Completed',
-    bank: 'GTBank',
-    account: '0123456789',
+  const txParam = transaction || {};
+  const tx = {
+    id: txParam.id || '2',
+    name: txParam.name || 'John Doe',
+    amount: txParam.amount || '50,000.00',
+    type: txParam.type || 'received',
+    date: txParam.date || (txParam.dateTime ? txParam.dateTime.split(' | ')[0] : 'Yesterday'),
+    time: txParam.time || (txParam.dateTime ? txParam.dateTime.split(' | ')[1] : '10:15 AM'),
+    ref: txParam.ref || txParam.txRef || 'RXP982341823',
+    status: txParam.status || txParam.statusDisplay || 'Completed',
+    bank: txParam.bank || 'Access Bank',
+    account: txParam.account || '0987654321',
   };
 
   const handleSavePNG = async () => {
