@@ -90,7 +90,7 @@ function AppLockScreen({
     cardBackground: '#FFFFFF',
   };
 
-  const horizontalPadding = 24;
+  const horizontalPadding = 40;
   const pinGap = 12;
   const pinSize = 60;
   const pinHeight = 65;
@@ -583,6 +583,7 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'flex-start',
     marginTop: 32,
+    marginLeft: 12,
   },
   avatar: {
     width: 52,
@@ -613,6 +614,7 @@ const styles = StyleSheet.create({
   pinArea: {
     alignItems: 'flex-start',
     marginTop: 40,
+    marginLeft: 12,
   },
   pinRow: {
     flexDirection: 'row',
@@ -643,7 +645,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     marginTop: 'auto',
-    paddingHorizontal: 20,
   },
   key: {
     width: '30%',
