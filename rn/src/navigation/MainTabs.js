@@ -39,7 +39,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
             }
           };
 
-          const activeColor = '#007AFF'; // Perfect iOS blue matching the design
+          const activeColor = '#2E63F6'; // Matching app primary blue
           const inactiveColor = isDark ? '#D1D5DB' : '#111827';
           const color = isFocused ? activeColor : inactiveColor;
           const activeBgColor = isDark ? themeColors.surfaceVariant : '#E5E7EB';

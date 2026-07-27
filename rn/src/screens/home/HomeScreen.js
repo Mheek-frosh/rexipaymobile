@@ -40,9 +40,54 @@ export default function HomeScreen() {
   const [balanceHidden, setBalanceHidden] = useState(false);
 
   const firstName = (userName || 'User').split(' ')[0];
+  const nameParts = String(userName || 'User')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  const initials = nameParts
+    .slice(0, 2)
+    .map((part) => part.charAt(0))
+    .join('')
+    .toUpperCase() || 'MU';
+
   const currentAccount = CURRENCY_ACCOUNTS.find((a) => a.id === selectedAccount) || CURRENCY_ACCOUNTS[0];
 
   const unreadNotificationCount = notifications.filter((n) => !n.read).length;
+
+  const handleQuickService = (item) => {
+    if (item.route) {
+      navigation.navigate(item.route);
+      return;
+    }
+    navigation.navigate('AllServices');
+  };
+
+  const mockTransactions = [
+    {
+      id: '1',
+      name: 'Received from John Doe',
+      type: 'deposit',
+      amountDisplay: '+ ₦50,000.00',
+      date: 'Today, 8:45 AM',
+      timestamp: 'Today, 8:45 AM',
+      statusDisplay: 'Success',
+      status: 'completed',
+      category: 'Transfer',
+      txRef: 'TX-982341823',
+    },
+    {
+      id: '2',
+      name: 'Paid Electricity Bill',
+      type: 'electricity',
+      amountDisplay: '- ₦15,000.00',
+      date: 'Yesterday, 2:15 PM',
+      timestamp: 'Yesterday, 2:15 PM',
+      statusDisplay: 'Success',
+      status: 'completed',
+      category: 'Bills',
+      txRef: 'TX-773192041',
+    },
+  ];
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -58,18 +103,15 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <TouchableOpacity onPress={() => navigation.navigate('AccountDetails')}>
-              <View style={styles.avatarContainer}>
-                {/* Simulated avatar image */}
-                <Image
-                  source={{ uri: 'https://i.pravatar.cc/150?u=' + firstName }}
-                  style={styles.avatarImage}
-                />
+              <View style={[styles.avatarContainer, { backgroundColor: isDark ? '#2C2F3A' : '#E5E7EB' }]}>
+                <Text style={[styles.avatarInitial, { color: colors.textPrimary }]}>{initials}</Text>
               </View>
             </TouchableOpacity>
             <View style={styles.greetingContainer}>
               <Text style={[styles.greetingText, { color: colors.textSecondary }]}>Good morning,</Text>
               <View style={styles.nameRow}>
                 <Text style={[styles.nameText, { color: colors.textPrimary }]}>{firstName}</Text>
+                <Text style={styles.waveEmoji}>👋</Text>
               </View>
             </View>
           </View>
@@ -93,7 +135,7 @@ export default function HomeScreen() {
         >
           {/* Overlay to ensure text is legible */}
           <View style={styles.cardOverlay}>
-            {/* Top row: currency selector + menu */}
+            {/* Top row: currency selector */}
             <View style={styles.cardTopRow}>
               <TouchableOpacity
                 style={styles.currencySelector}
@@ -102,9 +144,6 @@ export default function HomeScreen() {
                 <Text style={styles.flagText}>{currentAccount.flag}</Text>
                 <Text style={styles.currencyText}>{currentAccount.code} Wallet</Text>
                 <MaterialIcons name="keyboard-arrow-down" size={16} color="#FFF" />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <MaterialIcons name="more-vert" size={20} color="rgba(255,255,255,0.85)" />
               </TouchableOpacity>
             </View>
 
@@ -153,7 +192,7 @@ export default function HomeScreen() {
         {/* QUICK ACTIONS ROW */}
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Quick Actions</Text>
-          <TouchableOpacity style={styles.editBtn}>
+          <TouchableOpacity style={styles.editBtn} onPress={() => navigation.navigate('AllServices')}>
             <Text style={styles.editText}>Edit</Text>
             <MaterialIcons name="edit" size={14} color="#2E63F6" />
           </TouchableOpacity>
@@ -178,7 +217,7 @@ export default function HomeScreen() {
             </View>
             <Text style={[styles.actionBtnText, { color: colors.textPrimary }]}>Convert</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn}>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('AllServices')}>
             <View style={[styles.actionIconBox, { backgroundColor: isDark ? '#8B5CF633' : '#F5F3FF' }]}>
               <MaterialIcons name="qr-code-scanner" size={24} color="#8B5CF6" />
             </View>
@@ -189,7 +228,7 @@ export default function HomeScreen() {
         {/* PAY & SERVICES */}
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Pay & Services</Text>
-          <TouchableOpacity style={styles.seeAllBtn}>
+          <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('AllServices')}>
             <Text style={styles.seeAllText}>See all</Text>
             <MaterialIcons name="chevron-right" size={18} color="#2E63F6" />
           </TouchableOpacity>
@@ -197,7 +236,7 @@ export default function HomeScreen() {
 
         <View style={styles.servicesGrid}>
           {HOME_QUICK_SERVICES.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.serviceItem}>
+            <TouchableOpacity key={index} style={styles.serviceItem} onPress={() => handleQuickService(item)}>
               <View style={[styles.serviceCard, { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' }]}>
                 <MaterialIcons name={item.icon} size={28} color={item.color} />
                 <Text style={[styles.serviceText, { color: colors.textPrimary }]} numberOfLines={1}>{item.label}</Text>
@@ -209,46 +248,35 @@ export default function HomeScreen() {
         {/* RECENT TRANSACTIONS */}
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Recent Transactions</Text>
-          <TouchableOpacity style={styles.seeAllBtn}>
+          <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('Transactions')}>
             <Text style={styles.seeAllText}>See all</Text>
             <MaterialIcons name="chevron-right" size={18} color="#2E63F6" />
           </TouchableOpacity>
         </View>
 
         <View style={styles.transactionsList}>
-          {/* Mock Tx 1 */}
-          <View style={styles.txItem}>
-            <View style={[styles.txIconBox, { backgroundColor: isDark ? '#2E63F633' : '#EEF2FF' }]}>
-              <MaterialIcons name="arrow-downward" size={24} color="#2E63F6" />
-            </View>
-            <View style={styles.txDetails}>
-              <Text style={[styles.txTitle, { color: colors.textPrimary }]}>Received from John Doe</Text>
-              <Text style={[styles.txTime, { color: colors.textSecondary }]}>Today, 8:45 AM</Text>
-            </View>
-            <View style={styles.txAmountCol}>
-              <Text style={[styles.txAmount, { color: '#10B981' }]}>+ ₦50,000.00</Text>
-              <View style={[styles.txStatusPill, { backgroundColor: isDark ? '#10B98133' : '#ECFDF5' }]}>
-                <Text style={styles.txStatusText}>Successful</Text>
+          {mockTransactions.map((tx) => (
+            <TouchableOpacity
+              key={tx.id}
+              style={styles.txItem}
+              onPress={() => navigation.navigate('TransactionDetail', { transaction: tx })}
+              activeOpacity={0.75}
+            >
+              <View style={[styles.txIconBox, { backgroundColor: tx.type === 'deposit' ? (isDark ? '#2E63F633' : '#EEF2FF') : (isDark ? '#F59E0B33' : '#FFF7ED') }]}>
+                <MaterialIcons name={tx.type === 'deposit' ? "arrow-downward" : "flash-on"} size={24} color={tx.type === 'deposit' ? "#2E63F6" : "#F59E0B"} />
               </View>
-            </View>
-          </View>
-
-          {/* Mock Tx 2 */}
-          <View style={styles.txItem}>
-            <View style={[styles.txIconBox, { backgroundColor: isDark ? '#F59E0B33' : '#FFF7ED' }]}>
-              <MaterialIcons name="flash-on" size={24} color="#F59E0B" />
-            </View>
-            <View style={styles.txDetails}>
-              <Text style={[styles.txTitle, { color: colors.textPrimary }]}>Paid Electricity Bill</Text>
-              <Text style={[styles.txTime, { color: colors.textSecondary }]}>Yesterday, 2:15 PM</Text>
-            </View>
-            <View style={styles.txAmountCol}>
-              <Text style={[styles.txAmount, { color: colors.textPrimary }]}>- ₦15,000.00</Text>
-              <View style={[styles.txStatusPill, { backgroundColor: isDark ? '#10B98133' : '#ECFDF5' }]}>
-                <Text style={styles.txStatusText}>Successful</Text>
+              <View style={styles.txDetails}>
+                <Text style={[styles.txTitle, { color: colors.textPrimary }]}>{tx.name}</Text>
+                <Text style={[styles.txTime, { color: colors.textSecondary }]}>{tx.date}</Text>
               </View>
-            </View>
-          </View>
+              <View style={styles.txAmountCol}>
+                <Text style={[styles.txAmount, { color: tx.type === 'deposit' ? '#10B981' : colors.textPrimary }]}>{tx.amountDisplay}</Text>
+                <View style={[styles.txStatusPill, { backgroundColor: isDark ? '#10B98133' : '#ECFDF5' }]}>
+                  <Text style={styles.txStatusText}>Successful</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
         </View>
 
       </ScrollView>
@@ -282,13 +310,13 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#DDD',
-    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 12,
   },
-  avatarImage: {
-    width: '100%',
-    height: '100%',
+  avatarInitial: {
+    fontSize: 18,
+    fontWeight: '700',
   },
   greetingContainer: {
     justifyContent: 'center',
