@@ -37,7 +37,40 @@ export default function HomeScreen() {
 
   const [selectedAccount, setSelectedAccount] = useState('ngn');
   const [showAccountSheet, setShowAccountSheet] = useState(false);
+  const [isEditingQuickActions, setIsEditingQuickActions] = useState(false);
+  const [selectedQuickActionIndex, setSelectedQuickActionIndex] = useState(null);
   const [balanceHidden, setBalanceHidden] = useState(false);
+
+  const [quickActions, setQuickActions] = useState([
+    { id: 'send', label: 'Send', icon: 'arrow-upward', color: '#2E63F6', bg: '#EEF2FF', route: 'Transfer' },
+    { id: 'receive', label: 'Receive', icon: 'arrow-downward', color: '#10B981', bg: '#ECFDF5', route: 'BankReceive' },
+    { id: 'convert', label: 'Convert', icon: 'currency-exchange', color: '#F59E0B', bg: '#FFF7ED', route: 'BankConvert' },
+    { id: 'scan', label: 'Scan', icon: 'qr-code-scanner', color: '#8B5CF6', bg: '#F5F3FF', route: 'AllServices' },
+  ]);
+
+  const swapQuickActions = (index1, index2) => {
+    if (index1 < 0 || index2 < 0 || index1 >= quickActions.length || index2 >= quickActions.length) return;
+    const updated = [...quickActions];
+    const temp = updated[index1];
+    updated[index1] = updated[index2];
+    updated[index2] = temp;
+    setQuickActions(updated);
+    setSelectedQuickActionIndex(null);
+  };
+
+  const handleQuickActionPress = (action, index) => {
+    if (isEditingQuickActions) {
+      if (selectedQuickActionIndex === null) {
+        setSelectedQuickActionIndex(index);
+      } else if (selectedQuickActionIndex === index) {
+        setSelectedQuickActionIndex(null);
+      } else {
+        swapQuickActions(selectedQuickActionIndex, index);
+      }
+    } else {
+      navigation.navigate(action.route || 'AllServices');
+    }
+  };
 
   const firstName = (userName || 'User').split(' ')[0];
   const nameParts = String(userName || 'User')
@@ -192,37 +225,87 @@ export default function HomeScreen() {
         {/* QUICK ACTIONS ROW */}
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Quick Actions</Text>
-          <TouchableOpacity style={styles.editBtn} onPress={() => navigation.navigate('AllServices')}>
-            <Text style={styles.editText}>Edit</Text>
-            <MaterialIcons name="edit" size={14} color="#2E63F6" />
+          <TouchableOpacity
+            style={[
+              styles.editBtn,
+              isEditingQuickActions && { backgroundColor: '#2E63F6', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+            ]}
+            onPress={() => {
+              setIsEditingQuickActions(!isEditingQuickActions);
+              setSelectedQuickActionIndex(null);
+            }}
+          >
+            <Text style={[styles.editText, isEditingQuickActions && { color: '#FFF' }]}>
+              {isEditingQuickActions ? 'Done' : 'Edit'}
+            </Text>
+            <MaterialIcons
+              name={isEditingQuickActions ? 'check' : 'edit'}
+              size={14}
+              color={isEditingQuickActions ? '#FFF' : '#2E63F6'}
+            />
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.quickActionsRow, { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' }]}>
-          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('Transfer')}>
-            <View style={[styles.actionIconBox, { backgroundColor: isDark ? '#2E63F633' : '#EEF2FF' }]}>
-              <MaterialIcons name="arrow-upward" size={24} color="#2E63F6" />
-            </View>
-            <Text style={[styles.actionBtnText, { color: colors.textPrimary }]}>Send</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('BankReceive')}>
-            <View style={[styles.actionIconBox, { backgroundColor: isDark ? '#10B98133' : '#ECFDF5' }]}>
-              <MaterialIcons name="arrow-downward" size={24} color="#10B981" />
-            </View>
-            <Text style={[styles.actionBtnText, { color: colors.textPrimary }]}>Receive</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('BankConvert')}>
-            <View style={[styles.actionIconBox, { backgroundColor: isDark ? '#F59E0B33' : '#FFF7ED' }]}>
-              <MaterialIcons name="currency-exchange" size={24} color="#F59E0B" />
-            </View>
-            <Text style={[styles.actionBtnText, { color: colors.textPrimary }]}>Convert</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('AllServices')}>
-            <View style={[styles.actionIconBox, { backgroundColor: isDark ? '#8B5CF633' : '#F5F3FF' }]}>
-              <MaterialIcons name="qr-code-scanner" size={24} color="#8B5CF6" />
-            </View>
-            <Text style={[styles.actionBtnText, { color: colors.textPrimary }]}>Scan</Text>
-          </TouchableOpacity>
+        {isEditingQuickActions && (
+          <View style={styles.reorderHintBar}>
+            <MaterialIcons name="swap-horiz" size={16} color="#2E63F6" />
+            <Text style={[styles.reorderHintText, { color: colors.textSecondary }]}>
+              {selectedQuickActionIndex !== null
+                ? 'Tap another icon to swap position'
+                : 'Tap to select & swap, or use ‹ › arrows'}
+            </Text>
+          </View>
+        )}
+
+        <View
+          style={[
+            styles.quickActionsRow,
+            { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' },
+            isEditingQuickActions && { borderWidth: 1.5, borderColor: '#2E63F666' },
+          ]}
+        >
+          {quickActions.map((action, index) => {
+            const isSelected = selectedQuickActionIndex === index;
+            return (
+              <View key={action.id} style={styles.actionBtnContainer}>
+                {isEditingQuickActions && (
+                  <View style={styles.inlineArrowRow}>
+                    <TouchableOpacity
+                      disabled={index === 0}
+                      onPress={() => swapQuickActions(index, index - 1)}
+                      style={[styles.miniArrowBtn, index === 0 && { opacity: 0.2 }]}
+                    >
+                      <MaterialIcons name="chevron-left" size={18} color="#2E63F6" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      disabled={index === quickActions.length - 1}
+                      onPress={() => swapQuickActions(index, index + 1)}
+                      style={[styles.miniArrowBtn, index === quickActions.length - 1 && { opacity: 0.2 }]}
+                    >
+                      <MaterialIcons name="chevron-right" size={18} color="#2E63F6" />
+                    </TouchableOpacity>
+                  </View>
+                )}
+
+                <TouchableOpacity
+                  style={styles.actionBtn}
+                  onPress={() => handleQuickActionPress(action, index)}
+                  activeOpacity={0.8}
+                >
+                  <View
+                    style={[
+                      styles.actionIconBox,
+                      { backgroundColor: isDark ? `${action.color}33` : action.bg },
+                      isSelected && { borderWidth: 2.5, borderColor: '#2E63F6' },
+                    ]}
+                  >
+                    <MaterialIcons name={action.icon} size={24} color={action.color} />
+                  </View>
+                  <Text style={[styles.actionBtnText, { color: colors.textPrimary }]}>{action.label}</Text>
+                </TouchableOpacity>
+              </View>
+            );
+          })}
         </View>
 
         {/* PAY & SERVICES */}
@@ -476,7 +559,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 32,
-    padding: 20,
+    padding: 16,
     borderRadius: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -484,9 +567,36 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 2,
   },
+  reorderHintBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginBottom: 8,
+  },
+  reorderHintText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  actionBtnContainer: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  inlineArrowRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 6,
+    gap: 4,
+  },
+  miniArrowBtn: {
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 8,
+    backgroundColor: 'rgba(46, 99, 246, 0.12)',
+  },
   actionBtn: {
     alignItems: 'center',
-    flex: 1,
   },
   actionIconBox: {
     width: 56,
@@ -507,24 +617,24 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   serviceItem: {
-    width: '23%', // approx 4 per row
+    width: '23.5%', // slightly wider for better proportions
     marginBottom: 12,
   },
   serviceCard: {
     alignItems: 'center',
-    paddingVertical: 18,
+    paddingVertical: 12, // reduced height as requested
     paddingHorizontal: 4,
-    borderRadius: 20,
+    borderRadius: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
     elevation: 2,
   },
   serviceText: {
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: '600',
-    marginTop: 10,
+    marginTop: 6,
     textAlign: 'center',
   },
   transactionsList: {
