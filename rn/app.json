@@ -16,7 +16,10 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.rexipay.app"
+      "bundleIdentifier": "com.rexipay.app",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Allow RexiPay to use Face ID to securely unlock your app."
+      }
     },
     "android": {
       "softwareKeyboardLayoutMode": "resize",
