@@ -197,7 +197,7 @@ function AppLockScreen({
         {KEYPAD_KEYS.map((key) => {
           const isBiometric = key === 'biometric';
           const isBackspace = key === 'backspace';
-          const disabled = verifying || (isBiometric && !biometricAvailable);
+          const disabled = verifying;
 
           return (
             <TouchableOpacity
@@ -485,9 +485,11 @@ export default function AppLockGate({ children }) {
       if (result.success) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => { });
         await unlock();
+      } else {
+        setError(result.error || 'Biometric authentication failed.');
       }
-    } catch (_) {
-      setError('Biometric authentication was not completed.');
+    } catch (err) {
+      setError(err.message || 'Biometric authentication was not completed.');
     }
   }, [displayName, unlock]);
 

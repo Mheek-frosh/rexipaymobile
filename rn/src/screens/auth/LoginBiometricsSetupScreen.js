@@ -2,6 +2,27 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
+import Svg, { Path } from 'react-native-svg';
+
+function FaceIdIcon({ color, size = 34 }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 48 48" fill="none">
+      <Path
+        d="M15 4H10a6 6 0 0 0-6 6v5M33 4h5a6 6 0 0 1 6 6v5M15 44H10a6 6 0 0 1-6-6v-5M33 44h5a6 6 0 0 0 6-6v-5"
+        stroke={color}
+        strokeWidth="3.2"
+        strokeLinecap="round"
+      />
+      <Path
+        d="M16 17v4M32 17v4M24 16v9.5c0 2-1.2 3.2-3.2 3.2M17.5 34c1.8 2 4 3 6.5 3s4.7-1 6.5-3"
+        stroke={color}
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
 import * as LocalAuthentication from 'expo-local-authentication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from '@clerk/clerk-expo';
@@ -67,7 +88,8 @@ export default function LoginBiometricsSetupScreen() {
     try {
       const result = await LocalAuthentication.authenticateAsync({
         promptMessage: 'Authenticate to enable biometrics',
-        fallbackLabel: 'Use passcode',
+        cancelLabel: 'Use passcode',
+        disableDeviceFallback: true,
       });
       if (result.success) {
         await AsyncStorage.setItem('biometricsEnabled', 'true');
@@ -85,7 +107,6 @@ export default function LoginBiometricsSetupScreen() {
   };
 
   const canUseBiometrics = hasHardware && isEnrolled;
-  const iconName = canUseBiometrics ? 'fingerprint' : 'lock-outline';
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -93,7 +114,7 @@ export default function LoginBiometricsSetupScreen() {
         <View style={styles.spacer} />
         
         <View style={[styles.iconContainer, { backgroundColor: `${colors.primary}15` }]}>
-          <MaterialIcons name={iconName} size={80} color={colors.primary} />
+          <FaceIdIcon size={80} color={colors.primary} />
         </View>
 
         <Text style={[styles.title, { color: colors.textPrimary }]}>Secure Your App</Text>
@@ -106,7 +127,7 @@ export default function LoginBiometricsSetupScreen() {
         <PrimaryButton 
           text="Enable Biometrics" 
           onPress={handleEnableBiometrics} 
-          disabled={!canUseBiometrics || loading}
+          disabled={loading}
           loading={loading}
           style={styles.btn} 
         />

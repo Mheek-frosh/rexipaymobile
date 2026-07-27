@@ -36,7 +36,13 @@
       "@react-native-community/datetimepicker",
       "expo-camera",
       "expo-web-browser",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow RexiPay to use Face ID to securely unlock your app."
+        }
+      ]
     ],
     "extra": {
       "eas": {
