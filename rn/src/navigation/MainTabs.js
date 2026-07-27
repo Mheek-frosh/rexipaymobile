@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Svg, { Path } from 'react-native-svg';
 import { useTheme } from '../theme/ThemeContext';
 import Icon from 'react-native-remix-icon';
 import { Card, Chart2, More } from 'iconsax-react-native';
@@ -10,6 +11,45 @@ import StatsScreen from '../screens/stats/StatsScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
+
+function ExactHomeIcon({ color, size = 26, isFocused, isDark }) {
+  if (isFocused) {
+    const keyholeColor = isDark ? '#1F222B' : '#FFFFFF';
+    return (
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <Path
+          d="M 12 3.2 C 11.2 3.2 10.5 3.6 10 4.1 L 3.8 10 C 2.9 10.9 2.4 12.1 2.4 13.4 L 2.4 18.5 C 2.4 20.7 4.2 22.5 6.4 22.5 L 17.6 22.5 C 19.8 22.5 21.6 20.7 21.6 18.5 L 21.6 13.4 C 21.6 12.1 21.1 10.9 20.2 10 L 14 4.1 C 13.5 3.6 12.8 3.2 12 3.2 Z"
+          fill={color}
+        />
+        <Path
+          d="M 12 15.2 L 12 18.5"
+          stroke={keyholeColor}
+          strokeWidth="2.4"
+          strokeLinecap="round"
+        />
+      </Svg>
+    );
+  }
+
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M 12 3.2 C 11.2 3.2 10.5 3.6 10 4.1 L 3.8 10 C 2.9 10.9 2.4 12.1 2.4 13.4 L 2.4 18.5 C 2.4 20.7 4.2 22.5 6.4 22.5 L 17.6 22.5 C 19.8 22.5 21.6 20.7 21.6 18.5 L 21.6 13.4 C 21.6 12.1 21.1 10.9 20.2 10 L 14 4.1 C 13.5 3.6 12.8 3.2 12 3.2 Z"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+      <Path
+        d="M 12 15.2 L 12 18.5"
+        stroke={color}
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
 
 const CustomTabBar = ({ state, descriptors, navigation }) => {
   // Correctly map 'colors' from useTheme to 'themeColors'
@@ -46,7 +86,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
 
           let IconComponent;
           if (route.name === 'Home') {
-            IconComponent = <Icon name={isFocused ? "home-5-fill" : "home-5-line"} size={26} color={color} />;
+            IconComponent = <ExactHomeIcon color={color} size={25} isFocused={isFocused} isDark={isDark} />;
           } else if (route.name === 'Cards') {
             IconComponent = <Card size={26} color={color} variant={isFocused ? 'Bold' : 'Outline'} />;
           } else if (route.name === 'Stats') {

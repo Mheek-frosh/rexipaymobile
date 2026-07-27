@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   StatusBar,
   Dimensions,
   Animated,
+  RefreshControl,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -42,6 +43,14 @@ export default function HomeScreen() {
   const [showAccountSheet, setShowAccountSheet] = useState(false);
   const [isEditingQuickActions, setIsEditingQuickActions] = useState(false);
   const [balanceHidden, setBalanceHidden] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1200);
+  }, []);
 
   // 0: Bank view, 1: Crypto view
   const [homeView, setHomeView] = useState(0);
@@ -150,7 +159,23 @@ export default function HomeScreen() {
           styles.scrollContent,
           { paddingTop: Math.max(insets.top, 10), paddingBottom: Math.max(insets.bottom, 100) },
         ]}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="transparent"
+            colors={['transparent']}
+          />
+        }
       >
+        {/* PULL TO REFRESH IOS SPINNER (#0F208F) */}
+        {refreshing && (
+          <View style={styles.pullRefreshBox}>
+            <IosSpinner size={34} color="#0F208F" />
+            <Text style={[styles.pullRefreshText, { color: colors.textSecondary }]}>Updating dashboard...</Text>
+          </View>
+        )}
+
         {/* HEADER */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -817,5 +842,16 @@ const styles = StyleSheet.create({
     marginTop: 14,
     fontSize: 14,
     fontWeight: '600',
+  },
+  pullRefreshBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    marginBottom: 8,
+  },
+  pullRefreshText: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 6,
   },
 });
