@@ -409,27 +409,64 @@ export default function AppLockGate({ children }) {
     };
   }, []);
 
+  const leaveTimerRef = useRef(null);
+  const backgroundTimeRef = useRef(null);
+
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextState) => {
-      const isLeaving = nextState === 'inactive' || nextState === 'background';
-      const isReturning =
-        appStateRef.current.match(/inactive|background/) && nextState === 'active';
-
-      if (isAuthenticated && lockEnabled && email && isLeaving) {
-        setPin('');
-        setError('');
-        setLocked(true);
-        SecureStore.setItemAsync(lockRequiredKey(email), 'true').catch(() => { });
-      }
-
-      if (isAuthenticated && lockEnabled && email && isReturning) {
-        setLocked(true);
-      }
-
+      const prevState = appStateRef.current;
       appStateRef.current = nextState;
+
+      if (!isAuthenticated || !lockEnabled || !email) return;
+
+      // App goes into background (user leaves app)
+      if (nextState === 'background') {
+        if (!backgroundTimeRef.current) {
+          backgroundTimeRef.current = Date.now();
+        }
+        if (leaveTimerRef.current) {
+          clearTimeout(leaveTimerRef.current);
+        }
+        // Set 10-second timer to lock app if still in background after 10 seconds
+        leaveTimerRef.current = setTimeout(() => {
+          setPin('');
+          setError('');
+          setLocked(true);
+          SecureStore.setItemAsync(lockRequiredKey(email), 'true').catch(() => {});
+        }, 10000); // 10,000 ms = 10 seconds
+      }
+
+      // App returns to active foreground
+      if (nextState === 'active' && prevState.match(/inactive|background/)) {
+        const backgroundDuration = backgroundTimeRef.current
+          ? Date.now() - backgroundTimeRef.current
+          : 0;
+
+        if (leaveTimerRef.current) {
+          clearTimeout(leaveTimerRef.current);
+          leaveTimerRef.current = null;
+        }
+
+        if (backgroundDuration >= 10000) {
+          // Away for 10 seconds or more -> Lock App!
+          setPin('');
+          setError('');
+          setLocked(true);
+          SecureStore.setItemAsync(lockRequiredKey(email), 'true').catch(() => {});
+        } else {
+          // Returned within 10 seconds (or transient notification/prompt) -> Keep unlocked!
+        }
+
+        backgroundTimeRef.current = null;
+      }
     });
 
-    return () => subscription.remove();
+    return () => {
+      subscription.remove();
+      if (leaveTimerRef.current) {
+        clearTimeout(leaveTimerRef.current);
+      }
+    };
   }, [email, isAuthenticated, lockEnabled]);
 
   const unlock = useCallback(async () => {
