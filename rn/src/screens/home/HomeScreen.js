@@ -139,28 +139,22 @@ export default function HomeScreen() {
 
   const mockTransactions = [
     {
-      id: '1',
-      name: 'Received from John Doe',
-      type: 'deposit',
-      amountDisplay: '+ ₦50,000.00',
-      date: 'Today, 8:45 AM',
-      timestamp: 'Today, 8:45 AM',
-      statusDisplay: 'Success',
-      status: 'completed',
-      category: 'Transfer',
-      txRef: 'TX-982341823',
-    },
-    {
       id: '2',
-      name: 'Paid Electricity Bill',
-      type: 'electricity',
-      amountDisplay: '- ₦15,000.00',
-      date: 'Yesterday, 2:15 PM',
-      timestamp: 'Yesterday, 2:15 PM',
+      name: 'John Doe',
+      displayName: 'Received from John Doe',
+      type: 'received',
+      amount: '50,000.00',
+      amountDisplay: '+ ₦50,000.00',
+      date: 'Yesterday',
+      time: '10:15 AM',
+      dateTime: 'Yesterday | 10:15 AM',
       statusDisplay: 'Success',
-      status: 'completed',
-      category: 'Bills',
-      txRef: 'TX-773192041',
+      status: 'Completed',
+      category: 'Transfer',
+      txRef: 'RXP982341823',
+      ref: 'RXP982341823',
+      bank: 'Access Bank',
+      account: '0987654321',
     },
   ];
 
@@ -396,15 +390,15 @@ export default function HomeScreen() {
                       onPress={() => navigation.navigate('TransactionDetail', { transaction: tx })}
                       activeOpacity={0.75}
                     >
-                      <View style={[styles.txIconBox, { backgroundColor: tx.type === 'deposit' ? (isDark ? '#2E63F633' : '#EEF2FF') : (isDark ? '#F59E0B33' : '#FFF7ED') }]}>
-                        <MaterialIcons name={tx.type === 'deposit' ? "arrow-downward" : "flash-on"} size={24} color={tx.type === 'deposit' ? "#2E63F6" : "#F59E0B"} />
+                      <View style={[styles.txIconBox, { backgroundColor: tx.type === 'received' || tx.type === 'deposit' ? (isDark ? '#2E63F633' : '#EEF2FF') : (isDark ? '#F59E0B33' : '#FFF7ED') }]}>
+                        <MaterialIcons name={tx.type === 'received' || tx.type === 'deposit' ? "arrow-downward" : "flash-on"} size={24} color={tx.type === 'received' || tx.type === 'deposit' ? "#2E63F6" : "#F59E0B"} />
                       </View>
                       <View style={styles.txDetails}>
-                        <Text style={[styles.txTitle, { color: colors.textPrimary }]}>{tx.name}</Text>
-                        <Text style={[styles.txTime, { color: colors.textSecondary }]}>{tx.date}</Text>
+                        <Text style={[styles.txTitle, { color: colors.textPrimary }]}>{tx.displayName || tx.name}</Text>
+                        <Text style={[styles.txTime, { color: colors.textSecondary }]}>{tx.dateTime || tx.date}</Text>
                       </View>
                       <View style={styles.txAmountCol}>
-                        <Text style={[styles.txAmount, { color: tx.type === 'deposit' ? '#10B981' : colors.textPrimary }]}>{tx.amountDisplay}</Text>
+                        <Text style={[styles.txAmount, { color: tx.type === 'received' || tx.type === 'deposit' ? '#10B981' : colors.textPrimary }]}>{tx.amountDisplay}</Text>
                         <View style={[styles.txStatusPill, { backgroundColor: isDark ? '#10B98133' : '#ECFDF5' }]}>
                           <Text style={styles.txStatusText}>Successful</Text>
                         </View>
