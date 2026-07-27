@@ -34,13 +34,17 @@ export default function DraggableQuickActions({
   const draggingIndexRef = useRef(null);
   draggingIndexRef.current = draggingIndex;
 
+  const isEditingRef = useRef(isEditing);
+  isEditingRef.current = isEditing;
+
   const createPanResponder = (index) =>
     PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponder: () => isEditingRef.current,
+      onMoveShouldSetPanResponder: (evt, gestureState) =>
+        isEditingRef.current && Math.abs(gestureState.dx) > 5,
       onPanResponderGrant: () => {
+        if (!isEditingRef.current) return;
         setDraggingIndex(index);
-        setIsEditing(true);
         try {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         } catch (e) {}
@@ -115,7 +119,7 @@ export default function DraggableQuickActions({
         <View style={styles.reorderHintBar}>
           <MaterialIcons name="touch-app" size={16} color="#2E63F6" />
           <Text style={[styles.reorderHintText, { color: colors.textSecondary }]}>
-            Press & hold any icon to drag left or right to reorder
+            Drag any icon left or right to reorder slots
           </Text>
         </View>
       )}

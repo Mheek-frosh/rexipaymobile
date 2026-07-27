@@ -1,14 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import LottieView from 'lottie-react-native';
 import { useTheme } from '../theme/ThemeContext';
+import IosSpinner from './IosSpinner';
 
 /**
  * Reusable professional loading indicator across screens.
- * - mode="inline": compact loader for cards/sections
- * - mode="fullscreen": centered loader for full-screen fetch states
+ * Uses custom 12-tick iOS spinner in brand blue #0F208F.
  */
-export default function AppLoader({ label = 'Loading...', mode = 'inline' }) {
+export default function AppLoader({ label = 'Loading...', mode = 'inline', color = '#0F208F', size = 38 }) {
   const { colors } = useTheme();
   const fullscreen = mode === 'fullscreen';
 
@@ -26,14 +25,9 @@ export default function AppLoader({ label = 'Loading...', mode = 'inline' }) {
           { backgroundColor: colors.cardBackground, borderColor: colors.border },
         ]}
       >
-        <LottieView
-          source={require('../../assets/lottie/onboarding-track.json')}
-          autoPlay
-          loop
-          style={styles.anim}
-        />
+        <IosSpinner size={size} color={color} />
       </View>
-      <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text>
+      {label ? <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text> : null}
     </View>
   );
 }
@@ -51,17 +45,13 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   animBox: {
-    width: 96,
-    height: 96,
+    width: 72,
+    height: 72,
     borderRadius: 20,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-  },
-  anim: {
-    width: 96,
-    height: 96,
   },
   label: {
     marginTop: 12,

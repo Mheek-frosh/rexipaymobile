@@ -1,8 +1,9 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
+import IosSpinner from './IosSpinner';
 
-export default function PrimaryButton({ text, onPress, disabled, loading, style }) {
+export default function PrimaryButton({ text, onPress, disabled, loading, style, spinnerColor = '#FFFFFF' }) {
   const { colors } = useTheme();
   return (
     <TouchableOpacity
@@ -16,7 +17,7 @@ export default function PrimaryButton({ text, onPress, disabled, loading, style 
       activeOpacity={0.8}
     >
       {loading ? (
-        <ActivityIndicator color="#FFF" />
+        <IosSpinner size={22} color={spinnerColor} />
       ) : (
         <Text style={styles.text}>{text}</Text>
       )}

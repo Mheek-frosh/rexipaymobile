@@ -13,6 +13,7 @@ import { captureRef } from 'react-native-view-shot';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { useTheme } from '../../theme/ThemeContext';
+import IosSpinner from '../../components/IosSpinner';
 
 const SUCCESS_GREEN = '#10B981';
 
@@ -22,6 +23,8 @@ export default function TransactionDetailScreen() {
   const route = useRoute();
   const viewRef = useRef(null);
   const { transaction } = route.params || {};
+  const [generating, setGenerating] = useState(false);
+  const [genType, setGenType] = useState('');
 
   const tx = transaction || {
     id: '1',
@@ -37,6 +40,8 @@ export default function TransactionDetailScreen() {
   };
 
   const handleSavePNG = async () => {
+    setGenerating(true);
+    setGenType('PNG');
     try {
       if (!viewRef.current) return;
       const uri = await captureRef(viewRef, {
@@ -52,10 +57,14 @@ export default function TransactionDetailScreen() {
       }
     } catch (e) {
       Alert.alert('Error', e.message || 'Could not save');
+    } finally {
+      setGenerating(false);
     }
   };
 
   const handleSavePDF = async () => {
+    setGenerating(true);
+    setGenType('PDF');
     try {
       await Print.printAsync({
         html: `
@@ -77,6 +86,8 @@ export default function TransactionDetailScreen() {
       });
     } catch (e) {
       Alert.alert('Error', e.message || 'Could not create PDF');
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -119,16 +130,30 @@ export default function TransactionDetailScreen() {
           <TouchableOpacity
             style={[styles.actionBtn, { backgroundColor: colors.primaryLight }]}
             onPress={handleSavePNG}
+            disabled={generating}
           >
-            <MaterialIcons name="image" size={22} color={colors.primary} />
-            <Text style={[styles.actionText, { color: colors.primary }]}>Save as image</Text>
+            {generating && genType === 'PNG' ? (
+              <IosSpinner size={20} color="#0F208F" />
+            ) : (
+              <>
+                <MaterialIcons name="image" size={22} color={colors.primary} />
+                <Text style={[styles.actionText, { color: colors.primary }]}>Save as image</Text>
+              </>
+            )}
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.actionBtn, { backgroundColor: colors.primaryLight }]}
             onPress={handleSavePDF}
+            disabled={generating}
           >
-            <MaterialIcons name="picture-as-pdf" size={22} color={colors.primary} />
-            <Text style={[styles.actionText, { color: colors.primary }]}>Save as PDF</Text>
+            {generating && genType === 'PDF' ? (
+              <IosSpinner size={20} color="#0F208F" />
+            ) : (
+              <>
+                <MaterialIcons name="picture-as-pdf" size={22} color={colors.primary} />
+                <Text style={[styles.actionText, { color: colors.primary }]}>Save as PDF</Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
       </ScrollView>

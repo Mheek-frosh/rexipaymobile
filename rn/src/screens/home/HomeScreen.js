@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   StyleSheet,
   StatusBar,
   Dimensions,
+  Animated,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,6 +19,7 @@ import { useNotifications } from '../../context/NotificationContext';
 import { useTheme } from '../../theme/ThemeContext';
 import { AccountSwitcherSheet } from '../../components/BottomSheet';
 import DraggableQuickActions from '../../components/DraggableQuickActions';
+import IosSpinner from '../../components/IosSpinner';
 import { HOME_QUICK_SERVICES } from '../../data/homeServices';
 
 const CURRENCY_ACCOUNTS = [
@@ -43,6 +45,27 @@ export default function HomeScreen() {
 
   // 0: Bank view, 1: Crypto view
   const [homeView, setHomeView] = useState(0);
+  const [isSwitching, setIsSwitching] = useState(false);
+  const contentFadeAnim = useRef(new Animated.Value(1)).current;
+
+  const handleSwitchMode = () => {
+    setIsSwitching(true);
+    Animated.timing(contentFadeAnim, {
+      toValue: 0,
+      duration: 160,
+      useNativeDriver: true,
+    }).start(() => {
+      setHomeView((prev) => (prev === 0 ? 1 : 0));
+      setTimeout(() => {
+        setIsSwitching(false);
+        Animated.timing(contentFadeAnim, {
+          toValue: 1,
+          duration: 220,
+          useNativeDriver: true,
+        }).start();
+      }, 350);
+    });
+  };
 
   const [bankQuickActions, setBankQuickActions] = useState([
     { id: 'send', label: 'Send', icon: 'arrow-upward', color: '#2E63F6', bg: '#EEF2FF', route: 'Transfer' },
@@ -184,13 +207,12 @@ export default function HomeScreen() {
 
               <TouchableOpacity
                 style={styles.switchModeBtn}
-                onPress={() => setHomeView(homeView === 0 ? 1 : 0)}
+                onPress={handleSwitchMode}
                 activeOpacity={0.8}
+                disabled={isSwitching}
               >
                 <MaterialIcons name="sync" size={14} color="#FFF" />
-                <Text style={styles.switchModeText}>
-                  {homeView === 0 ? 'Switch' : 'Switch'}
-                </Text>
+                <Text style={styles.switchModeText}>Switch</Text>
               </TouchableOpacity>
             </View>
 
@@ -266,112 +288,126 @@ export default function HomeScreen() {
           </View>
         </ImageBackground>
 
-        {/* QUICK ACTIONS ROW (Press & Hold Drag-to-Reorder) */}
-        <DraggableQuickActions
-          quickActions={quickActions}
-          setQuickActions={setQuickActions}
-          isEditing={isEditingQuickActions}
-          setIsEditing={setIsEditingQuickActions}
-          isDark={isDark}
-          colors={colors}
-          navigation={navigation}
-        />
-
-        {homeView === 0 ? (
-          <>
-            {/* PAY & SERVICES */}
-            <View style={styles.sectionHeader}>
-              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Pay & Services</Text>
-              <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('AllServices')}>
-                <Text style={styles.seeAllText}>See all</Text>
-                <MaterialIcons name="chevron-right" size={18} color="#2E63F6" />
-              </TouchableOpacity>
+        {/* DYNAMIC CONTENT AREA WITH MOTION ANIMATION & #0F208F IOS SPINNER LOADER */}
+        {isSwitching ? (
+          <View style={styles.switchingLoaderBox}>
+            <View style={[styles.spinnerCard, { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' }]}>
+              <IosSpinner size={42} color="#0F208F" />
+              <Text style={[styles.switchingText, { color: colors.textPrimary }]}>
+                {homeView === 0 ? 'Loading Crypto Wallet...' : 'Loading Bank Account...'}
+              </Text>
             </View>
-
-            <View style={styles.servicesGrid}>
-              {HOME_QUICK_SERVICES.map((item, index) => (
-                <TouchableOpacity key={index} style={styles.serviceItem} onPress={() => handleQuickService(item)}>
-                  <View style={[styles.serviceCard, { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' }]}>
-                    <MaterialIcons name={item.icon} size={28} color={item.color} />
-                    <Text style={[styles.serviceText, { color: colors.textPrimary }]} numberOfLines={1}>{item.label}</Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* RECENT TRANSACTIONS */}
-            <View style={styles.sectionHeader}>
-              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Recent Transactions</Text>
-              <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('Transactions')}>
-                <Text style={styles.seeAllText}>See all</Text>
-                <MaterialIcons name="chevron-right" size={18} color="#2E63F6" />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.transactionsList}>
-              {mockTransactions.map((tx) => (
-                <TouchableOpacity
-                  key={tx.id}
-                  style={styles.txItem}
-                  onPress={() => navigation.navigate('TransactionDetail', { transaction: tx })}
-                  activeOpacity={0.75}
-                >
-                  <View style={[styles.txIconBox, { backgroundColor: tx.type === 'deposit' ? (isDark ? '#2E63F633' : '#EEF2FF') : (isDark ? '#F59E0B33' : '#FFF7ED') }]}>
-                    <MaterialIcons name={tx.type === 'deposit' ? "arrow-downward" : "flash-on"} size={24} color={tx.type === 'deposit' ? "#2E63F6" : "#F59E0B"} />
-                  </View>
-                  <View style={styles.txDetails}>
-                    <Text style={[styles.txTitle, { color: colors.textPrimary }]}>{tx.name}</Text>
-                    <Text style={[styles.txTime, { color: colors.textSecondary }]}>{tx.date}</Text>
-                  </View>
-                  <View style={styles.txAmountCol}>
-                    <Text style={[styles.txAmount, { color: tx.type === 'deposit' ? '#10B981' : colors.textPrimary }]}>{tx.amountDisplay}</Text>
-                    <View style={[styles.txStatusPill, { backgroundColor: isDark ? '#10B98133' : '#ECFDF5' }]}>
-                      <Text style={styles.txStatusText}>Successful</Text>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </>
+          </View>
         ) : (
-          <>
-            {/* MY ASSETS (Crypto View) */}
-            <View style={styles.sectionHeader}>
-              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>My Assets</Text>
-              <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('CryptoMarket')}>
-                <Text style={styles.seeAllText}>See all</Text>
-                <MaterialIcons name="chevron-right" size={18} color="#2E63F6" />
-              </TouchableOpacity>
-            </View>
+          <Animated.View style={{ opacity: contentFadeAnim }}>
+            {/* QUICK ACTIONS ROW (Press & Hold Drag-to-Reorder) */}
+            <DraggableQuickActions
+              quickActions={quickActions}
+              setQuickActions={setQuickActions}
+              isEditing={isEditingQuickActions}
+              setIsEditing={setIsEditingQuickActions}
+              isDark={isDark}
+              colors={colors}
+              navigation={navigation}
+            />
 
-            <View style={[styles.cryptoAssetsCard, { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' }]}>
-              {cryptoAssetsList.map((coin, i) => (
-                <React.Fragment key={coin.id}>
-                  <TouchableOpacity
-                    style={styles.cryptoRow}
-                    onPress={() => navigation.navigate('CryptoAssetDetail', { coinId: coin.id })}
-                    activeOpacity={0.75}
-                  >
-                    <Image source={{ uri: coin.image }} style={styles.coinIcon} />
-                    <View style={styles.coinInfo}>
-                      <Text style={[styles.coinName, { color: colors.textPrimary }]}>{coin.name}</Text>
-                      <Text style={[styles.coinSymbol, { color: colors.textSecondary }]}>{coin.symbol.toUpperCase()}</Text>
-                    </View>
-                    <View style={styles.coinPriceCol}>
-                      <Text style={[styles.coinPrice, { color: colors.textPrimary }]}>{coin.priceDisplay}</Text>
-                      <Text style={[styles.coinChange, { color: coin.positive ? '#10B981' : '#EF4444' }]}>
-                        {coin.changeDisplay}
-                      </Text>
-                    </View>
-                    <MaterialIcons name="chevron-right" size={20} color={colors.textSecondary} />
+            {homeView === 0 ? (
+              <>
+                {/* PAY & SERVICES */}
+                <View style={styles.sectionHeader}>
+                  <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Pay & Services</Text>
+                  <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('AllServices')}>
+                    <Text style={styles.seeAllText}>See all</Text>
+                    <MaterialIcons name="chevron-right" size={18} color="#2E63F6" />
                   </TouchableOpacity>
-                  {i < cryptoAssetsList.length - 1 && (
-                    <View style={[styles.assetDivider, { backgroundColor: isDark ? '#374151' : '#F3F4F6' }]} />
-                  )}
-                </React.Fragment>
-              ))}
-            </View>
-          </>
+                </View>
+
+                <View style={styles.servicesGrid}>
+                  {HOME_QUICK_SERVICES.map((item, index) => (
+                    <TouchableOpacity key={index} style={styles.serviceItem} onPress={() => handleQuickService(item)}>
+                      <View style={[styles.serviceCard, { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' }]}>
+                        <MaterialIcons name={item.icon} size={28} color={item.color} />
+                        <Text style={[styles.serviceText, { color: colors.textPrimary }]} numberOfLines={1}>{item.label}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* RECENT TRANSACTIONS */}
+                <View style={styles.sectionHeader}>
+                  <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Recent Transactions</Text>
+                  <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('Transactions')}>
+                    <Text style={styles.seeAllText}>See all</Text>
+                    <MaterialIcons name="chevron-right" size={18} color="#2E63F6" />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.transactionsList}>
+                  {mockTransactions.map((tx) => (
+                    <TouchableOpacity
+                      key={tx.id}
+                      style={styles.txItem}
+                      onPress={() => navigation.navigate('TransactionDetail', { transaction: tx })}
+                      activeOpacity={0.75}
+                    >
+                      <View style={[styles.txIconBox, { backgroundColor: tx.type === 'deposit' ? (isDark ? '#2E63F633' : '#EEF2FF') : (isDark ? '#F59E0B33' : '#FFF7ED') }]}>
+                        <MaterialIcons name={tx.type === 'deposit' ? "arrow-downward" : "flash-on"} size={24} color={tx.type === 'deposit' ? "#2E63F6" : "#F59E0B"} />
+                      </View>
+                      <View style={styles.txDetails}>
+                        <Text style={[styles.txTitle, { color: colors.textPrimary }]}>{tx.name}</Text>
+                        <Text style={[styles.txTime, { color: colors.textSecondary }]}>{tx.date}</Text>
+                      </View>
+                      <View style={styles.txAmountCol}>
+                        <Text style={[styles.txAmount, { color: tx.type === 'deposit' ? '#10B981' : colors.textPrimary }]}>{tx.amountDisplay}</Text>
+                        <View style={[styles.txStatusPill, { backgroundColor: isDark ? '#10B98133' : '#ECFDF5' }]}>
+                          <Text style={styles.txStatusText}>Successful</Text>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </>
+            ) : (
+              <>
+                {/* MY ASSETS (Crypto View) */}
+                <View style={styles.sectionHeader}>
+                  <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>My Assets</Text>
+                  <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('CryptoMarket')}>
+                    <Text style={styles.seeAllText}>See all</Text>
+                    <MaterialIcons name="chevron-right" size={18} color="#2E63F6" />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={[styles.cryptoAssetsCard, { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' }]}>
+                  {cryptoAssetsList.map((coin, i) => (
+                    <React.Fragment key={coin.id}>
+                      <TouchableOpacity
+                        style={styles.cryptoRow}
+                        onPress={() => navigation.navigate('CryptoAssetDetail', { coinId: coin.id })}
+                        activeOpacity={0.75}
+                      >
+                        <Image source={{ uri: coin.image }} style={styles.coinIcon} />
+                        <View style={styles.coinInfo}>
+                          <Text style={[styles.coinName, { color: colors.textPrimary }]}>{coin.name}</Text>
+                          <Text style={[styles.coinSymbol, { color: colors.textSecondary }]}>{coin.symbol.toUpperCase()}</Text>
+                        </View>
+                        <View style={styles.coinPriceCol}>
+                          <Text style={[styles.coinPrice, { color: colors.textPrimary }]}>{coin.priceDisplay}</Text>
+                          <Text style={[styles.coinChange, { color: coin.positive ? '#10B981' : '#EF4444' }]}>
+                            {coin.changeDisplay}
+                          </Text>
+                        </View>
+                        <MaterialIcons name="chevron-right" size={20} color={colors.textSecondary} />
+                      </TouchableOpacity>
+                      {i < cryptoAssetsList.length - 1 && (
+                        <View style={[styles.assetDivider, { backgroundColor: isDark ? '#374151' : '#F3F4F6' }]} />
+                      )}
+                    </React.Fragment>
+                  ))}
+                </View>
+              </>
+            )}
+          </Animated.View>
         )}
 
       </ScrollView>
@@ -759,5 +795,27 @@ const styles = StyleSheet.create({
   assetDivider: {
     height: 1,
     marginLeft: 52,
+  },
+  switchingLoaderBox: {
+    paddingVertical: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  spinnerCard: {
+    paddingHorizontal: 28,
+    paddingVertical: 24,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    elevation: 3,
+  },
+  switchingText: {
+    marginTop: 14,
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
