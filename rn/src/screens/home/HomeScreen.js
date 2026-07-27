@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   ImageBackground,
   TouchableOpacity,
   ScrollView,
+  FlatList,
   StyleSheet,
   StatusBar,
   Dimensions,
@@ -44,6 +45,26 @@ export default function HomeScreen() {
   const [isEditingQuickActions, setIsEditingQuickActions] = useState(false);
   const [balanceHidden, setBalanceHidden] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [rewardIndex, setRewardIndex] = useState(0);
+  const rewardCarouselRef = useRef(null);
+
+  const REWARD_SLIDES = [
+    { id: '1', image: require('../../../assets/images/rewards.png') },
+    { id: '2', image: require('../../../assets/images/refer.png') },
+    { id: '3', image: require('../../../assets/images/savings.png') },
+  ];
+
+  useEffect(() => {
+    if (REWARD_SLIDES.length <= 1) return;
+    const timer = setInterval(() => {
+      setRewardIndex((prev) => {
+        const next = (prev + 1) % REWARD_SLIDES.length;
+        rewardCarouselRef.current?.scrollToIndex({ index: next, animated: true });
+        return next;
+      });
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -196,7 +217,7 @@ export default function HomeScreen() {
             onPress={() => navigation.navigate('Notifications')}
             style={[styles.notifBtn, { backgroundColor: isDark ? '#1F222B' : '#EEF2FF' }]}
           >
-            <MaterialIcons name="notifications-none" size={24} color={colors.textPrimary} />
+            <MaterialIcons name="notifications-none" size={22} color={colors.textPrimary} />
             {unreadNotificationCount > 0 && (
               <View style={styles.notifBadge} />
             )}
@@ -435,6 +456,32 @@ export default function HomeScreen() {
           </Animated.View>
         )}
 
+        {/* REWARDS CAROUSEL — at bottom, directly above bottom nav tab bar */}
+        <View style={styles.rewardCarouselContainer}>
+          <FlatList
+            ref={rewardCarouselRef}
+            data={REWARD_SLIDES}
+            keyExtractor={(item) => item.id}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            scrollEventThrottle={16}
+            onMomentumScrollEnd={(e) => {
+              const newIndex = Math.round(
+                e.nativeEvent.contentOffset.x / (width - 40)
+              );
+              setRewardIndex(newIndex);
+            }}
+            renderItem={({ item }) => (
+              <Image
+                source={item.image}
+                style={styles.rewardSlideImage}
+                resizeMode="cover"
+              />
+            )}
+          />
+        </View>
+
       </ScrollView>
 
       <AccountSwitcherSheet
@@ -456,47 +503,47 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 12,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   avatarContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 10,
   },
   avatarInitial: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: '700',
   },
   greetingContainer: {
     justifyContent: 'center',
   },
   greetingText: {
-    fontSize: 13,
-    marginBottom: 2,
+    fontSize: 11,
+    marginBottom: 1,
   },
   nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   nameText: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: '700',
   },
   waveEmoji: {
-    fontSize: 16,
-    marginLeft: 4,
+    fontSize: 13,
+    marginLeft: 3,
   },
   notifBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -511,29 +558,29 @@ const styles = StyleSheet.create({
     backgroundColor: '#2E63F6',
   },
   cardContainer: {
-    borderRadius: 24,
+    borderRadius: 20,
     overflow: 'hidden',
-    marginBottom: 28,
+    marginBottom: 16,
     shadowColor: '#1A3FAB',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.35,
-    shadowRadius: 18,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.30,
+    shadowRadius: 14,
+    elevation: 8,
   },
   cardImageStyle: {
-    borderRadius: 24,
+    borderRadius: 20,
   },
   cardOverlay: {
-    backgroundColor: 'rgba(15, 40, 120, 0.45)', // Subtle dark overlay so text pops
-    borderRadius: 24,
-    padding: 20,
-    paddingBottom: 24,
+    backgroundColor: 'rgba(15, 40, 120, 0.45)',
+    borderRadius: 20,
+    padding: 16,
+    paddingBottom: 18,
   },
   cardTopRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 16,
   },
   switchModeBtn: {
     flexDirection: 'row',
@@ -570,21 +617,21 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   balanceContainer: {
-    marginBottom: 30,
+    marginBottom: 16,
   },
   balanceRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   balanceLabel: {
     color: 'rgba(255,255,255,0.8)',
-    fontSize: 14,
-    marginRight: 8,
+    fontSize: 12,
+    marginRight: 6,
   },
   balanceAmount: {
     color: '#FFF',
-    fontSize: 34,
+    fontSize: 26,
     fontWeight: 'bold',
   },
   cardActions: {
@@ -595,34 +642,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.15)',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.2)',
   },
   pillIconBox: {
-    width: 20,
-    height: 20,
-    borderRadius: 6,
+    width: 16,
+    height: 16,
+    borderRadius: 5,
     backgroundColor: '#FFF',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 6,
+    marginRight: 5,
   },
   pillText: {
     color: '#FFF',
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '600',
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 10,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: '700',
   },
   editBtn: {
@@ -647,9 +694,9 @@ const styles = StyleSheet.create({
   quickActionsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 32,
-    padding: 16,
-    borderRadius: 24,
+    marginBottom: 20,
+    padding: 12,
+    borderRadius: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.04,
@@ -688,32 +735,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   actionIconBox: {
-    width: 56,
-    height: 56,
-    borderRadius: 18,
+    width: 46,
+    height: 46,
+    borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
+    marginBottom: 6,
   },
   actionBtnText: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '600',
   },
   servicesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginBottom: 24,
+    marginBottom: 16,
   },
   serviceItem: {
-    width: '23.5%', // slightly wider for better proportions
-    marginBottom: 12,
+    width: '23.5%',
+    marginBottom: 10,
   },
   serviceCard: {
     alignItems: 'center',
-    paddingVertical: 12, // reduced height as requested
+    paddingVertical: 10,
     paddingHorizontal: 4,
-    borderRadius: 16,
+    borderRadius: 14,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.03,
@@ -721,45 +768,45 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   serviceText: {
-    fontSize: 10.5,
+    fontSize: 9.5,
     fontWeight: '600',
-    marginTop: 6,
+    marginTop: 4,
     textAlign: 'center',
   },
   transactionsList: {
-    marginBottom: 20,
+    marginBottom: 12,
   },
   txItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 14,
   },
   txIconBox: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 14,
+    marginRight: 10,
   },
   txDetails: {
     flex: 1,
   },
   txTitle: {
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: '700',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   txTime: {
-    fontSize: 13,
+    fontSize: 11,
   },
   txAmountCol: {
     alignItems: 'flex-end',
   },
   txAmount: {
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: '700',
-    marginBottom: 6,
+    marginBottom: 4,
   },
   txStatusPill: {
     paddingHorizontal: 10,
@@ -853,5 +900,34 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     marginTop: 6,
+  },
+  rewardCarouselContainer: {
+    marginHorizontal: 0,
+    marginTop: 0,
+    marginBottom: 14,
+  },
+  rewardSlideImage: {
+    width: width - 40,
+    height: 110,
+    borderRadius: 14,
+    overflow: 'hidden',
+  },
+  rewardDots: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+    gap: 5,
+  },
+  rewardDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+  },
+  rewardDotActive: {
+    width: 16,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: '#2E63F6',
   },
 });
