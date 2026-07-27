@@ -76,9 +76,12 @@ export default function HomeScreen() {
   // 0: Bank view, 1: Crypto view
   const [homeView, setHomeView] = useState(0);
   const [isSwitching, setIsSwitching] = useState(false);
+  const [switchingTo, setSwitchingTo] = useState(null);
   const contentFadeAnim = useRef(new Animated.Value(1)).current;
 
   const handleSwitchMode = () => {
+    const target = homeView === 0 ? 'crypto' : 'bank';
+    setSwitchingTo(target);
     setIsSwitching(true);
     Animated.timing(contentFadeAnim, {
       toValue: 0,
@@ -88,6 +91,7 @@ export default function HomeScreen() {
       setHomeView((prev) => (prev === 0 ? 1 : 0));
       setTimeout(() => {
         setIsSwitching(false);
+        setSwitchingTo(null);
         Animated.timing(contentFadeAnim, {
           toValue: 1,
           duration: 220,
@@ -334,7 +338,7 @@ export default function HomeScreen() {
             <View style={[styles.spinnerCard, { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' }]}>
               <IosSpinner size={42} color="#0F208F" />
               <Text style={[styles.switchingText, { color: colors.textPrimary }]}>
-                {homeView === 0 ? 'Loading Crypto Wallet...' : 'Loading Bank Account...'}
+                {switchingTo === 'crypto' ? 'Switching to Crypto Wallet...' : 'Switching to Bank Wallet...'}
               </Text>
             </View>
           </View>
@@ -450,31 +454,33 @@ export default function HomeScreen() {
           </Animated.View>
         )}
 
-        {/* REWARDS CAROUSEL — at bottom, directly above bottom nav tab bar */}
-        <View style={styles.rewardCarouselContainer}>
-          <FlatList
-            ref={rewardCarouselRef}
-            data={REWARD_SLIDES}
-            keyExtractor={(item) => item.id}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            scrollEventThrottle={16}
-            onMomentumScrollEnd={(e) => {
-              const newIndex = Math.round(
-                e.nativeEvent.contentOffset.x / (width - 40)
-              );
-              setRewardIndex(newIndex);
-            }}
-            renderItem={({ item }) => (
-              <Image
-                source={item.image}
-                style={styles.rewardSlideImage}
-                resizeMode="cover"
-              />
-            )}
-          />
-        </View>
+        {/* REWARDS CAROUSEL — Bank view only */}
+        {homeView === 0 && (
+          <View style={styles.rewardCarouselContainer}>
+            <FlatList
+              ref={rewardCarouselRef}
+              data={REWARD_SLIDES}
+              keyExtractor={(item) => item.id}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              scrollEventThrottle={16}
+              onMomentumScrollEnd={(e) => {
+                const newIndex = Math.round(
+                  e.nativeEvent.contentOffset.x / (width - 40)
+                );
+                setRewardIndex(newIndex);
+              }}
+              renderItem={({ item }) => (
+                <Image
+                  source={item.image}
+                  style={styles.rewardSlideImage}
+                  resizeMode="cover"
+                />
+              )}
+            />
+          </View>
+        )}
 
       </ScrollView>
 
