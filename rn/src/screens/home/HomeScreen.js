@@ -17,6 +17,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
 import { useTheme } from '../../theme/ThemeContext';
 import { AccountSwitcherSheet } from '../../components/BottomSheet';
+import DraggableQuickActions from '../../components/DraggableQuickActions';
 import { HOME_QUICK_SERVICES } from '../../data/homeServices';
 
 const CURRENCY_ACCOUNTS = [
@@ -38,7 +39,6 @@ export default function HomeScreen() {
   const [selectedAccount, setSelectedAccount] = useState('ngn');
   const [showAccountSheet, setShowAccountSheet] = useState(false);
   const [isEditingQuickActions, setIsEditingQuickActions] = useState(false);
-  const [selectedQuickActionIndex, setSelectedQuickActionIndex] = useState(null);
   const [balanceHidden, setBalanceHidden] = useState(false);
 
   const [quickActions, setQuickActions] = useState([
@@ -47,30 +47,6 @@ export default function HomeScreen() {
     { id: 'convert', label: 'Convert', icon: 'currency-exchange', color: '#F59E0B', bg: '#FFF7ED', route: 'BankConvert' },
     { id: 'scan', label: 'Scan', icon: 'qr-code-scanner', color: '#8B5CF6', bg: '#F5F3FF', route: 'AllServices' },
   ]);
-
-  const swapQuickActions = (index1, index2) => {
-    if (index1 < 0 || index2 < 0 || index1 >= quickActions.length || index2 >= quickActions.length) return;
-    const updated = [...quickActions];
-    const temp = updated[index1];
-    updated[index1] = updated[index2];
-    updated[index2] = temp;
-    setQuickActions(updated);
-    setSelectedQuickActionIndex(null);
-  };
-
-  const handleQuickActionPress = (action, index) => {
-    if (isEditingQuickActions) {
-      if (selectedQuickActionIndex === null) {
-        setSelectedQuickActionIndex(index);
-      } else if (selectedQuickActionIndex === index) {
-        setSelectedQuickActionIndex(null);
-      } else {
-        swapQuickActions(selectedQuickActionIndex, index);
-      }
-    } else {
-      navigation.navigate(action.route || 'AllServices');
-    }
-  };
 
   const firstName = (userName || 'User').split(' ')[0];
   const nameParts = String(userName || 'User')
@@ -222,91 +198,16 @@ export default function HomeScreen() {
           </View>
         </ImageBackground>
 
-        {/* QUICK ACTIONS ROW */}
-        <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Quick Actions</Text>
-          <TouchableOpacity
-            style={[
-              styles.editBtn,
-              isEditingQuickActions && { backgroundColor: '#2E63F6', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-            ]}
-            onPress={() => {
-              setIsEditingQuickActions(!isEditingQuickActions);
-              setSelectedQuickActionIndex(null);
-            }}
-          >
-            <Text style={[styles.editText, isEditingQuickActions && { color: '#FFF' }]}>
-              {isEditingQuickActions ? 'Done' : 'Edit'}
-            </Text>
-            <MaterialIcons
-              name={isEditingQuickActions ? 'check' : 'edit'}
-              size={14}
-              color={isEditingQuickActions ? '#FFF' : '#2E63F6'}
-            />
-          </TouchableOpacity>
-        </View>
-
-        {isEditingQuickActions && (
-          <View style={styles.reorderHintBar}>
-            <MaterialIcons name="swap-horiz" size={16} color="#2E63F6" />
-            <Text style={[styles.reorderHintText, { color: colors.textSecondary }]}>
-              {selectedQuickActionIndex !== null
-                ? 'Tap another icon to swap position'
-                : 'Tap to select & swap, or use ‹ › arrows'}
-            </Text>
-          </View>
-        )}
-
-        <View
-          style={[
-            styles.quickActionsRow,
-            { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' },
-            isEditingQuickActions && { borderWidth: 1.5, borderColor: '#2E63F666' },
-          ]}
-        >
-          {quickActions.map((action, index) => {
-            const isSelected = selectedQuickActionIndex === index;
-            return (
-              <View key={action.id} style={styles.actionBtnContainer}>
-                {isEditingQuickActions && (
-                  <View style={styles.inlineArrowRow}>
-                    <TouchableOpacity
-                      disabled={index === 0}
-                      onPress={() => swapQuickActions(index, index - 1)}
-                      style={[styles.miniArrowBtn, index === 0 && { opacity: 0.2 }]}
-                    >
-                      <MaterialIcons name="chevron-left" size={18} color="#2E63F6" />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      disabled={index === quickActions.length - 1}
-                      onPress={() => swapQuickActions(index, index + 1)}
-                      style={[styles.miniArrowBtn, index === quickActions.length - 1 && { opacity: 0.2 }]}
-                    >
-                      <MaterialIcons name="chevron-right" size={18} color="#2E63F6" />
-                    </TouchableOpacity>
-                  </View>
-                )}
-
-                <TouchableOpacity
-                  style={styles.actionBtn}
-                  onPress={() => handleQuickActionPress(action, index)}
-                  activeOpacity={0.8}
-                >
-                  <View
-                    style={[
-                      styles.actionIconBox,
-                      { backgroundColor: isDark ? `${action.color}33` : action.bg },
-                      isSelected && { borderWidth: 2.5, borderColor: '#2E63F6' },
-                    ]}
-                  >
-                    <MaterialIcons name={action.icon} size={24} color={action.color} />
-                  </View>
-                  <Text style={[styles.actionBtnText, { color: colors.textPrimary }]}>{action.label}</Text>
-                </TouchableOpacity>
-              </View>
-            );
-          })}
-        </View>
+        {/* QUICK ACTIONS ROW (Press & Hold Drag-to-Reorder) */}
+        <DraggableQuickActions
+          quickActions={quickActions}
+          setQuickActions={setQuickActions}
+          isEditing={isEditingQuickActions}
+          setIsEditing={setIsEditingQuickActions}
+          isDark={isDark}
+          colors={colors}
+          navigation={navigation}
+        />
 
         {/* PAY & SERVICES */}
         <View style={styles.sectionHeader}>
