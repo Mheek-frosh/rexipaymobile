@@ -41,12 +41,25 @@ export default function HomeScreen() {
   const [isEditingQuickActions, setIsEditingQuickActions] = useState(false);
   const [balanceHidden, setBalanceHidden] = useState(false);
 
-  const [quickActions, setQuickActions] = useState([
+  // 0: Bank view, 1: Crypto view
+  const [homeView, setHomeView] = useState(0);
+
+  const [bankQuickActions, setBankQuickActions] = useState([
     { id: 'send', label: 'Send', icon: 'arrow-upward', color: '#2E63F6', bg: '#EEF2FF', route: 'Transfer' },
     { id: 'receive', label: 'Receive', icon: 'arrow-downward', color: '#10B981', bg: '#ECFDF5', route: 'BankReceive' },
     { id: 'convert', label: 'Convert', icon: 'currency-exchange', color: '#F59E0B', bg: '#FFF7ED', route: 'BankConvert' },
     { id: 'scan', label: 'Scan', icon: 'qr-code-scanner', color: '#8B5CF6', bg: '#F5F3FF', route: 'AllServices' },
   ]);
+
+  const [cryptoQuickActions, setCryptoQuickActions] = useState([
+    { id: 'send_crypto', label: 'Send', icon: 'arrow-upward', color: '#2E63F6', bg: '#EEF2FF', route: 'SendCrypto' },
+    { id: 'receive_crypto', label: 'Receive', icon: 'arrow-downward', color: '#10B981', bg: '#ECFDF5', route: 'CryptoReceive' },
+    { id: 'sell_crypto', label: 'Sell', icon: 'sell', color: '#F59E0B', bg: '#FFF7ED', route: 'CryptoSell' },
+    { id: 'market', label: 'Market', icon: 'trending-up', color: '#8B5CF6', bg: '#F5F3FF', route: 'CryptoMarket' },
+  ]);
+
+  const quickActions = homeView === 0 ? bankQuickActions : cryptoQuickActions;
+  const setQuickActions = homeView === 0 ? setBankQuickActions : setCryptoQuickActions;
 
   const firstName = (userName || 'User').split(' ')[0];
   const nameParts = String(userName || 'User')
@@ -98,6 +111,13 @@ export default function HomeScreen() {
     },
   ];
 
+  const cryptoAssetsList = [
+    { id: 'bitcoin', name: 'Bitcoin', symbol: 'btc', priceDisplay: '$94,520.00', changeDisplay: '+2.45%', positive: true, image: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png' },
+    { id: 'ethereum', name: 'Ethereum', symbol: 'eth', priceDisplay: '$3,340.50', changeDisplay: '+1.80%', positive: true, image: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png' },
+    { id: 'tether', name: 'Tether', symbol: 'usdt', priceDisplay: '$1.00', changeDisplay: '0.00%', positive: true, image: 'https://assets.coingecko.com/coins/images/325/large/Tether.png' },
+    { id: 'solana', name: 'Solana', symbol: 'sol', priceDisplay: '$185.20', changeDisplay: '-0.95%', positive: false, image: 'https://assets.coingecko.com/coins/images/4128/large/solana.png' },
+  ];
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
@@ -144,22 +164,42 @@ export default function HomeScreen() {
         >
           {/* Overlay to ensure text is legible */}
           <View style={styles.cardOverlay}>
-            {/* Top row: currency selector */}
+            {/* Top row: currency selector & Switch mode button */}
             <View style={styles.cardTopRow}>
+              {homeView === 0 ? (
+                <TouchableOpacity
+                  style={styles.currencySelector}
+                  onPress={() => setShowAccountSheet(true)}
+                >
+                  <Text style={styles.flagText}>{currentAccount.flag}</Text>
+                  <Text style={styles.currencyText}>{currentAccount.code} Wallet</Text>
+                  <MaterialIcons name="keyboard-arrow-down" size={16} color="#FFF" />
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.currencySelector}>
+                  <Text style={styles.flagText}>🪙</Text>
+                  <Text style={styles.currencyText}>Crypto Wallet</Text>
+                </View>
+              )}
+
               <TouchableOpacity
-                style={styles.currencySelector}
-                onPress={() => setShowAccountSheet(true)}
+                style={styles.switchModeBtn}
+                onPress={() => setHomeView(homeView === 0 ? 1 : 0)}
+                activeOpacity={0.8}
               >
-                <Text style={styles.flagText}>{currentAccount.flag}</Text>
-                <Text style={styles.currencyText}>{currentAccount.code} Wallet</Text>
-                <MaterialIcons name="keyboard-arrow-down" size={16} color="#FFF" />
+                <MaterialIcons name="sync" size={14} color="#FFF" />
+                <Text style={styles.switchModeText}>
+                  {homeView === 0 ? 'Switch' : 'Switch'}
+                </Text>
               </TouchableOpacity>
             </View>
 
             {/* Balance */}
             <View style={styles.balanceContainer}>
               <View style={styles.balanceRow}>
-                <Text style={styles.balanceLabel}>Available Balance</Text>
+                <Text style={styles.balanceLabel}>
+                  {homeView === 0 ? 'Available Balance' : 'Crypto Portfolio Value'}
+                </Text>
                 <TouchableOpacity onPress={() => setBalanceHidden(!balanceHidden)}>
                   <MaterialIcons
                     name={balanceHidden ? 'visibility-off' : 'visibility'}
@@ -169,31 +209,59 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               </View>
               <Text style={styles.balanceAmount}>
-                {balanceHidden ? '₦••••••••' : currentAccount.balance}
+                {balanceHidden
+                  ? (homeView === 0 ? '₦••••••••' : '$••••••••')
+                  : (homeView === 0 ? currentAccount.balance : '$12,450.80')}
               </Text>
             </View>
 
             {/* Action pills */}
             <View style={styles.cardActions}>
-              <TouchableOpacity
-                style={styles.cardPill}
-                onPress={() => navigation.navigate('AddMoney')}
-              >
-                <View style={styles.pillIconBox}>
-                  <MaterialIcons name="add" size={14} color="#1E3A8A" />
-                </View>
-                <Text style={styles.pillText}>Add Money</Text>
-              </TouchableOpacity>
+              {homeView === 0 ? (
+                <>
+                  <TouchableOpacity
+                    style={styles.cardPill}
+                    onPress={() => navigation.navigate('AddMoney')}
+                  >
+                    <View style={styles.pillIconBox}>
+                      <MaterialIcons name="add" size={14} color="#1E3A8A" />
+                    </View>
+                    <Text style={styles.pillText}>Add Money</Text>
+                  </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.cardPill}
-                onPress={() => navigation.navigate('AccountDetails')}
-              >
-                <View style={styles.pillIconBox}>
-                  <MaterialIcons name="credit-card" size={14} color="#1E3A8A" />
-                </View>
-                <Text style={styles.pillText}>Account Details</Text>
-              </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.cardPill}
+                    onPress={() => navigation.navigate('AccountDetails')}
+                  >
+                    <View style={styles.pillIconBox}>
+                      <MaterialIcons name="credit-card" size={14} color="#1E3A8A" />
+                    </View>
+                    <Text style={styles.pillText}>Account Details</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <>
+                  <TouchableOpacity
+                    style={styles.cardPill}
+                    onPress={() => navigation.navigate('CryptoReceive')}
+                  >
+                    <View style={styles.pillIconBox}>
+                      <MaterialIcons name="arrow-downward" size={14} color="#1E3A8A" />
+                    </View>
+                    <Text style={styles.pillText}>Receive Crypto</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.cardPill}
+                    onPress={() => navigation.navigate('CryptoMarket')}
+                  >
+                    <View style={styles.pillIconBox}>
+                      <MaterialIcons name="trending-up" size={14} color="#1E3A8A" />
+                    </View>
+                    <Text style={styles.pillText}>Crypto Market</Text>
+                  </TouchableOpacity>
+                </>
+              )}
             </View>
           </View>
         </ImageBackground>
@@ -209,59 +277,102 @@ export default function HomeScreen() {
           navigation={navigation}
         />
 
-        {/* PAY & SERVICES */}
-        <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Pay & Services</Text>
-          <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('AllServices')}>
-            <Text style={styles.seeAllText}>See all</Text>
-            <MaterialIcons name="chevron-right" size={18} color="#2E63F6" />
-          </TouchableOpacity>
-        </View>
+        {homeView === 0 ? (
+          <>
+            {/* PAY & SERVICES */}
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Pay & Services</Text>
+              <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('AllServices')}>
+                <Text style={styles.seeAllText}>See all</Text>
+                <MaterialIcons name="chevron-right" size={18} color="#2E63F6" />
+              </TouchableOpacity>
+            </View>
 
-        <View style={styles.servicesGrid}>
-          {HOME_QUICK_SERVICES.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.serviceItem} onPress={() => handleQuickService(item)}>
-              <View style={[styles.serviceCard, { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' }]}>
-                <MaterialIcons name={item.icon} size={28} color={item.color} />
-                <Text style={[styles.serviceText, { color: colors.textPrimary }]} numberOfLines={1}>{item.label}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+            <View style={styles.servicesGrid}>
+              {HOME_QUICK_SERVICES.map((item, index) => (
+                <TouchableOpacity key={index} style={styles.serviceItem} onPress={() => handleQuickService(item)}>
+                  <View style={[styles.serviceCard, { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' }]}>
+                    <MaterialIcons name={item.icon} size={28} color={item.color} />
+                    <Text style={[styles.serviceText, { color: colors.textPrimary }]} numberOfLines={1}>{item.label}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
 
-        {/* RECENT TRANSACTIONS */}
-        <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Recent Transactions</Text>
-          <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('Transactions')}>
-            <Text style={styles.seeAllText}>See all</Text>
-            <MaterialIcons name="chevron-right" size={18} color="#2E63F6" />
-          </TouchableOpacity>
-        </View>
+            {/* RECENT TRANSACTIONS */}
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Recent Transactions</Text>
+              <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('Transactions')}>
+                <Text style={styles.seeAllText}>See all</Text>
+                <MaterialIcons name="chevron-right" size={18} color="#2E63F6" />
+              </TouchableOpacity>
+            </View>
 
-        <View style={styles.transactionsList}>
-          {mockTransactions.map((tx) => (
-            <TouchableOpacity
-              key={tx.id}
-              style={styles.txItem}
-              onPress={() => navigation.navigate('TransactionDetail', { transaction: tx })}
-              activeOpacity={0.75}
-            >
-              <View style={[styles.txIconBox, { backgroundColor: tx.type === 'deposit' ? (isDark ? '#2E63F633' : '#EEF2FF') : (isDark ? '#F59E0B33' : '#FFF7ED') }]}>
-                <MaterialIcons name={tx.type === 'deposit' ? "arrow-downward" : "flash-on"} size={24} color={tx.type === 'deposit' ? "#2E63F6" : "#F59E0B"} />
-              </View>
-              <View style={styles.txDetails}>
-                <Text style={[styles.txTitle, { color: colors.textPrimary }]}>{tx.name}</Text>
-                <Text style={[styles.txTime, { color: colors.textSecondary }]}>{tx.date}</Text>
-              </View>
-              <View style={styles.txAmountCol}>
-                <Text style={[styles.txAmount, { color: tx.type === 'deposit' ? '#10B981' : colors.textPrimary }]}>{tx.amountDisplay}</Text>
-                <View style={[styles.txStatusPill, { backgroundColor: isDark ? '#10B98133' : '#ECFDF5' }]}>
-                  <Text style={styles.txStatusText}>Successful</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+            <View style={styles.transactionsList}>
+              {mockTransactions.map((tx) => (
+                <TouchableOpacity
+                  key={tx.id}
+                  style={styles.txItem}
+                  onPress={() => navigation.navigate('TransactionDetail', { transaction: tx })}
+                  activeOpacity={0.75}
+                >
+                  <View style={[styles.txIconBox, { backgroundColor: tx.type === 'deposit' ? (isDark ? '#2E63F633' : '#EEF2FF') : (isDark ? '#F59E0B33' : '#FFF7ED') }]}>
+                    <MaterialIcons name={tx.type === 'deposit' ? "arrow-downward" : "flash-on"} size={24} color={tx.type === 'deposit' ? "#2E63F6" : "#F59E0B"} />
+                  </View>
+                  <View style={styles.txDetails}>
+                    <Text style={[styles.txTitle, { color: colors.textPrimary }]}>{tx.name}</Text>
+                    <Text style={[styles.txTime, { color: colors.textSecondary }]}>{tx.date}</Text>
+                  </View>
+                  <View style={styles.txAmountCol}>
+                    <Text style={[styles.txAmount, { color: tx.type === 'deposit' ? '#10B981' : colors.textPrimary }]}>{tx.amountDisplay}</Text>
+                    <View style={[styles.txStatusPill, { backgroundColor: isDark ? '#10B98133' : '#ECFDF5' }]}>
+                      <Text style={styles.txStatusText}>Successful</Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        ) : (
+          <>
+            {/* MY ASSETS (Crypto View) */}
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>My Assets</Text>
+              <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('CryptoMarket')}>
+                <Text style={styles.seeAllText}>See all</Text>
+                <MaterialIcons name="chevron-right" size={18} color="#2E63F6" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={[styles.cryptoAssetsCard, { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' }]}>
+              {cryptoAssetsList.map((coin, i) => (
+                <React.Fragment key={coin.id}>
+                  <TouchableOpacity
+                    style={styles.cryptoRow}
+                    onPress={() => navigation.navigate('CryptoAssetDetail', { coinId: coin.id })}
+                    activeOpacity={0.75}
+                  >
+                    <Image source={{ uri: coin.image }} style={styles.coinIcon} />
+                    <View style={styles.coinInfo}>
+                      <Text style={[styles.coinName, { color: colors.textPrimary }]}>{coin.name}</Text>
+                      <Text style={[styles.coinSymbol, { color: colors.textSecondary }]}>{coin.symbol.toUpperCase()}</Text>
+                    </View>
+                    <View style={styles.coinPriceCol}>
+                      <Text style={[styles.coinPrice, { color: colors.textPrimary }]}>{coin.priceDisplay}</Text>
+                      <Text style={[styles.coinChange, { color: coin.positive ? '#10B981' : '#EF4444' }]}>
+                        {coin.changeDisplay}
+                      </Text>
+                    </View>
+                    <MaterialIcons name="chevron-right" size={20} color={colors.textSecondary} />
+                  </TouchableOpacity>
+                  {i < cryptoAssetsList.length - 1 && (
+                    <View style={[styles.assetDivider, { backgroundColor: isDark ? '#374151' : '#F3F4F6' }]} />
+                  )}
+                </React.Fragment>
+              ))}
+            </View>
+          </>
+        )}
 
       </ScrollView>
 
@@ -362,6 +473,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 24,
+  },
+  switchModeBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+  },
+  switchModeText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
   },
   currencySelector: {
     flexDirection: 'row',
@@ -582,5 +709,55 @@ const styles = StyleSheet.create({
     color: '#10B981',
     fontSize: 11,
     fontWeight: '700',
-  }
+  },
+  cryptoAssetsCard: {
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 2,
+  },
+  cryptoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+  },
+  coinIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 12,
+  },
+  coinInfo: {
+    flex: 1,
+  },
+  coinName: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  coinSymbol: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  coinPriceCol: {
+    alignItems: 'flex-end',
+    marginRight: 6,
+  },
+  coinPrice: {
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  coinChange: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  assetDivider: {
+    height: 1,
+    marginLeft: 52,
+  },
 });
