@@ -3,14 +3,14 @@
  * `route` is a RootNavigator screen name.
  */
 export const HOME_QUICK_SERVICES = [
-  { id: 'offline', icon: 'wifi-off', label: 'Offline Pay', color: '#10B981', bg: '#E8F5E9', route: 'OfflinePay' },
-  { id: 'airtime', icon: 'wifi', label: 'Airtime', color: '#FF9800', bg: '#FFF3E0', route: 'Airtime' },
-  { id: 'internet', icon: 'public', label: 'Internet', color: '#4CAF50', bg: '#E8F5E9', route: 'InternetData' },
-  { id: 'electricity', icon: 'bolt', label: 'Electricity', color: '#FFC107', bg: '#FFFDE7', route: 'ElectricityBill' },
-  { id: 'history', icon: 'receipt-long', label: 'History', color: '#FF9800', bg: '#FFF8E1', route: 'Transactions' },
-  { id: 'shopping', icon: 'shopping-cart', label: 'Shopping', color: '#9C27B0', bg: '#F3E5F5', route: 'ShoppingHub' },
-  { id: 'deals', icon: 'volunteer-activism', label: 'Deals', color: '#E91E63', bg: '#FCE4EC', route: 'DealsHub' },
-  { id: 'health', icon: 'health-and-safety', label: 'Health', color: '#4CAF50', bg: '#E8F5E9', route: 'HealthHub' },
+  { id: 'airtime',    icon: 'smartphone',           label: 'Airtime',        color: '#2563EB', bg: '#EFF6FF', route: 'Airtime' },
+  { id: 'internet',  icon: 'wifi',                  label: 'Internet',       color: '#16A34A', bg: '#F0FDF4', route: 'InternetData' },
+  { id: 'electricity', icon: 'bolt',                label: 'Electricity',    color: '#D97706', bg: '#FFFBEB', route: 'ElectricityBill' },
+  { id: 'tv',        icon: 'tv',                    label: 'TV Subscription',color: '#7C3AED', bg: '#F5F3FF', route: 'TvSubscription' },
+  { id: 'offline',   icon: 'wifi-off',              label: 'Offline Pay',    color: '#059669', bg: '#ECFDF5', route: 'OfflinePay' },
+  { id: 'shopping',  icon: 'shopping-bag',          label: 'Shopping',       color: '#DB2777', bg: '#FDF2F8', route: 'ShoppingHub' },
+  { id: 'deals',     icon: 'local-offer',           label: 'Deals',          color: '#DC2626', bg: '#FEF2F2', route: 'DealsHub' },
+  { id: 'more',      icon: 'more-horiz',            label: 'More',           color: '#374151', bg: '#F9FAFB', route: 'AllServices' },
 ];
 
 /** All services: Savings first, then same items as home (full list). */
