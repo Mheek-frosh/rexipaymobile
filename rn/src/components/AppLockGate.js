@@ -67,7 +67,6 @@ function FaceIdIcon({ color, size = 34 }) {
 }
 
 function AppLockScreen({
-  colors,
   displayName,
   email,
   pin,
@@ -80,43 +79,23 @@ function AppLockScreen({
 }) {
   const { width, height } = useWindowDimensions();
   const compact = height < 720;
-  const medium = height >= 720 && height < 840;
-  const horizontalPadding = width < 360 ? 18 : 24;
-  const pinGap = width < 360 ? 10 : 14;
-  const pinSize = Math.min(
-    compact ? 64 : medium ? 70 : 74,
-    Math.floor((width - horizontalPadding * 2 - pinGap * 3) / 4),
-  );
-  const keyHeight = compact ? 61 : medium ? 72 : 82;
-  const avatarSize = compact ? 52 : medium ? 58 : 62;
-  const responsiveStyles = {
-    screen: { paddingHorizontal: horizontalPadding },
-    header: { marginTop: compact ? 10 : medium ? 18 : 25 },
-    avatar: {
-      width: avatarSize,
-      height: avatarSize,
-      borderRadius: avatarSize / 2,
-      marginBottom: compact ? 24 : medium ? 34 : 48,
-    },
-    avatarInitial: { fontSize: compact ? 20 : 23 },
-    welcome: {
-      fontSize: compact ? 25 : medium ? 28 : 30,
-      lineHeight: compact ? 31 : medium ? 34 : 36,
-    },
-    instruction: {
-      fontSize: compact ? 17 : medium ? 18 : 20,
-      lineHeight: compact ? 22 : medium ? 24 : 27,
-    },
-    pinArea: { marginTop: compact ? 25 : medium ? 36 : 49 },
-    pinRow: { gap: pinGap },
-    pinBox: { width: pinSize, height: pinSize },
-    key: { height: keyHeight },
-    logoutRow: {
-      marginTop: compact ? 7 : 14,
-      paddingBottom: compact ? 7 : 16,
-    },
-    logoutText: { fontSize: compact ? 16 : 18 },
+
+  const lightTheme = {
+    background: '#FFFFFF',
+    textPrimary: '#1F2937', // Dark gray/black for main text
+    textSecondary: '#6B7280', // Gray for subtitle
+    surfaceVariant: '#E5E7EB', // Light gray for avatar background
+    border: '#E5E7EB', // Light gray for pin boxes
+    error: '#EF4444',
+    cardBackground: '#FFFFFF',
   };
+
+  const horizontalPadding = 24;
+  const pinGap = 12;
+  const pinSize = 60;
+  const pinHeight = 65;
+  const keyHeight = compact ? 65 : 75;
+
   const nameParts = String(displayName || email || 'User')
     .trim()
     .split(/\s+/)
@@ -132,32 +111,29 @@ function AppLockScreen({
     <SafeAreaView
       style={[
         styles.lockScreen,
-        responsiveStyles.screen,
-        { backgroundColor: colors.background },
+        { backgroundColor: lightTheme.background, paddingHorizontal: horizontalPadding },
       ]}
     >
-      <View style={[styles.header, responsiveStyles.header]}>
+      <View style={styles.header}>
         <View
           style={[
             styles.avatar,
-            responsiveStyles.avatar,
             {
-              backgroundColor: colors.surfaceVariant,
+              backgroundColor: lightTheme.surfaceVariant,
             },
           ]}
         >
           <Text
             style={[
               styles.avatarInitial,
-              responsiveStyles.avatarInitial,
-              { color: colors.textPrimary },
+              { color: lightTheme.textPrimary },
             ]}
           >
             {initials}
           </Text>
         </View>
         <Text
-          style={[styles.welcome, responsiveStyles.welcome, { color: colors.textPrimary }]}
+          style={[styles.welcome, { color: lightTheme.textPrimary }]}
           numberOfLines={1}
           adjustsFontSizeToFit
           minimumFontScale={0.78}
@@ -167,8 +143,7 @@ function AppLockScreen({
         <Text
           style={[
             styles.instruction,
-            responsiveStyles.instruction,
-            { color: colors.textSecondary },
+            { color: lightTheme.textSecondary },
           ]}
         >
           Enter your 4-Digit PIN
@@ -178,22 +153,22 @@ function AppLockScreen({
       <Animated.View
         style={[
           styles.pinArea,
-          responsiveStyles.pinArea,
           {
             transform: [{ translateX: shakeValue }],
           },
         ]}
       >
-        <View style={[styles.pinRow, responsiveStyles.pinRow]}>
+        <View style={[styles.pinRow, { gap: pinGap }]}>
           {[0, 1, 2, 3].map((index) => (
             <View
               key={index}
               style={[
                 styles.pinBox,
-                responsiveStyles.pinBox,
                 {
-                  borderColor: error ? colors.error : colors.border,
-                  backgroundColor: colors.background,
+                  width: pinSize,
+                  height: pinHeight,
+                  borderColor: error ? lightTheme.error : lightTheme.border,
+                  backgroundColor: lightTheme.cardBackground,
                 },
               ]}
             >
@@ -201,7 +176,7 @@ function AppLockScreen({
                 <View
                   style={[
                     styles.pinDot,
-                    { backgroundColor: error ? colors.error : colors.textPrimary },
+                    { backgroundColor: error ? lightTheme.error : lightTheme.textPrimary },
                   ]}
                 />
               ) : null}
@@ -211,7 +186,7 @@ function AppLockScreen({
         <Text
           style={[
             styles.errorText,
-            { color: error ? colors.error : 'transparent' },
+            { color: error ? lightTheme.error : 'transparent' },
           ]}
         >
           {error || 'Passcode'}
@@ -229,7 +204,7 @@ function AppLockScreen({
               key={key}
               style={[
                 styles.key,
-                responsiveStyles.key,
+                { height: keyHeight },
                 disabled && styles.keyDisabled,
               ]}
               activeOpacity={0.65}
@@ -245,23 +220,33 @@ function AppLockScreen({
               }
             >
               {isBiometric ? (
-                <FaceIdIcon color={colors.textPrimary} size={compact ? 31 : 34} />
+                <FaceIdIcon color={lightTheme.textPrimary} size={32} />
               ) : isBackspace ? (
-                <MaterialIcons name="chevron-left" size={37} color={colors.error} />
+                <MaterialIcons
+                  name="chevron-left"
+                  size={36}
+                  color={lightTheme.error}
+                />
               ) : (
-                <Text style={[styles.keyText, { color: colors.textPrimary }]}>{key}</Text>
+                <Text
+                  style={[
+                    styles.keyText,
+                    { color: lightTheme.textPrimary },
+                  ]}
+                >
+                  {key}
+                </Text>
               )}
             </TouchableOpacity>
           );
         })}
       </View>
 
-      <View style={[styles.logoutRow, responsiveStyles.logoutRow]}>
+      <View style={styles.logoutRow}>
         <Text
           style={[
             styles.logoutPrompt,
-            responsiveStyles.logoutText,
-            { color: colors.textPrimary },
+            { color: lightTheme.textPrimary },
           ]}
         >
           Not your account?
@@ -275,8 +260,7 @@ function AppLockScreen({
           <Text
             style={[
               styles.logoutLink,
-              responsiveStyles.logoutText,
-              { color: colors.textPrimary },
+              { color: lightTheme.textPrimary },
             ]}
           >
             Log out
@@ -435,7 +419,7 @@ export default function AppLockGate({ children }) {
         setPin('');
         setError('');
         setLocked(true);
-        SecureStore.setItemAsync(lockRequiredKey(email), 'true').catch(() => {});
+        SecureStore.setItemAsync(lockRequiredKey(email), 'true').catch(() => { });
       }
 
       if (isAuthenticated && lockEnabled && email && isReturning) {
@@ -461,7 +445,7 @@ export default function AppLockGate({ children }) {
 
   const showIncorrectPasscode = useCallback(() => {
     setError('Incorrect passcode. Please try again.');
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => { });
     Animated.sequence([
       Animated.timing(shakeValue, { toValue: -10, duration: 55, useNativeDriver: true }),
       Animated.timing(shakeValue, { toValue: 10, duration: 55, useNativeDriver: true }),
@@ -480,7 +464,7 @@ export default function AppLockGate({ children }) {
       const candidateHash = passcodeHash(email, candidate);
 
       if (candidateHash === expectedHash) {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => { });
         await unlock();
         setVerifying(false);
         return;
@@ -499,7 +483,7 @@ export default function AppLockGate({ children }) {
         disableDeviceFallback: true,
       });
       if (result.success) {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => { });
         await unlock();
       }
     } catch (_) {
@@ -522,7 +506,7 @@ export default function AppLockGate({ children }) {
         return;
       }
 
-      Haptics.selectionAsync().catch(() => {});
+      Haptics.selectionAsync().catch(() => { });
       const nextPin = `${pin}${key}`.slice(0, 4);
       setPin(nextPin);
       if (nextPin.length === 4) {
@@ -567,7 +551,6 @@ export default function AppLockGate({ children }) {
       {children}
       {locked && lockEnabled ? (
         <AppLockScreen
-          colors={colors}
           displayName={displayName}
           email={email}
           pin={pin}
@@ -596,63 +579,61 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     zIndex: 1000,
     elevation: 1000,
-    paddingHorizontal: 24,
   },
   header: {
     alignItems: 'flex-start',
-    marginTop: 25,
+    marginTop: 32,
   },
   avatar: {
-    width: 62,
-    height: 62,
-    borderRadius: 31,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    marginBottom: 48,
+    marginBottom: 32,
   },
   avatarInitial: {
-    fontSize: 23,
-    fontWeight: '400',
+    fontSize: 20,
+    fontWeight: '500',
   },
   welcome: {
     maxWidth: '100%',
-    fontSize: 30,
-    lineHeight: 36,
-    fontWeight: '800',
-    letterSpacing: -0.8,
+    fontSize: 26,
+    lineHeight: 32,
+    fontWeight: '700',
+    letterSpacing: -0.5,
+    marginBottom: 6,
   },
   instruction: {
-    fontSize: 20,
-    lineHeight: 27,
-    marginTop: 5,
+    fontSize: 16,
+    lineHeight: 22,
+    fontWeight: '400',
   },
   pinArea: {
     alignItems: 'flex-start',
-    marginTop: 49,
+    marginTop: 40,
   },
   pinRow: {
-    width: '100%',
     flexDirection: 'row',
-    gap: 14,
   },
   pinBox: {
-    borderRadius: 9,
-    borderWidth: 1,
+    borderRadius: 12,
+    borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
   pinDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
   },
   errorText: {
     width: '100%',
-    height: 17,
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 7,
+    height: 20,
+    fontSize: 14,
+    fontWeight: '500',
+    marginTop: 12,
     textAlign: 'left',
   },
   keypad: {
@@ -662,16 +643,16 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     marginTop: 'auto',
+    paddingHorizontal: 20,
   },
   key: {
-    width: '27%',
-    height: 84,
+    width: '30%',
     alignItems: 'center',
     justifyContent: 'center',
   },
   keyText: {
-    fontSize: 25,
-    fontWeight: '700',
+    fontSize: 26,
+    fontWeight: '600',
   },
   keyDisabled: {
     opacity: 0.3,
@@ -680,16 +661,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    marginTop: 14,
-    paddingBottom: 16,
+    gap: 6,
+    marginTop: 16,
+    paddingBottom: 24,
   },
   logoutPrompt: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '400',
   },
   logoutLink: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
     textDecorationLine: 'underline',
   },
