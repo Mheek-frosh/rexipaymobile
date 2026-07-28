@@ -15,23 +15,8 @@ import AppLockGate from './src/components/AppLockGate';
 import ScreenTransitionSkeleton from './src/components/ScreenTransitionSkeleton';
 
 const ROUTE_SKELETON_DURATION = 1200;
-const ROUTES_WITHOUT_TRANSITION_SKELETON = new Set([
-  'Home',
-  'MainTabs',
-  'PaymentSuccess',
-  'BankStatementSuccess',
-  'Onboarding',
-  'Signup',
-  'Login',
-  'OtpVerification',
-  'PersonalInfo',
-  'NINAndFace',
-  'AccountSuccess',
-  'LoginBiometricsSetup',
-  'ForgotPasswordPhone',
-  'ForgotPasswordOtp',
-  'ForgotPasswordSetPassword',
-]);
+const TAB_ROUTES_WITH_SKELETON = new Set(['Cards', 'Stats', 'More']);
+const AUTH_ENTRY_ROUTES = new Set(['Onboarding', 'Login']);
 
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
@@ -70,6 +55,7 @@ export default function App() {
   const [routeSkeletonName, setRouteSkeletonName] = useState(null);
   const navigationRef = useNavigationContainerRef();
   const routeSkeletonTimerRef = useRef(null);
+  const shownTabSkeletonsRef = useRef(new Set());
 
   useEffect(() => {
     const unsub = startNetworkMonitoring();
@@ -84,12 +70,21 @@ export default function App() {
     const routeName = navigationRef.getCurrentRoute()?.name;
     clearTimeout(routeSkeletonTimerRef.current);
 
-    if (!routeName || ROUTES_WITHOUT_TRANSITION_SKELETON.has(routeName)) {
+    if (AUTH_ENTRY_ROUTES.has(routeName)) {
+      shownTabSkeletonsRef.current.clear();
+    }
+
+    if (
+      !routeName ||
+      !TAB_ROUTES_WITH_SKELETON.has(routeName) ||
+      shownTabSkeletonsRef.current.has(routeName)
+    ) {
       setShowRouteSkeleton(false);
       setRouteSkeletonName(null);
       return;
     }
 
+    shownTabSkeletonsRef.current.add(routeName);
     setRouteSkeletonName(routeName);
     setShowRouteSkeleton(true);
     routeSkeletonTimerRef.current = setTimeout(() => {
