@@ -11,6 +11,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import TransactionProcessingModal from '../../components/TransactionProcessingModal';
 
 const CURRENCIES = [
   { id: 'ngn', name: 'Naira', code: 'NGN', flag: '🇳🇬', rate: 1 },
@@ -26,6 +27,7 @@ export default function BankConvertScreen() {
   const [amount, setAmount] = useState('');
   const [showFromModal, setShowFromModal] = useState(false);
   const [showToModal, setShowToModal] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   const fromCur = CURRENCIES.find((c) => c.id === fromCurrency);
   const toCur = CURRENCIES.find((c) => c.id === toCurrency);
@@ -40,8 +42,11 @@ export default function BankConvertScreen() {
     setToCurrency(fromCurrency);
   };
 
-  const handleConvert = () => {
+  const handleConvert = async () => {
     if (!amount || numAmount <= 0) return;
+    setProcessing(true);
+    await new Promise((resolve) => setTimeout(resolve, 1600));
+    setProcessing(false);
     navigation.navigate('PaymentSuccess', {
       amount: convertedAmount.toFixed(2),
       recipient: `Converted to ${toCur?.name}`,
@@ -112,7 +117,7 @@ export default function BankConvertScreen() {
           <TouchableOpacity
             style={[styles.convertBtn, { backgroundColor: colors.primary }]}
             onPress={handleConvert}
-            disabled={!amount || numAmount <= 0}
+            disabled={processing || !amount || numAmount <= 0}
           >
             <Text style={styles.convertBtnText}>Convert</Text>
           </TouchableOpacity>
@@ -132,6 +137,11 @@ export default function BankConvertScreen() {
         selected={toCurrency}
         onSelect={(c) => { setToCurrency(c.id); setShowToModal(false); }}
         colors={colors}
+      />
+      <TransactionProcessingModal
+        visible={processing}
+        label="Converting currency..."
+        subtext="Please wait while we confirm your conversion securely."
       />
     </View>
   );

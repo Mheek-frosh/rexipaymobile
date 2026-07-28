@@ -14,6 +14,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useTheme } from '../../theme/ThemeContext';
 import PinEntryModal from '../../components/PinEntryModal';
+import TransactionProcessingModal from '../../components/TransactionProcessingModal';
 
 const DATA_PLANS = [
   { name: '500MB', price: '₦500', validity: '30 days' },
@@ -41,6 +42,7 @@ export default function AirtimeScreen() {
   const [showNetworkModal, setShowNetworkModal] = useState(false);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
+  const [processingPurchase, setProcessingPurchase] = useState(false);
 
   const phoneDigits = (phone || '').replace(/\D/g, '');
   const isValidPhone = phoneDigits.length >= 10 && phoneDigits.length <= 11;
@@ -88,10 +90,13 @@ export default function AirtimeScreen() {
     proceedToSuccess();
   };
 
-  const proceedToSuccess = () => {
+  const proceedToSuccess = async () => {
     const amt = selectedTab === 0 ? amount : selectedPlan?.price?.replace(/[^\d]/g, '') || '0';
     const recipient =
       selectedTab === 0 ? phone : `${selectedPlan?.name} - ${phone}`;
+    setProcessingPurchase(true);
+    await new Promise((resolve) => setTimeout(resolve, 1600));
+    setProcessingPurchase(false);
     navigation.navigate('PaymentSuccess', {
       amount: amt,
       recipient,
@@ -358,6 +363,12 @@ export default function AirtimeScreen() {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      <TransactionProcessingModal
+        visible={processingPurchase}
+        label={selectedTab === 0 ? 'Purchasing airtime...' : 'Purchasing data...'}
+        subtext="Please wait while we confirm your purchase securely."
+      />
     </View>
   );
 }

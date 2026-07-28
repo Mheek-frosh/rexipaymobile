@@ -16,6 +16,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as Location from 'expo-location';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
 import { useTheme } from '../../theme/ThemeContext';
@@ -33,7 +34,7 @@ const CURRENCY_ACCOUNTS = [
 
 const { width } = Dimensions.get('window');
 const SIDE = 20;
-const INITIAL_SKELETON_DURATION = 700;
+const INITIAL_SKELETON_DURATION = 4000;
 
 export default function HomeScreen() {
   const { colors, isDark } = useTheme();
@@ -50,6 +51,7 @@ export default function HomeScreen() {
   const [rewardIndex, setRewardIndex] = useState(0);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const rewardCarouselRef = useRef(null);
+  const locationPermissionRequestedRef = useRef(false);
 
   const REWARD_SLIDES = [
     { id: '1', image: require('../../../assets/images/rewards.png') },
@@ -64,6 +66,35 @@ export default function HomeScreen() {
 
     return () => clearTimeout(startupTimer);
   }, []);
+
+  useEffect(() => {
+    if (isInitialLoading || locationPermissionRequestedRef.current) return;
+
+    let cancelled = false;
+    locationPermissionRequestedRef.current = true;
+
+    const requestLocationPermission = async () => {
+      try {
+        const currentPermission = await Location.getForegroundPermissionsAsync();
+
+        if (
+          !cancelled &&
+          currentPermission.status === Location.PermissionStatus.UNDETERMINED &&
+          currentPermission.canAskAgain
+        ) {
+          await Location.requestForegroundPermissionsAsync();
+        }
+      } catch (error) {
+        console.warn('Unable to request location permission:', error);
+      }
+    };
+
+    requestLocationPermission();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isInitialLoading]);
 
   useEffect(() => {
     if (REWARD_SLIDES.length <= 1) return;

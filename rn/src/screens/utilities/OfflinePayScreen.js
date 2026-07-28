@@ -32,6 +32,7 @@ import {
   isConnected,
 } from '../../services/offlineSyncService';
 import PinEntryModal from '../../components/PinEntryModal';
+import TransactionProcessingModal from '../../components/TransactionProcessingModal';
 import * as LocalAuthentication from 'expo-local-authentication';
 
 const DEFAULT_CURRENCY = 'NGN';
@@ -62,6 +63,7 @@ export default function OfflinePayScreen() {
   const [showPinModal, setShowPinModal] = useState(false);
   const [successTx, setSuccessTx] = useState(null);
   const [manualReceiverId, setManualReceiverId] = useState('');
+  const [processingPayment, setProcessingPayment] = useState(false);
   const scaleAnim = useState(new Animated.Value(0))[0];
 
   const userId = user?.phone || userPhone || 'user-' + Date.now();
@@ -186,21 +188,31 @@ export default function OfflinePayScreen() {
 
   const performOfflineDebit = async () => {
     const amt = parseFloat(String(amount).replace(/,/g, ''));
-    const res = await recordOfflineDebit(
-      walletState,
-      userId,
-      receiverData.userId,
-      amt,
-      DEFAULT_CURRENCY
-    );
-    if (!res.success) {
-      Alert.alert('Error', res.error || 'Transaction failed');
-      return;
+    setProcessingPayment(true);
+    try {
+      const [res] = await Promise.all([
+        recordOfflineDebit(
+          walletState,
+          userId,
+          receiverData.userId,
+          amt,
+          DEFAULT_CURRENCY
+        ),
+        new Promise((resolve) => setTimeout(resolve, 1200)),
+      ]);
+      if (!res.success) {
+        Alert.alert('Error', res.error || 'Transaction failed');
+        return;
+      }
+      setSuccessTx(res.transaction);
+      setWalletState(res.state);
+      setMode('success');
+      Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, tension: 50, friction: 7 }).start();
+    } catch (_) {
+      Alert.alert('Error', 'Could not secure this offline payment. Please try again.');
+    } finally {
+      setProcessingPayment(false);
     }
-    setSuccessTx(res.transaction);
-    setWalletState(res.state);
-    setMode('success');
-    Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, tension: 50, friction: 7 }).start();
   };
 
   const handlePinSuccess = async () => {
@@ -509,6 +521,12 @@ export default function OfflinePayScreen() {
         onSuccess={handlePinSuccess}
         onCancel={() => setShowPinModal(false)}
         title="Enter PIN to confirm offline payment"
+      />
+
+      <TransactionProcessingModal
+        visible={processingPayment}
+        label="Securing offline payment..."
+        subtext="Please wait while this payment is encrypted and saved safely."
       />
     </View>
   );

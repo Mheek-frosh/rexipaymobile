@@ -12,6 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
 import { fetchNetworks } from '../../services/appContentService';
+import TransactionProcessingModal from '../../components/TransactionProcessingModal';
 
 const PLANS = ['500MB · 7 days', '1.5GB · 30 days', '3GB · 30 days', '10GB · 30 days'];
 
@@ -22,6 +23,7 @@ export default function InternetDataScreen() {
   const [network, setNetwork] = useState('mtn');
   const [phone, setPhone] = useState('');
   const [plan, setPlan] = useState(PLANS[1]);
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -37,11 +39,14 @@ export default function InternetDataScreen() {
     };
   }, []);
 
-  const pay = () => {
+  const pay = async () => {
     if (phone.replace(/\D/g, '').length < 10) {
       Alert.alert('Phone number', 'Enter a valid Nigerian mobile number.');
       return;
     }
+    setProcessing(true);
+    await new Promise((resolve) => setTimeout(resolve, 1400));
+    setProcessing(false);
     Alert.alert('Data purchase', `You selected ${plan} for ${phone}. Payment will process when connected.`);
   };
 
@@ -113,10 +118,21 @@ export default function InternetDataScreen() {
           </TouchableOpacity>
         ))}
 
-        <TouchableOpacity style={[styles.payBtn, { backgroundColor: colors.primary }]} onPress={pay} activeOpacity={0.9}>
+        <TouchableOpacity
+          style={[styles.payBtn, { backgroundColor: colors.primary }]}
+          onPress={pay}
+          activeOpacity={0.9}
+          disabled={processing}
+        >
           <Text style={styles.payBtnText}>Continue to pay</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <TransactionProcessingModal
+        visible={processing}
+        label="Preparing data purchase..."
+        subtext="Please wait while we securely prepare your purchase."
+      />
     </View>
   );
 }

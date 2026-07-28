@@ -10,6 +10,7 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import TransactionProcessingModal from '../../components/TransactionProcessingModal';
 
 export default function SendCryptoAssetScreen() {
   const { colors } = useTheme();
@@ -18,11 +19,15 @@ export default function SendCryptoAssetScreen() {
   const { asset } = route.params || {};
   const [address, setAddress] = useState('');
   const [amount, setAmount] = useState('');
+  const [processing, setProcessing] = useState(false);
 
   if (!asset) return null;
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!address || !amount || parseFloat(amount) <= 0) return;
+    setProcessing(true);
+    await new Promise((resolve) => setTimeout(resolve, 1600));
+    setProcessing(false);
     navigation.navigate('PaymentSuccess', {
       amount: amount,
       recipient: address.slice(0, 12) + '...',
@@ -73,11 +78,17 @@ export default function SendCryptoAssetScreen() {
         <TouchableOpacity
           style={[styles.sendBtn, { backgroundColor: asset.color || colors.primary }]}
           onPress={handleSend}
-          disabled={!address || !amount || parseFloat(amount) <= 0}
+          disabled={processing || !address || !amount || parseFloat(amount) <= 0}
         >
           <Text style={styles.sendBtnText}>Send {asset.symbol}</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <TransactionProcessingModal
+        visible={processing}
+        label={`Sending ${asset.symbol}...`}
+        subtext="Please wait while we submit your crypto transfer securely."
+      />
     </View>
   );
 }

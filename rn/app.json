@@ -41,6 +41,12 @@
       "expo-web-browser",
       "expo-font",
       [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow RexiPay to use your location to help protect your account and verify secure transactions."
+        }
+      ],
+      [
         "expo-local-authentication",
         {
           "faceIDPermission": "Allow RexiPay to use Face ID to securely unlock your app."

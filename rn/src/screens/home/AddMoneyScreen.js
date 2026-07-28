@@ -10,6 +10,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import TransactionProcessingModal from '../../components/TransactionProcessingModal';
 
 const METHODS = [
   { id: 'card', icon: 'credit-card', label: 'Debit/Credit Card', desc: 'Instant' },
@@ -22,9 +23,13 @@ export default function AddMoneyScreen() {
   const navigation = useNavigation();
   const [amount, setAmount] = useState('');
   const [selectedMethod, setSelectedMethod] = useState('card');
+  const [processing, setProcessing] = useState(false);
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!amount || parseFloat(amount) <= 0) return;
+    setProcessing(true);
+    await new Promise((resolve) => setTimeout(resolve, 1600));
+    setProcessing(false);
     navigation.navigate('PaymentSuccess', {
       amount: amount,
       recipient: 'Add Money',
@@ -86,11 +91,17 @@ export default function AddMoneyScreen() {
         <TouchableOpacity
           style={[styles.addBtn, { backgroundColor: colors.primary }]}
           onPress={handleAdd}
-          disabled={!amount || parseFloat(amount) <= 0}
+          disabled={processing || !amount || parseFloat(amount) <= 0}
         >
           <Text style={styles.addBtnText}>Add ₦{amount ? Number(amount).toLocaleString() : '0'}</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <TransactionProcessingModal
+        visible={processing}
+        label="Adding money..."
+        subtext="Please wait while we confirm your funding transaction securely."
+      />
     </View>
   );
 }

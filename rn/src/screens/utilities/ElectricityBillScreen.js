@@ -12,6 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
 import { fetchDiscos } from '../../services/appContentService';
+import TransactionProcessingModal from '../../components/TransactionProcessingModal';
 
 export default function ElectricityBillScreen() {
   const { colors } = useTheme();
@@ -20,6 +21,7 @@ export default function ElectricityBillScreen() {
   const [disco, setDisco] = useState('');
   const [meter, setMeter] = useState('');
   const [amount, setAmount] = useState('');
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -35,7 +37,7 @@ export default function ElectricityBillScreen() {
     };
   }, []);
 
-  const pay = () => {
+  const pay = async () => {
     if (meter.trim().length < 5) {
       Alert.alert('Meter number', 'Enter a valid prepaid meter number.');
       return;
@@ -44,6 +46,9 @@ export default function ElectricityBillScreen() {
       Alert.alert('Amount', 'Minimum top-up is ₦1,000.');
       return;
     }
+    setProcessing(true);
+    await new Promise((resolve) => setTimeout(resolve, 1400));
+    setProcessing(false);
     Alert.alert('Electricity', `Top-up ₦${amount} for ${meter} (${disco}) — confirm when payment is live.`);
   };
 
@@ -107,10 +112,21 @@ export default function ElectricityBillScreen() {
           </Text>
         </View>
 
-        <TouchableOpacity style={[styles.payBtn, { backgroundColor: colors.primary }]} onPress={pay} activeOpacity={0.9}>
+        <TouchableOpacity
+          style={[styles.payBtn, { backgroundColor: colors.primary }]}
+          onPress={pay}
+          activeOpacity={0.9}
+          disabled={processing}
+        >
           <Text style={styles.payBtnText}>Pay electricity</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <TransactionProcessingModal
+        visible={processing}
+        label="Preparing electricity payment..."
+        subtext="Please wait while we securely verify your payment details."
+      />
     </View>
   );
 }

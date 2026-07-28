@@ -11,6 +11,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import TransactionProcessingModal from '../../components/TransactionProcessingModal';
 
 const CRYPTO_ASSETS = [
   { id: 'btc', name: 'Bitcoin', symbol: 'BTC', color: '#FF9800', icon: 'currency-bitcoin', balance: '0.5', rate: 95000 },
@@ -24,13 +25,17 @@ export default function CryptoSellScreen() {
   const [selectedCrypto, setSelectedCrypto] = useState('btc');
   const [amount, setAmount] = useState('');
   const [showCryptoModal, setShowCryptoModal] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   const asset = CRYPTO_ASSETS.find((c) => c.id === selectedCrypto);
   const numAmount = parseFloat(amount) || 0;
   const usdValue = asset ? numAmount * asset.rate : 0;
 
-  const handleSell = () => {
+  const handleSell = async () => {
     if (!amount || numAmount <= 0) return;
+    setProcessing(true);
+    await new Promise((resolve) => setTimeout(resolve, 1600));
+    setProcessing(false);
     navigation.navigate('PaymentSuccess', {
       amount: usdValue.toFixed(2),
       recipient: `Sold ${asset?.symbol}`,
@@ -94,7 +99,7 @@ export default function CryptoSellScreen() {
           <TouchableOpacity
             style={[styles.sellBtn, { backgroundColor: colors.primary }]}
             onPress={handleSell}
-            disabled={!amount || numAmount <= 0}
+            disabled={processing || !amount || numAmount <= 0}
           >
             <Text style={styles.sellBtnText}>Sell {asset?.symbol}</Text>
           </TouchableOpacity>
@@ -139,6 +144,12 @@ export default function CryptoSellScreen() {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      <TransactionProcessingModal
+        visible={processing}
+        label={`Selling ${asset?.symbol || 'crypto'}...`}
+        subtext="Please wait while we confirm your crypto transaction securely."
+      />
     </View>
   );
 }
