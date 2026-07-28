@@ -620,7 +620,7 @@ const styles = StyleSheet.create({
   dangerButton: {
     marginTop: 8,
     paddingVertical: 14,
-    borderRadius: 999,
+    borderRadius: 16,
     paddingHorizontal: 40,
     alignItems: 'center',
     justifyContent: 'center',

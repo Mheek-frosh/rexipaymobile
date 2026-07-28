@@ -28,7 +28,7 @@ export default function PrimaryButton({ text, onPress, disabled, loading, style,
 const styles = StyleSheet.create({
   btn: {
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },

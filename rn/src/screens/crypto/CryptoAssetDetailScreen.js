@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   headerTitle: { flex: 1, fontSize: 18, fontWeight: '700', textAlign: 'center', marginHorizontal: 8 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 },
   muted: { marginTop: 12, fontSize: 14, textAlign: 'center' },
-  retry: { marginTop: 16, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
+  retry: { marginTop: 16, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 16 },
   retryText: { color: '#FFF', fontWeight: '700' },
   content: { paddingHorizontal: 20, paddingBottom: 32 },
   heroRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 8 },
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 16,
   },
   actionBtnText: { color: '#FFF', fontWeight: '700', fontSize: 14 },
 });

@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   secondaryBtn: {
     flex: 1,
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: 16,
     paddingVertical: 10,
     alignItems: 'center',
     justifyContent: 'center',
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
   cta: {
     marginTop: 16,
     paddingVertical: 16,
-    borderRadius: 14,
+    borderRadius: 16,
     alignItems: 'center',
   },
   ctaText: { color: '#FFF', fontSize: 16, fontWeight: '700' },

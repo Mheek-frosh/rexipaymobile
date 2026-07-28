@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   addBtn: {
     marginTop: 24,
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     alignItems: 'center',
   },
   addBtnText: { color: '#FFF', fontSize: 16, fontWeight: '600' },

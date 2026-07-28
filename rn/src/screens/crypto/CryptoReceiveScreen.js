@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingVertical: 12,
     paddingHorizontal: 24,
-    borderRadius: 12,
+    borderRadius: 16,
   },
   copyBtnText: { fontSize: 16, fontWeight: '600' },
   shareBtn: {
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingVertical: 14,
     paddingHorizontal: 24,
-    borderRadius: 12,
+    borderRadius: 16,
     width: '100%',
   },
   shareText: { color: '#FFF', fontSize: 16, fontWeight: '600' },

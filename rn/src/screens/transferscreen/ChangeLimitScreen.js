@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
   saveBtn: {
     marginTop: 40,
     height: 55,
-    borderRadius: 30,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },

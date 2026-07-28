@@ -574,7 +574,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
     padding: 16,
-    borderRadius: 14,
+    borderRadius: 16,
     marginTop: 12,
   },
   actionBtnText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
@@ -620,12 +620,12 @@ const styles = StyleSheet.create({
   cancelBtn: {
     flex: 1,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 1,
     alignItems: 'center',
   },
   cancelText: { fontSize: 16 },
-  confirmBtn: { flex: 1, padding: 16, borderRadius: 12, alignItems: 'center' },
+  confirmBtn: { flex: 1, padding: 16, borderRadius: 16, alignItems: 'center' },
   confirmText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
   qrWrap: {
     alignSelf: 'center',

@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   resultAmount: { fontSize: 24, fontWeight: '700', marginTop: 8 },
   convertBtn: {
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     alignItems: 'center',
   },
   convertBtnText: { color: '#FFF', fontSize: 16, fontWeight: '600' },

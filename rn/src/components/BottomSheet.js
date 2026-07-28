@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   logoutCancel: {
     flex: 1,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 1,
     alignItems: 'center',
   },
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   logoutConfirm: {
     flex: 1,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     alignItems: 'center',
   },
   logoutConfirmText: { color: '#FFF', fontSize: 16, fontWeight: '600' },

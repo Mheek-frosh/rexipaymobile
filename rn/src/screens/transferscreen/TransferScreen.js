@@ -610,7 +610,7 @@ const styles = StyleSheet.create({
   nextBtn: {
     marginTop: 24,
     height: 56,
-    borderRadius: 12,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -705,7 +705,7 @@ const styles = StyleSheet.create({
   cancelBtn: {
     flex: 1,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 1,
     alignItems: 'center',
   },
@@ -713,7 +713,7 @@ const styles = StyleSheet.create({
   confirmBtn: {
     flex: 1,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     alignItems: 'center',
   },
   confirmText: { color: '#FFF', fontSize: 16, fontWeight: '600' },

@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 32,
     paddingVertical: 14,
-    borderRadius: 999,
+    borderRadius: 16,
   },
   addButtonText: {
     color: '#FFF',
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
   sheetAddButton: {
     marginTop: 16,
     paddingVertical: 14,
-    borderRadius: 999,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },

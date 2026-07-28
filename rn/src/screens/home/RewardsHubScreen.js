@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: 16,
     paddingVertical: 14,
-    borderRadius: 14,
+    borderRadius: 16,
     borderWidth: 1,
   },
   ctaText: { fontSize: 15, fontWeight: '700' },

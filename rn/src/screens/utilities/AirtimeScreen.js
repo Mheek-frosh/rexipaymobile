@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
   planValidity: { fontSize: 12, marginTop: 4 },
   buyBtn: {
     height: 55,
-    borderRadius: 30,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
   summaryCancel: {
     flex: 1,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 1,
     alignItems: 'center',
   },
@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
   summaryConfirm: {
     flex: 1,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     alignItems: 'center',
   },
   summaryConfirmText: { color: '#FFF', fontSize: 16, fontWeight: '600' },

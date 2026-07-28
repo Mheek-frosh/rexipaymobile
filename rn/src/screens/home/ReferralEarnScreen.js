@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     paddingVertical: 14,
-    borderRadius: 14,
+    borderRadius: 16,
     marginTop: 14,
   },
   shareBtnText: { color: '#FFF', fontSize: 16, fontWeight: '700' },

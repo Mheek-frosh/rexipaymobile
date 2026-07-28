@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   },
   sendBtn: {
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     alignItems: 'center',
     marginTop: 8,
   },

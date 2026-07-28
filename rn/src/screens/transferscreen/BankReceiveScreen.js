@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
     paddingVertical: 14,
     paddingHorizontal: 24,
-    borderRadius: 12,
+    borderRadius: 16,
     width: '100%',
   },
   shareText: { color: '#FFF', fontSize: 16, fontWeight: '600' },

@@ -176,6 +176,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   planText: { fontSize: 15, fontWeight: '600', flex: 1 },
-  payBtn: { marginTop: 24, paddingVertical: 16, borderRadius: 14, alignItems: 'center' },
+  payBtn: { marginTop: 24, paddingVertical: 16, borderRadius: 16, alignItems: 'center' },
   payBtnText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
 });

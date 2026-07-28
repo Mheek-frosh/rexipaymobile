@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   primaryBtn: {
     marginTop: 4,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },

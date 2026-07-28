@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 14,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: 16,
   },
   actionText: { fontSize: 14, fontWeight: '600' },
 });
