@@ -22,6 +22,7 @@ import { useTheme } from '../../theme/ThemeContext';
 import { AccountSwitcherSheet } from '../../components/BottomSheet';
 import DraggableQuickActions from '../../components/DraggableQuickActions';
 import IosSpinner from '../../components/IosSpinner';
+import HomeScreenSkeleton from '../../components/HomeScreenSkeleton';
 import { HOME_QUICK_SERVICES } from '../../data/homeServices';
 
 const CURRENCY_ACCOUNTS = [
@@ -32,6 +33,7 @@ const CURRENCY_ACCOUNTS = [
 
 const { width } = Dimensions.get('window');
 const SIDE = 20;
+const INITIAL_SKELETON_DURATION = 700;
 
 export default function HomeScreen() {
   const { colors, isDark } = useTheme();
@@ -46,6 +48,7 @@ export default function HomeScreen() {
   const [balanceHidden, setBalanceHidden] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [rewardIndex, setRewardIndex] = useState(0);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const rewardCarouselRef = useRef(null);
 
   const REWARD_SLIDES = [
@@ -53,6 +56,14 @@ export default function HomeScreen() {
     { id: '2', image: require('../../../assets/images/refer.png') },
     { id: '3', image: require('../../../assets/images/savings.png') },
   ];
+
+  useEffect(() => {
+    const startupTimer = setTimeout(() => {
+      setIsInitialLoading(false);
+    }, INITIAL_SKELETON_DURATION);
+
+    return () => clearTimeout(startupTimer);
+  }, []);
 
   useEffect(() => {
     if (REWARD_SLIDES.length <= 1) return;
@@ -168,6 +179,10 @@ export default function HomeScreen() {
     { id: 'tether', name: 'Tether', symbol: 'usdt', priceDisplay: '$1.00', changeDisplay: '0.00%', positive: true, image: 'https://assets.coingecko.com/coins/images/325/large/Tether.png' },
     { id: 'solana', name: 'Solana', symbol: 'sol', priceDisplay: '$185.20', changeDisplay: '-0.95%', positive: false, image: 'https://assets.coingecko.com/coins/images/4128/large/solana.png' },
   ];
+
+  if (isInitialLoading) {
+    return <HomeScreenSkeleton />;
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
