@@ -67,6 +67,7 @@ const tokenCache = {
 export default function App() {
   const [splashDone, setSplashDone] = useState(false);
   const [showRouteSkeleton, setShowRouteSkeleton] = useState(false);
+  const [routeSkeletonName, setRouteSkeletonName] = useState(null);
   const navigationRef = useNavigationContainerRef();
   const routeSkeletonTimerRef = useRef(null);
 
@@ -85,9 +86,11 @@ export default function App() {
 
     if (!routeName || ROUTES_WITHOUT_TRANSITION_SKELETON.has(routeName)) {
       setShowRouteSkeleton(false);
+      setRouteSkeletonName(null);
       return;
     }
 
+    setRouteSkeletonName(routeName);
     setShowRouteSkeleton(true);
     routeSkeletonTimerRef.current = setTimeout(() => {
       setShowRouteSkeleton(false);
@@ -121,7 +124,9 @@ export default function App() {
                       <StatusBar style="auto" />
                       <RootNavigator />
                     </NavigationContainer>
-                    {showRouteSkeleton && <ScreenTransitionSkeleton />}
+                    {showRouteSkeleton && (
+                      <ScreenTransitionSkeleton routeName={routeSkeletonName} />
+                    )}
                   </View>
                 </NotificationProvider>
               </AppLockGate>
