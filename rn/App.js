@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ClerkProvider, ClerkLoaded } from '@clerk/clerk-expo';
 import * as SecureStore from 'expo-secure-store';
 import { AuthProvider } from './src/context/AuthContext';
@@ -95,10 +96,12 @@ export default function App() {
   if (!splashDone) {
     return (
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <ThemeProvider>
-          <StatusBar style="light" />
-          <SplashScreen onFinish={() => setSplashDone(true)} />
-        </ThemeProvider>
+        <SafeAreaProvider>
+          <ThemeProvider>
+            <StatusBar style="light" />
+            <SplashScreen onFinish={() => setSplashDone(true)} />
+          </ThemeProvider>
+        </SafeAreaProvider>
       </GestureHandlerRootView>
     );
   }
@@ -107,26 +110,28 @@ export default function App() {
     <ClerkProvider tokenCache={tokenCache} publishableKey={CLERK_PUBLISHABLE_KEY}>
       <ClerkLoaded>
         <GestureHandlerRootView style={{ flex: 1 }}>
-          <ThemeProvider>
-            <AuthProvider>
-              <AppLockGate>
-                <NotificationProvider>
-                  <View style={{ flex: 1 }}>
-                    <NavigationContainer
-                      ref={navigationRef}
-                      onStateChange={handleNavigationStateChange}
-                    >
-                      <StatusBar style="auto" />
-                      <RootNavigator />
-                    </NavigationContainer>
-                    {showRouteSkeleton && (
-                      <ScreenTransitionSkeleton routeName={routeSkeletonName} />
-                    )}
-                  </View>
-                </NotificationProvider>
-              </AppLockGate>
-            </AuthProvider>
-          </ThemeProvider>
+          <SafeAreaProvider>
+            <ThemeProvider>
+              <AuthProvider>
+                <AppLockGate>
+                  <NotificationProvider>
+                    <View style={{ flex: 1 }}>
+                      <NavigationContainer
+                        ref={navigationRef}
+                        onStateChange={handleNavigationStateChange}
+                      >
+                        <StatusBar style="auto" />
+                        <RootNavigator />
+                      </NavigationContainer>
+                      {showRouteSkeleton && (
+                        <ScreenTransitionSkeleton routeName={routeSkeletonName} />
+                      )}
+                    </View>
+                  </NotificationProvider>
+                </AppLockGate>
+              </AuthProvider>
+            </ThemeProvider>
+          </SafeAreaProvider>
         </GestureHandlerRootView>
       </ClerkLoaded>
     </ClerkProvider>

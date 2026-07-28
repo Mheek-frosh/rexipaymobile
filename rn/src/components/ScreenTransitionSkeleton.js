@@ -8,9 +8,12 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../theme/ThemeContext';
 
 const { width } = Dimensions.get('window');
+const COMPACT_TAB_BAR_HEIGHT = 64;
+const SKELETON_TAB_GAP = 8;
 
 function Block({ style, baseColor, highlightColor, translateX }) {
   return (
@@ -30,6 +33,7 @@ function Block({ style, baseColor, highlightColor, translateX }) {
 
 export default function ScreenTransitionSkeleton({ routeName }) {
   const { colors, isDark } = useTheme();
+  const insets = useSafeAreaInsets();
   const progress = useRef(new Animated.Value(0)).current;
   const animation = useRef(null);
 
@@ -74,9 +78,12 @@ export default function ScreenTransitionSkeleton({ routeName }) {
         {
           backgroundColor: colors.background,
           paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 10 : 54,
+          bottom:
+            Math.max(insets.bottom, 10) +
+            COMPACT_TAB_BAR_HEIGHT +
+            SKELETON_TAB_GAP,
         },
       ]}
-      accessibilityViewIsModal
       accessibilityRole="progressbar"
       accessibilityLabel="Loading screen"
     >
@@ -237,6 +244,7 @@ const styles = StyleSheet.create({
     zIndex: 10000,
     elevation: 10000,
     paddingHorizontal: 20,
+    overflow: 'hidden',
   },
   block: {
     overflow: 'hidden',

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import { useTheme } from '../theme/ThemeContext';
 import Icon from 'react-native-remix-icon';
@@ -52,11 +53,16 @@ function ExactHomeIcon({ color, size = 26, isFocused, isDark }) {
 }
 
 const CustomTabBar = ({ state, descriptors, navigation }) => {
-  // Correctly map 'colors' from useTheme to 'themeColors'
   const { colors: themeColors, isDark } = useTheme();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.tabBarContainer}>
+    <View
+      style={[
+        styles.tabBarContainer,
+        { bottom: Math.max(insets.bottom, 10) },
+      ]}
+    >
       <View style={[styles.tabBar, { 
         backgroundColor: themeColors.cardBackground,
         borderWidth: isDark ? 1 : 0,
@@ -86,13 +92,13 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
 
           let IconComponent;
           if (route.name === 'Home') {
-            IconComponent = <ExactHomeIcon color={color} size={25} isFocused={isFocused} isDark={isDark} />;
+            IconComponent = <ExactHomeIcon color={color} size={22} isFocused={isFocused} isDark={isDark} />;
           } else if (route.name === 'Cards') {
-            IconComponent = <Card size={26} color={color} variant={isFocused ? 'Bold' : 'Outline'} />;
+            IconComponent = <Card size={22} color={color} variant={isFocused ? 'Bold' : 'Outline'} />;
           } else if (route.name === 'Stats') {
-            IconComponent = <Chart2 size={26} color={color} variant={isFocused ? 'Bold' : 'Outline'} />;
+            IconComponent = <Chart2 size={22} color={color} variant={isFocused ? 'Bold' : 'Outline'} />;
           } else if (route.name === 'More') {
-            IconComponent = <More size={26} color={color} variant={isFocused ? 'Bold' : 'Outline'} />;
+            IconComponent = <More size={22} color={color} variant={isFocused ? 'Bold' : 'Outline'} />;
           }
 
           return (
@@ -133,7 +139,6 @@ export default function MainTabs() {
 const styles = StyleSheet.create({
   tabBarContainer: {
     position: 'absolute',
-    bottom: 24, // Floating margin
     left: 16,
     right: 16,
     zIndex: 1000,
@@ -141,15 +146,15 @@ const styles = StyleSheet.create({
   },
   tabBar: {
     flexDirection: 'row',
-    borderRadius: 40,
-    height: 76,
+    borderRadius: 24,
+    height: 64,
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.09,
+    shadowRadius: 10,
     elevation: 5,
   },
   tabButtonWrapper: {
@@ -160,13 +165,13 @@ const styles = StyleSheet.create({
   tabButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 26, // Increased padding for wider indicator
-    minWidth: 84, // Ensure a minimum width for the active pill
-    borderRadius: 30, // Make it a perfect pill
+    paddingVertical: 6,
+    paddingHorizontal: 18,
+    minWidth: 68,
+    borderRadius: 18,
   },
   tabLabel: {
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: 10.5,
+    marginTop: 2,
   }
 });

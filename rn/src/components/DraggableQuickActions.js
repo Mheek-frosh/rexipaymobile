@@ -12,7 +12,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 
 const { width } = Dimensions.get('window');
-const CONTAINER_PADDING = 16;
+const CONTAINER_PADDING = 12;
 const CONTAINER_WIDTH = width - 40;
 const SLOT_WIDTH = (CONTAINER_WIDTH - CONTAINER_PADDING * 2) / 4;
 
@@ -97,7 +97,7 @@ export default function DraggableQuickActions({
         <TouchableOpacity
           style={[
             styles.editBtn,
-            isEditing && { backgroundColor: '#172FC7', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 12 },
+            isEditing && { backgroundColor: '#172FC7', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
           ]}
           onPress={() => {
             setIsEditing(!isEditing);
@@ -109,7 +109,7 @@ export default function DraggableQuickActions({
           </Text>
           <MaterialIcons
             name={isEditing ? 'check' : 'edit'}
-            size={14}
+            size={13}
             color={isEditing ? '#FFF' : '#172FC7'}
           />
         </TouchableOpacity>
@@ -117,7 +117,7 @@ export default function DraggableQuickActions({
 
       {isEditing && (
         <View style={styles.reorderHintBar}>
-          <MaterialIcons name="touch-app" size={16} color="#172FC7" />
+          <MaterialIcons name="touch-app" size={14} color="#172FC7" />
           <Text style={[styles.reorderHintText, { color: colors.textSecondary }]}>
             Drag any icon left or right to reorder slots
           </Text>
@@ -175,7 +175,7 @@ export default function DraggableQuickActions({
                     isEditing && !isDragging && styles.jiggleBorder,
                   ]}
                 >
-                  <MaterialIcons name={action.icon} size={24} color={action.color} />
+                  <MaterialIcons name={action.icon} size={21} color={action.color} />
                 </View>
                 <Text style={[styles.actionBtnText, { color: colors.textPrimary }]}>{action.label}</Text>
               </TouchableOpacity>
@@ -192,10 +192,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
   },
   editBtn: {
@@ -205,30 +205,30 @@ const styles = StyleSheet.create({
   },
   editText: {
     color: '#172FC7',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
   },
   reorderHintBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
-    marginBottom: 8,
+    gap: 5,
+    marginBottom: 6,
   },
   reorderHintText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '500',
   },
   quickActionsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 32,
+    marginBottom: 22,
     padding: CONTAINER_PADDING,
-    borderRadius: 24,
+    borderRadius: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.04,
-    shadowRadius: 12,
+    shadowRadius: 10,
     elevation: 2,
   },
   actionBtnContainer: {
@@ -239,15 +239,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   actionIconBox: {
-    width: 56,
-    height: 56,
-    borderRadius: 18,
+    width: 46,
+    height: 46,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
+    marginBottom: 6,
   },
   actionBtnText: {
-    fontSize: 13,
+    fontSize: 11.5,
     fontWeight: '600',
   },
   jiggleBorder: {
