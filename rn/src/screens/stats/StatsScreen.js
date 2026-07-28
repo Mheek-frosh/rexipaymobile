@@ -64,7 +64,7 @@ const CHART_DATA_BY_RANGE = {
 
 // Legend: categories with colors for infographics
 const CATEGORY_LEGEND = [
-  { label: 'Transfers', color: '#5B86FC', percent: 42 },
+  { label: 'Transfers', color: '#031D5B', percent: 42 },
   { label: 'Airtimes', color: '#FFD166', percent: 26 },
   { label: 'ATM card debit', color: '#FF6B6B', percent: 20 },
   { label: 'Others', color: '#7B61FF', percent: 12 },

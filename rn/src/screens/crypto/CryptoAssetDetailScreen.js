@@ -154,7 +154,7 @@ export default function CryptoAssetDetailScreen() {
               <Text style={styles.actionBtnText}>Send</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.actionBtn, { backgroundColor: '#2E63F6' }]}
+              style={[styles.actionBtn, { backgroundColor: '#031D5B' }]}
               onPress={() => navigation.navigate('CryptoReceive')}
               activeOpacity={0.9}
             >

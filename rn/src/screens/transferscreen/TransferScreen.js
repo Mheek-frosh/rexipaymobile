@@ -591,7 +591,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(46, 99, 246, 0.2)',
+    borderColor: 'rgba(3, 29, 91, 0.2)',
   },
   resolvedRow: {
     flexDirection: 'row',

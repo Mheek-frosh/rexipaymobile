@@ -93,7 +93,7 @@ export default function CardsScreen() {
           <>
             {/* Virtual Card */}
             <View style={styles.cardContainer}>
-              <View style={[styles.virtualCard, { backgroundColor: '#2E63F6' }]}>
+              <View style={[styles.virtualCard, { backgroundColor: '#031D5B' }]}>
                 <View style={styles.cardTop}>
                   <Text style={styles.cardDebit}>Debit.</Text>
                   <Text style={styles.cardBrand}>Rexipay</Text>

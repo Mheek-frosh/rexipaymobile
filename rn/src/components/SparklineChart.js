@@ -5,7 +5,7 @@ import Svg, { Polyline } from 'react-native-svg';
 /**
  * Normalized line chart from numeric series (e.g. CoinGecko sparkline).
  */
-export default function SparklineChart({ data, width, height, color = '#2E63F6', strokeWidth = 1.5 }) {
+export default function SparklineChart({ data, width, height, color = '#031D5B', strokeWidth = 1.5 }) {
   if (!data || !Array.isArray(data) || data.length < 2 || width <= 0 || height <= 0) {
     return <View style={{ width, height }} />;
   }

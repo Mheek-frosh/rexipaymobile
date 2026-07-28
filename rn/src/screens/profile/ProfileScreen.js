@@ -20,10 +20,10 @@ import Toast from '../../components/Toast';
 
 const MENU_ITEMS = [
   { icon: 'account-balance', iconBg: '#FFD166', iconColor: null, title: 'Cards', route: 'AddCard' },
-  { icon: 'badge', iconBg: '#E8F0FE', iconColor: '#2E63F6', title: 'Account details', route: 'AccountDetails' },
+  { icon: 'badge', iconBg: '#E8ECF5', iconColor: '#031D5B', title: 'Account details', route: 'AccountDetails' },
   { icon: 'notifications', iconBg: '#FFF3E0', iconColor: '#FB8C00', title: 'Notifications', route: 'Notifications' },
   { icon: 'headset-mic', iconBg: '#E8F5E9', iconColor: '#4CAF50', title: 'Support', route: 'Support' },
-  { icon: 'settings', iconBg: '#E8F0FE', iconColor: '#2E63F6', title: 'Settings', route: 'Settings' },
+  { icon: 'settings', iconBg: '#E8ECF5', iconColor: '#031D5B', title: 'Settings', route: 'Settings' },
   {
     icon: 'storage',
     iconBg: '#E8F5E9',

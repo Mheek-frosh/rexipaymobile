@@ -97,7 +97,7 @@ export default function DraggableQuickActions({
         <TouchableOpacity
           style={[
             styles.editBtn,
-            isEditing && { backgroundColor: '#2E63F6', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 12 },
+            isEditing && { backgroundColor: '#031D5B', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 12 },
           ]}
           onPress={() => {
             setIsEditing(!isEditing);
@@ -110,14 +110,14 @@ export default function DraggableQuickActions({
           <MaterialIcons
             name={isEditing ? 'check' : 'edit'}
             size={14}
-            color={isEditing ? '#FFF' : '#2E63F6'}
+            color={isEditing ? '#FFF' : '#031D5B'}
           />
         </TouchableOpacity>
       </View>
 
       {isEditing && (
         <View style={styles.reorderHintBar}>
-          <MaterialIcons name="touch-app" size={16} color="#2E63F6" />
+          <MaterialIcons name="touch-app" size={16} color="#031D5B" />
           <Text style={[styles.reorderHintText, { color: colors.textSecondary }]}>
             Drag any icon left or right to reorder slots
           </Text>
@@ -128,7 +128,7 @@ export default function DraggableQuickActions({
         style={[
           styles.quickActionsRow,
           { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' },
-          isEditing && { borderWidth: 1.5, borderColor: '#2E63F666' },
+          isEditing && { borderWidth: 1.5, borderColor: '#031D5B66' },
         ]}
       >
         {quickActions.map((action, index) => {
@@ -166,8 +166,8 @@ export default function DraggableQuickActions({
                     { backgroundColor: isDark ? `${action.color}33` : action.bg },
                     isDragging && {
                       borderWidth: 2.5,
-                      borderColor: '#2E63F6',
-                      shadowColor: '#2E63F6',
+                      borderColor: '#031D5B',
+                      shadowColor: '#031D5B',
                       shadowOffset: { width: 0, height: 4 },
                       shadowOpacity: 0.35,
                       shadowRadius: 8,
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   editText: {
-    color: '#2E63F6',
+    color: '#031D5B',
     fontSize: 14,
     fontWeight: '600',
   },
@@ -252,6 +252,6 @@ const styles = StyleSheet.create({
   },
   jiggleBorder: {
     borderWidth: 1.5,
-    borderColor: 'rgba(46, 99, 246, 0.25)',
+    borderColor: 'rgba(3, 29, 91, 0.25)',
   },
 });

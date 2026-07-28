@@ -1,6 +1,7 @@
 import React from 'react';
 import { Image, Modal, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import { useTheme } from '../theme/ThemeContext';
 
 export default function TransactionProcessingModal({
@@ -24,26 +25,39 @@ export default function TransactionProcessingModal({
         accessibilityRole="progressbar"
         accessibilityLabel={label}
       >
+        <BlurView
+          intensity={18}
+          tint={isDark ? 'dark' : 'light'}
+          experimentalBlurMethod="dimezisBlurView"
+          style={StyleSheet.absoluteFill}
+        />
         <View
+          pointerEvents="none"
           style={[
-            styles.card,
-            {
-              backgroundColor: colors.cardBackground,
-              borderColor: colors.border,
-            },
+            StyleSheet.absoluteFill,
+            { backgroundColor: isDark ? 'rgba(4, 8, 20, 0.20)' : 'rgba(255, 255, 255, 0.10)' },
           ]}
-        >
-          <View style={[styles.imageShell, { backgroundColor: isDark ? '#151D31' : '#F2F6FF' }]}>
-            <Image
-              source={require('../../assets/rexiloading.gif')}
-              style={styles.image}
-              resizeMode="contain"
-              accessibilityIgnoresInvertColors
-            />
-          </View>
+        />
+
+        <View style={styles.content}>
+          <Image
+            source={require('../../assets/rexiloading.gif')}
+            style={styles.image}
+            resizeMode="contain"
+            accessibilityIgnoresInvertColors
+          />
           <Text style={[styles.label, { color: colors.textPrimary }]}>{label}</Text>
           <Text style={[styles.subtext, { color: colors.textSecondary }]}>{subtext}</Text>
-          <View style={[styles.securityPill, { backgroundColor: colors.primaryLight }]}>
+          <View
+            style={[
+              styles.securityPill,
+              {
+                backgroundColor: isDark
+                  ? 'rgba(3, 29, 91, 0.24)'
+                  : 'rgba(255, 255, 255, 0.62)',
+              },
+            ]}
+          >
             <MaterialIcons name="lock-outline" size={14} color={colors.primary} />
             <Text style={[styles.securityText, { color: colors.primary }]}>Secure transaction</Text>
           </View>
@@ -59,40 +73,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 28,
-    backgroundColor: 'rgba(5, 10, 25, 0.64)',
   },
-  card: {
+  content: {
     width: '100%',
     maxWidth: 340,
     alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: 28,
     paddingHorizontal: 28,
-    paddingTop: 26,
-    paddingBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.2,
-    shadowRadius: 24,
-    elevation: 12,
-  },
-  imageShell: {
-    width: 128,
-    height: 128,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 32,
-    marginBottom: 20,
-    overflow: 'hidden',
   },
   image: {
-    width: 112,
-    height: 112,
+    width: 132,
+    height: 132,
+    marginBottom: 18,
   },
   label: {
     fontSize: 18,
     fontWeight: '700',
     textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.08)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   subtext: {
     maxWidth: 260,

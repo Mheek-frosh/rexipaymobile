@@ -3,7 +3,7 @@ import { View, Animated, Easing, StyleSheet } from 'react-native';
 
 const TICKS = Array.from({ length: 12 }, (_, i) => i);
 
-export default function IosSpinner({ size = 38, color = '#0F208F' }) {
+export default function IosSpinner({ size = 38, color = '#031D5B' }) {
   const rotateAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {

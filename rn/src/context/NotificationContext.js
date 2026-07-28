@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useCallback, useMemo } from
 const NotificationContext = createContext(null);
 
 export const NOTIFICATION_TYPES = {
-  transfer: { icon: 'swap-horiz', color: '#2E63F6', bg: 'rgba(46, 99, 246, 0.12)', label: 'Payments' },
+  transfer: { icon: 'swap-horiz', color: '#031D5B', bg: 'rgba(3, 29, 91, 0.12)', label: 'Payments' },
   security: { icon: 'verified-user', color: '#7C3AED', bg: 'rgba(124, 58, 237, 0.12)', label: 'Security' },
   promo: { icon: 'card-giftcard', color: '#EA580C', bg: 'rgba(234, 88, 12, 0.12)', label: 'Offers' },
   system: { icon: 'notifications-active', color: '#059669', bg: 'rgba(5, 150, 105, 0.12)', label: 'Account' },

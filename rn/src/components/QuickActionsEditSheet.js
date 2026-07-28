@@ -151,7 +151,7 @@ export default function QuickActionsEditSheet({
                           style={[
                             styles.slotBtn,
                             { backgroundColor: isDark ? '#1F222B' : '#FFFFFF', borderColor: isDark ? '#374151' : '#E5E7EB' },
-                            index === pos && { backgroundColor: '#2E63F6', borderColor: '#2E63F6' },
+                            index === pos && { backgroundColor: '#031D5B', borderColor: '#031D5B' },
                           ]}
                           onPress={() => setPosition(index, pos)}
                         >
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
   },
   posBadge: {
     fontSize: 11,
-    color: '#2E63F6',
+    color: '#031D5B',
     fontWeight: '600',
     marginTop: 2,
   },
@@ -300,11 +300,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   saveBtn: {
-    backgroundColor: '#2E63F6',
+    backgroundColor: '#031D5B',
     paddingVertical: 16,
     borderRadius: 16,
     alignItems: 'center',
-    shadowColor: '#2E63F6',
+    shadowColor: '#031D5B',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
