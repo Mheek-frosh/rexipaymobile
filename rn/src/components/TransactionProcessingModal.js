@@ -53,7 +53,7 @@ export default function TransactionProcessingModal({
               styles.securityPill,
               {
                 backgroundColor: isDark
-                  ? 'rgba(3, 29, 91, 0.24)'
+                  ? 'rgba(23, 47, 199, 0.24)'
                   : 'rgba(255, 255, 255, 0.62)',
               },
             ]}

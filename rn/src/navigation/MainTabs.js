@@ -79,7 +79,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
             }
           };
 
-          const activeColor = '#031D5B'; // RexiPay primary navy
+          const activeColor = '#172FC7'; // RexiPay primary navy
           const inactiveColor = isDark ? '#D1D5DB' : '#111827';
           const color = isFocused ? activeColor : inactiveColor;
           const activeBgColor = isDark ? themeColors.surfaceVariant : '#E5E7EB';

@@ -113,14 +113,14 @@ export default function HomeScreen() {
   };
 
   const [bankQuickActions, setBankQuickActions] = useState([
-    { id: 'send', label: 'Send', icon: 'arrow-upward', color: '#031D5B', bg: '#E8ECF5', route: 'Transfer' },
+    { id: 'send', label: 'Send', icon: 'arrow-upward', color: '#172FC7', bg: '#EEF0FF', route: 'Transfer' },
     { id: 'receive', label: 'Receive', icon: 'arrow-downward', color: '#10B981', bg: '#ECFDF5', route: 'BankReceive' },
     { id: 'convert', label: 'Convert', icon: 'currency-exchange', color: '#F59E0B', bg: '#FFF7ED', route: 'BankConvert' },
     { id: 'scan', label: 'Scan', icon: 'qr-code-scanner', color: '#8B5CF6', bg: '#F5F3FF', route: 'AllServices' },
   ]);
 
   const [cryptoQuickActions, setCryptoQuickActions] = useState([
-    { id: 'send_crypto', label: 'Send', icon: 'arrow-upward', color: '#031D5B', bg: '#E8ECF5', route: 'SendCrypto' },
+    { id: 'send_crypto', label: 'Send', icon: 'arrow-upward', color: '#172FC7', bg: '#EEF0FF', route: 'SendCrypto' },
     { id: 'receive_crypto', label: 'Receive', icon: 'arrow-downward', color: '#10B981', bg: '#ECFDF5', route: 'CryptoReceive' },
     { id: 'sell_crypto', label: 'Sell', icon: 'sell', color: '#F59E0B', bg: '#FFF7ED', route: 'CryptoSell' },
     { id: 'market', label: 'Market', icon: 'trending-up', color: '#8B5CF6', bg: '#F5F3FF', route: 'CryptoMarket' },
@@ -202,10 +202,10 @@ export default function HomeScreen() {
           />
         }
       >
-        {/* PULL TO REFRESH IOS SPINNER (#031D5B) */}
+        {/* PULL TO REFRESH IOS SPINNER (#172FC7) */}
         {refreshing && (
           <View style={styles.pullRefreshBox}>
-            <IosSpinner size={34} color="#031D5B" />
+            <IosSpinner size={34} color="#172FC7" />
             <Text style={[styles.pullRefreshText, { color: colors.textSecondary }]}>Updating dashboard...</Text>
           </View>
         )}
@@ -228,7 +228,7 @@ export default function HomeScreen() {
           </View>
           <TouchableOpacity
             onPress={() => navigation.navigate('Notifications')}
-            style={[styles.notifBtn, { backgroundColor: isDark ? '#1F222B' : '#E8ECF5' }]}
+            style={[styles.notifBtn, { backgroundColor: isDark ? '#1F222B' : '#EEF0FF' }]}
           >
             <MaterialIcons name="notifications-none" size={22} color={colors.textPrimary} />
             {unreadNotificationCount > 0 && (
@@ -305,7 +305,7 @@ export default function HomeScreen() {
                     onPress={() => navigation.navigate('AddMoney')}
                   >
                     <View style={styles.pillIconBox}>
-                      <MaterialIcons name="add" size={14} color="#031D5B" />
+                      <MaterialIcons name="add" size={14} color="#172FC7" />
                     </View>
                     <Text style={styles.pillText}>Add Money</Text>
                   </TouchableOpacity>
@@ -315,7 +315,7 @@ export default function HomeScreen() {
                     onPress={() => navigation.navigate('AccountDetails')}
                   >
                     <View style={styles.pillIconBox}>
-                      <MaterialIcons name="credit-card" size={14} color="#031D5B" />
+                      <MaterialIcons name="credit-card" size={14} color="#172FC7" />
                     </View>
                     <Text style={styles.pillText}>Account Details</Text>
                   </TouchableOpacity>
@@ -327,7 +327,7 @@ export default function HomeScreen() {
                     onPress={() => navigation.navigate('CryptoReceive')}
                   >
                     <View style={styles.pillIconBox}>
-                      <MaterialIcons name="arrow-downward" size={14} color="#031D5B" />
+                      <MaterialIcons name="arrow-downward" size={14} color="#172FC7" />
                     </View>
                     <Text style={styles.pillText}>Receive Crypto</Text>
                   </TouchableOpacity>
@@ -337,7 +337,7 @@ export default function HomeScreen() {
                     onPress={() => navigation.navigate('CryptoMarket')}
                   >
                     <View style={styles.pillIconBox}>
-                      <MaterialIcons name="trending-up" size={14} color="#031D5B" />
+                      <MaterialIcons name="trending-up" size={14} color="#172FC7" />
                     </View>
                     <Text style={styles.pillText}>Crypto Market</Text>
                   </TouchableOpacity>
@@ -347,11 +347,11 @@ export default function HomeScreen() {
           </View>
         </ImageBackground>
 
-        {/* DYNAMIC CONTENT AREA WITH MOTION ANIMATION & #031D5B IOS SPINNER LOADER */}
+        {/* DYNAMIC CONTENT AREA WITH MOTION ANIMATION & #172FC7 IOS SPINNER LOADER */}
         {isSwitching ? (
           <View style={styles.switchingLoaderBox}>
             <View style={[styles.spinnerCard, { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' }]}>
-              <IosSpinner size={42} color="#031D5B" />
+              <IosSpinner size={42} color="#172FC7" />
               <Text style={[styles.switchingText, { color: colors.textPrimary }]}>
                 {switchingTo === 'crypto' ? 'Switching to Crypto Wallet...' : 'Switching to Bank Wallet...'}
               </Text>
@@ -377,7 +377,7 @@ export default function HomeScreen() {
                   <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Pay & Services</Text>
                   <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('AllServices')}>
                     <Text style={styles.seeAllText}>See all</Text>
-                    <MaterialIcons name="chevron-right" size={18} color="#031D5B" />
+                    <MaterialIcons name="chevron-right" size={18} color="#172FC7" />
                   </TouchableOpacity>
                 </View>
 
@@ -397,7 +397,7 @@ export default function HomeScreen() {
                   <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Recent Transactions</Text>
                   <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('Transactions')}>
                     <Text style={styles.seeAllText}>See all</Text>
-                    <MaterialIcons name="chevron-right" size={18} color="#031D5B" />
+                    <MaterialIcons name="chevron-right" size={18} color="#172FC7" />
                   </TouchableOpacity>
                 </View>
 
@@ -409,8 +409,8 @@ export default function HomeScreen() {
                       onPress={() => navigation.navigate('TransactionDetail', { transaction: tx })}
                       activeOpacity={0.75}
                     >
-                      <View style={[styles.txIconBox, { backgroundColor: tx.type === 'received' || tx.type === 'deposit' ? (isDark ? '#031D5B33' : '#E8ECF5') : (isDark ? '#F59E0B33' : '#FFF7ED') }]}>
-                        <MaterialIcons name={tx.type === 'received' || tx.type === 'deposit' ? "arrow-downward" : "flash-on"} size={24} color={tx.type === 'received' || tx.type === 'deposit' ? "#031D5B" : "#F59E0B"} />
+                      <View style={[styles.txIconBox, { backgroundColor: tx.type === 'received' || tx.type === 'deposit' ? (isDark ? '#172FC733' : '#EEF0FF') : (isDark ? '#F59E0B33' : '#FFF7ED') }]}>
+                        <MaterialIcons name={tx.type === 'received' || tx.type === 'deposit' ? "arrow-downward" : "flash-on"} size={24} color={tx.type === 'received' || tx.type === 'deposit' ? "#172FC7" : "#F59E0B"} />
                       </View>
                       <View style={styles.txDetails}>
                         <Text style={[styles.txTitle, { color: colors.textPrimary }]}>{tx.displayName || tx.name}</Text>
@@ -433,7 +433,7 @@ export default function HomeScreen() {
                   <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>My Assets</Text>
                   <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('CryptoMarket')}>
                     <Text style={styles.seeAllText}>See all</Text>
-                    <MaterialIcons name="chevron-right" size={18} color="#031D5B" />
+                    <MaterialIcons name="chevron-right" size={18} color="#172FC7" />
                   </TouchableOpacity>
                 </View>
 
@@ -570,13 +570,13 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#031D5B',
+    backgroundColor: '#172FC7',
   },
   cardContainer: {
     borderRadius: 20,
     overflow: 'hidden',
     marginBottom: 16,
-    shadowColor: '#031D5B',
+    shadowColor: '#172FC7',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.30,
     shadowRadius: 14,
@@ -692,7 +692,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   editText: {
-    color: '#031D5B',
+    color: '#172FC7',
     fontSize: 14,
     fontWeight: '600',
     marginRight: 4,
@@ -702,7 +702,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   seeAllText: {
-    color: '#031D5B',
+    color: '#172FC7',
     fontSize: 14,
     fontWeight: '600',
   },
@@ -744,7 +744,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     paddingVertical: 2,
     borderRadius: 8,
-    backgroundColor: 'rgba(3, 29, 91, 0.12)',
+    backgroundColor: 'rgba(23, 47, 199, 0.12)',
   },
   actionBtn: {
     alignItems: 'center',
@@ -943,6 +943,6 @@ const styles = StyleSheet.create({
     width: 16,
     height: 5,
     borderRadius: 2.5,
-    backgroundColor: '#031D5B',
+    backgroundColor: '#172FC7',
   },
 });

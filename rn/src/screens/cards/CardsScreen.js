@@ -14,6 +14,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
 
 const { width } = Dimensions.get('window');
+const HAS_VIRTUAL_CARD = false;
 
 const PENDING_ORANGE = '#F59E0B';
 const PENDING_ORANGE_LIGHT = 'rgba(245, 158, 11, 0.15)';
@@ -38,10 +39,14 @@ export default function CardsScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
         <View style={{ width: 24 }} />
-        <Text style={[styles.title, { color: colors.textPrimary }]}>Virtual Card</Text>
-        <TouchableOpacity onPress={() => setShowSettingsSheet(true)}>
-          <MaterialIcons name="settings" size={22} color={colors.textPrimary} />
-        </TouchableOpacity>
+        <Text style={[styles.title, { color: colors.textPrimary }]}>Cards</Text>
+        {HAS_VIRTUAL_CARD ? (
+          <TouchableOpacity onPress={() => setShowSettingsSheet(true)}>
+            <MaterialIcons name="settings" size={22} color={colors.textPrimary} />
+          </TouchableOpacity>
+        ) : (
+          <View style={{ width: 24 }} />
+        )}
       </View>
 
       <ScrollView
@@ -49,6 +54,37 @@ export default function CardsScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
+        {!HAS_VIRTUAL_CARD ? (
+          <View
+            style={[
+              styles.emptyCard,
+              {
+                backgroundColor: colors.cardBackground,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <Image
+              source={require('../../../assets/images/card.png')}
+              style={styles.emptyCardImage}
+              resizeMode="contain"
+            />
+            <Text style={[styles.emptyCardTitle, { color: colors.textPrimary }]}>
+              No virtual card yet
+            </Text>
+            <Text style={[styles.emptyCardDescription, { color: colors.textSecondary }]}>
+              Create your virtual card to start spending securely online.
+            </Text>
+            <TouchableOpacity
+              style={[styles.createCardButton, { backgroundColor: colors.primary }]}
+              onPress={() => navigation.navigate('AddCard')}
+              activeOpacity={0.86}
+            >
+              <Text style={styles.createCardButtonText}>Create Virtual Card</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <>
         {/* Tab Switch */}
         <View style={[styles.tabSwitch, { backgroundColor: colors.cardBackground }]}>
           <TouchableOpacity
@@ -93,7 +129,7 @@ export default function CardsScreen() {
           <>
             {/* Virtual Card */}
             <View style={styles.cardContainer}>
-              <View style={[styles.virtualCard, { backgroundColor: '#031D5B' }]}>
+              <View style={[styles.virtualCard, { backgroundColor: '#172FC7' }]}>
                 <View style={styles.cardTop}>
                   <Text style={styles.cardDebit}>Debit.</Text>
                   <Text style={styles.cardBrand}>Rexipay</Text>
@@ -193,6 +229,8 @@ export default function CardsScreen() {
                 </TouchableOpacity>
               );
             })}
+          </>
+        )}
           </>
         )}
       </ScrollView>
@@ -347,6 +385,53 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 18, fontWeight: '700' },
   content: { padding: 20, paddingBottom: 40 },
+  emptyCard: {
+    minHeight: 590,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 28,
+    paddingVertical: 38,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderRadius: 28,
+  },
+  emptyCardImage: {
+    width: '100%',
+    maxWidth: 330,
+    height: 250,
+  },
+  emptyCardTitle: {
+    marginTop: 8,
+    fontSize: 23,
+    fontWeight: '800',
+    textAlign: 'center',
+  },
+  emptyCardDescription: {
+    maxWidth: 290,
+    marginTop: 12,
+    fontSize: 16,
+    lineHeight: 24,
+    textAlign: 'center',
+  },
+  createCardButton: {
+    width: '100%',
+    maxWidth: 330,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 34,
+    borderRadius: 16,
+    shadowColor: '#172FC7',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.16,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  createCardButtonText: {
+    color: '#FFFFFF',
+    fontSize: 17,
+    fontWeight: '700',
+  },
   tabSwitch: {
     flexDirection: 'row',
     borderRadius: 25,

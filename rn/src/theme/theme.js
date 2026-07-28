@@ -1,6 +1,6 @@
 export const COLORS = {
-  primary: '#031D5B',
-  primaryLight: 'rgba(3, 29, 91, 0.1)',
+  primary: '#172FC7',
+  primaryLight: 'rgba(23, 47, 199, 0.1)',
   background: '#F8F9FA',
   cardBackground: '#FFFFFF',
   navBackground: '#FFFFFF',
@@ -13,8 +13,8 @@ export const COLORS = {
 };
 
 export const DARK_COLORS = {
-  primary: '#031D5B',
-  primaryLight: 'rgba(3, 29, 91, 0.2)',
+  primary: '#172FC7',
+  primaryLight: 'rgba(23, 47, 199, 0.2)',
   background: '#0D0D0D',
   cardBackground: '#1F222B',
   navBackground: '#1F222B',

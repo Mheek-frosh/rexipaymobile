@@ -5,9 +5,9 @@ import IosSpinner from './IosSpinner';
 
 /**
  * Reusable professional loading indicator across screens.
- * Uses custom 12-tick iOS spinner in RexiPay navy #031D5B.
+ * Uses custom 12-tick iOS spinner in RexiPay navy #172FC7.
  */
-export default function AppLoader({ label = 'Loading...', mode = 'inline', color = '#031D5B', size = 38 }) {
+export default function AppLoader({ label = 'Loading...', mode = 'inline', color = '#172FC7', size = 38 }) {
   const { colors } = useTheme();
   const fullscreen = mode === 'fullscreen';
 

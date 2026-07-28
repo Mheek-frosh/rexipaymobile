@@ -134,7 +134,7 @@ export default function TransactionDetailScreen() {
             disabled={generating}
           >
             {generating && genType === 'PNG' ? (
-              <IosSpinner size={20} color="#031D5B" />
+              <IosSpinner size={20} color="#172FC7" />
             ) : (
               <>
                 <MaterialIcons name="image" size={22} color={colors.primary} />
@@ -148,7 +148,7 @@ export default function TransactionDetailScreen() {
             disabled={generating}
           >
             {generating && genType === 'PDF' ? (
-              <IosSpinner size={20} color="#031D5B" />
+              <IosSpinner size={20} color="#172FC7" />
             ) : (
               <>
                 <MaterialIcons name="picture-as-pdf" size={22} color={colors.primary} />

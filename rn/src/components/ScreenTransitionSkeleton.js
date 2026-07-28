@@ -106,33 +106,18 @@ function CenteredHeader({ blockProps, action = false }) {
 function CardsSkeleton({ blockProps, cardColor }) {
   return (
     <>
-      <CenteredHeader blockProps={blockProps} action />
-      <View style={[styles.tabSwitch, { backgroundColor: cardColor }]}>
-        <Block {...blockProps} style={styles.tabPill} />
-        <Block {...blockProps} style={styles.tabPill} />
-      </View>
-      <Block {...blockProps} style={styles.cardsBalance} />
-      <View style={[styles.virtualCardSkeleton, { backgroundColor: cardColor }]}>
-        <View style={styles.virtualCardTop}>
-          <Block {...blockProps} style={styles.virtualCardSmall} />
-          <Block {...blockProps} style={styles.virtualCardSmall} />
-        </View>
-        <Block {...blockProps} style={styles.virtualCardChip} />
-        <Block {...blockProps} style={styles.virtualCardNumber} />
-        <Block {...blockProps} style={styles.virtualCardName} />
-      </View>
-      <Block {...blockProps} style={styles.tapHint} />
-      <View style={[styles.limitCardSkeleton, { backgroundColor: cardColor }]}>
-        <View style={styles.limitHeader}>
-          <Block {...blockProps} style={styles.limitTitle} />
-          <Block {...blockProps} style={styles.limitEdit} />
-        </View>
-        {[0, 1].map((item) => (
-          <View key={item} style={styles.limitRow}>
-            <Block {...blockProps} style={styles.limitLabel} />
-            <Block {...blockProps} style={styles.limitValue} />
-          </View>
-        ))}
+      <CenteredHeader blockProps={blockProps} />
+      <View
+        style={[
+          styles.emptyCardSkeleton,
+          { backgroundColor: cardColor, borderColor: blockProps.baseColor },
+        ]}
+      >
+        <Block {...blockProps} style={styles.emptyCardArtwork} />
+        <Block {...blockProps} style={styles.emptyCardHeading} />
+        <Block {...blockProps} style={styles.emptyCardCopyLong} />
+        <Block {...blockProps} style={styles.emptyCardCopyShort} />
+        <Block {...blockProps} style={styles.emptyCardButton} />
       </View>
     </>
   );
@@ -287,6 +272,45 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: 14,
     marginHorizontal: 5,
+  },
+  emptyCardSkeleton: {
+    minHeight: 590,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 28,
+    paddingVertical: 38,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderRadius: 28,
+  },
+  emptyCardArtwork: {
+    width: '82%',
+    height: 230,
+    borderRadius: 80,
+    marginBottom: 24,
+  },
+  emptyCardHeading: {
+    width: 188,
+    height: 22,
+    borderRadius: 11,
+    marginBottom: 17,
+  },
+  emptyCardCopyLong: {
+    width: 260,
+    height: 13,
+    borderRadius: 7,
+    marginBottom: 9,
+  },
+  emptyCardCopyShort: {
+    width: 176,
+    height: 13,
+    borderRadius: 7,
+  },
+  emptyCardButton: {
+    width: '100%',
+    height: 56,
+    borderRadius: 16,
+    marginTop: 34,
   },
   tabSwitch: {
     height: 52,

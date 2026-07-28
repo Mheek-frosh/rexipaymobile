@@ -16,7 +16,7 @@ import PrimaryButton from '../../components/PrimaryButton';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const ACCENT = '#031D5B';
+const ACCENT = '#172FC7';
 
 export const carouselItems = [
   {
