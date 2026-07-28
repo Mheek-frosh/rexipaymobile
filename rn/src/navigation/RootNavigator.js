@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import * as Location from 'expo-location';
 import { useAuth } from '../context/AuthContext';
 import OnboardingScreen from '../screens/onboarding/OnboardingScreen';
 import SignupScreen from '../screens/auth/SignupScreen';
@@ -63,6 +64,38 @@ const Stack = createNativeStackNavigator();
 export default function RootNavigator() {
   // `isAuthenticated` controls whether to show the main app (logged in) or the auth flows (logged out)
   const { isAuthenticated } = useAuth();
+  const locationRequestedForLoginRef = useRef(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      locationRequestedForLoginRef.current = false;
+      return;
+    }
+    if (locationRequestedForLoginRef.current) return;
+
+    let cancelled = false;
+    locationRequestedForLoginRef.current = true;
+
+    const requestLocationAfterLogin = async () => {
+      try {
+        const permission = await Location.getForegroundPermissionsAsync();
+        if (
+          !cancelled &&
+          permission.status === Location.PermissionStatus.UNDETERMINED &&
+          permission.canAskAgain
+        ) {
+          await Location.requestForegroundPermissionsAsync();
+        }
+      } catch (error) {
+        console.warn('Unable to request location permission after login:', error);
+      }
+    };
+
+    requestLocationAfterLogin();
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated]);
 
   if (isAuthenticated) {
     // === AUTHENTICATED FLOW ===
