@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
-  Image,
   ScrollView,
   Share,
   StyleSheet,
@@ -13,6 +12,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 import { useTheme } from '../../theme/ThemeContext';
 
 const WATERMARKS = [
@@ -43,14 +43,41 @@ function formatDateTime(date) {
   )}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
 
+function RexiLogoMark({ style }) {
+  return (
+    <Svg viewBox="0 0 442 460" style={style}>
+      <Defs>
+        <LinearGradient id="watermarkStripe" x1="71" y1="188" x2="205" y2="188">
+          <Stop stopColor="#AFCBF8" />
+          <Stop offset="1" stopColor="#9ABAF1" />
+        </LinearGradient>
+      </Defs>
+      <Path
+        d="M324 0H118C52.8304 0 0 52.8304 0 118V342C0 407.17 52.8304 460 118 460H324C389.17 460 442 407.17 442 342V118C442 52.8304 389.17 0 324 0Z"
+        fill="#172FC7"
+      />
+      <Path
+        d="M158 94H274C330 94 366 131 366 186C366 233 341 266 299 279L362 361C370 372 365 374 356 374H312C302 374 296 370 290 362L216 267C207 256 208 244 216 235C223 227 231 225 242 225H269C292 225 305 211 305 188C305 166 290 153 269 153H144C133 153 128 147 131 138L144 105C147 98 151 94 158 94Z"
+        fill="#FFFFFF"
+      />
+      <Path
+        d="M106 252H182C192 252 198 260 195 269L193 275C191 281 186 283 178 283H103C92 283 87 274 90 266L92 260C94 255 98 252 106 252Z"
+        fill="#FFFFFF"
+      />
+      <Path
+        d="M87 188H192C203 188 208 197 204 207L202 212C200 217 195 219 187 219H85C74 219 69 211 72 203L75 195C77 190 80 188 87 188Z"
+        fill="url(#watermarkStripe)"
+      />
+    </Svg>
+  );
+}
+
 function WatermarkPattern({ isDark }) {
   return (
     <View pointerEvents="none" style={styles.watermarkLayer}>
       {WATERMARKS.map((item, index) => (
-        <Image
+        <RexiLogoMark
           key={index}
-          source={require('../../../assets/images/rexilogo.png')}
-          resizeMode="contain"
           style={[
             styles.watermark,
             {
@@ -59,7 +86,7 @@ function WatermarkPattern({ isDark }) {
               right: item.right,
               width: item.size,
               height: item.size,
-              opacity: isDark ? 0.025 : 0.018,
+              opacity: isDark ? 0.075 : 0.05,
               transform: [{ rotate: item.rotate }],
             },
           ]}
@@ -195,14 +222,10 @@ export default function PaymentSuccessScreen() {
               onAnimationFailure={() => setLottieError(true)}
             />
           ) : (
-            <View style={[styles.fallbackCircle, { backgroundColor: colors.success }]} />
+            <View style={[styles.fallbackCircle, { backgroundColor: colors.success }]}>
+              <MaterialIcons name="check" size={56} color="#FFFFFF" />
+            </View>
           )}
-          <MaterialIcons
-            name="check"
-            size={56}
-            color="#FFFFFF"
-            style={styles.checkIcon}
-          />
         </Animated.View>
 
         <Animated.View style={[styles.resultContent, { opacity: contentOpacity }]}>
@@ -304,16 +327,15 @@ const styles = StyleSheet.create({
     marginTop: 28,
   },
   lottie: {
-    width: 310,
-    height: 310,
+    width: 240,
+    height: 240,
   },
   fallbackCircle: {
     width: 124,
     height: 124,
     borderRadius: 62,
-  },
-  checkIcon: {
-    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   resultContent: {
     width: '100%',
