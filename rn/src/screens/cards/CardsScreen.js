@@ -317,11 +317,9 @@ export default function CardsScreen() {
             onStartShouldSetResponder={() => true}
           >
             <View style={styles.sheetHandle} />
-            <Image
-              source={require('../../../assets/images/freeze.png')}
-              style={styles.confirmImage}
-              resizeMode="contain"
-            />
+            <View style={[styles.confirmIcon, styles.freezeIcon]}>
+              <MaterialIcons name="ac-unit" size={38} color="#172FC7" />
+            </View>
             <Text style={[styles.confirmTitle, { color: colors.textPrimary }]}>
               Freeze Card
             </Text>
@@ -349,11 +347,9 @@ export default function CardsScreen() {
             onStartShouldSetResponder={() => true}
           >
             <View style={styles.sheetHandle} />
-            <Image
-              source={require('../../../assets/images/delete.png')}
-              style={styles.confirmImage}
-              resizeMode="contain"
-            />
+            <View style={[styles.confirmIcon, styles.deleteIcon]}>
+              <MaterialIcons name="delete-outline" size={38} color="#E53935" />
+            </View>
             <Text style={[styles.confirmTitle, { color: colors.textPrimary }]}>
               Delete Card
             </Text>
@@ -601,11 +597,20 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
     alignItems: 'center',
   },
-  confirmImage: {
-    width: 200,
-    height: 120,
-    marginTop: 8,
+  confirmIcon: {
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
     marginBottom: 24,
+  },
+  freezeIcon: {
+    backgroundColor: 'rgba(23, 47, 199, 0.1)',
+  },
+  deleteIcon: {
+    backgroundColor: 'rgba(229, 57, 53, 0.1)',
   },
   confirmTitle: {
     fontSize: 20,

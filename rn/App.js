@@ -98,7 +98,7 @@ export default function App() {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
           <ThemeProvider>
-            <StatusBar style="light" />
+            <StatusBar style="auto" />
             <SplashScreen onFinish={() => setSplashDone(true)} />
           </ThemeProvider>
         </SafeAreaProvider>

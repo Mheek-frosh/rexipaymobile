@@ -33,7 +33,7 @@ export default function AddCardScreen() {
 
       <View style={styles.content}>
         <Image
-          source={require('../../../assets/images/addcard.png')}
+          source={require('../../../assets/images/card.png')}
           style={styles.illustration}
           resizeMode="contain"
         />

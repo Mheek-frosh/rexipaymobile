@@ -12,16 +12,32 @@ export const useTheme = () => {
 
 export const ThemeProvider = ({ children }) => {
   const systemScheme = useColorScheme();
-  const [isDark, setIsDark] = useState(false);
+  const [themeOverride, setThemeOverride] = useState(null);
+  const isDark =
+    themeOverride === null ? systemScheme === 'dark' : themeOverride === 'dark';
 
   const colors = isDark ? DARK_COLORS : COLORS;
 
   const toggleTheme = useCallback(() => {
-    setIsDark((prev) => !prev);
-  }, []);
+    setThemeOverride((currentOverride) => {
+      const currentlyDark =
+        currentOverride === null
+          ? systemScheme === 'dark'
+          : currentOverride === 'dark';
+
+      return currentlyDark ? 'light' : 'dark';
+    });
+  }, [systemScheme]);
 
   return (
-    <ThemeContext.Provider value={{ isDark, colors, toggleTheme }}>
+    <ThemeContext.Provider
+      value={{
+        isDark,
+        colors,
+        toggleTheme,
+        themeMode: themeOverride ?? 'system',
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );

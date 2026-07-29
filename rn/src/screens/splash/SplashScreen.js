@@ -1,9 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, Image, StyleSheet, Animated, Dimensions } from 'react-native';
+import { View, StyleSheet, Animated, Dimensions } from 'react-native';
+import { useTheme } from '../../theme/ThemeContext';
 
 const { width } = Dimensions.get('window');
+const logoWidth = width * 0.82;
 
 export default function SplashScreen({ onFinish }) {
+  const { isDark } = useTheme();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const logoScale = useRef(new Animated.Value(0.6)).current;
@@ -40,7 +43,12 @@ export default function SplashScreen({ onFinish }) {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: isDark ? '#0D0D0D' : '#FFFFFF' },
+      ]}
+    >
       <Animated.View
         style={[
           styles.content,
@@ -51,7 +59,11 @@ export default function SplashScreen({ onFinish }) {
         ]}
       >
         <Animated.Image
-          source={require('../../../assets/images/rx.png')}
+          source={
+            isDark
+              ? require('../../../assets/images/dark-logo-splash.png')
+              : require('../../../assets/images/light-logo-splash.png')
+          }
           style={[
             styles.logoImage,
             {
@@ -68,7 +80,6 @@ export default function SplashScreen({ onFinish }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     paddingBottom: 32,
@@ -77,13 +88,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoImage: {
-    width: width * 0.34,
-    height: width * 0.34,
-    marginBottom: 20,
-  },
-  copyright: {
-    fontSize: 13,
-    color: '#6B7280',
-    marginTop: 24,
+    width: logoWidth,
+    height: logoWidth * (922 / 2048),
   },
 });

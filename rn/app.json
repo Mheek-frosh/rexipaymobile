@@ -7,9 +7,13 @@
     "userInterfaceStyle": "automatic",
     "icon": "./assets/images/app-icon.png",
     "splash": {
-      "image": "./assets/images/rx.png",
+      "image": "./assets/images/light-logo-splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#ffffff",
+      "dark": {
+        "image": "./assets/images/dark-logo-splash.png",
+        "backgroundColor": "#0D0D0D"
+      }
     },
     "assetBundlePatterns": [
       "**/*"
