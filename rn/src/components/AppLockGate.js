@@ -77,18 +77,9 @@ function AppLockScreen({
   onKeyPress,
   onLogout,
 }) {
+  const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const compact = height < 720;
-
-  const lightTheme = {
-    background: '#FFFFFF',
-    textPrimary: '#1F2937', // Dark gray/black for main text
-    textSecondary: '#6B7280', // Gray for subtitle
-    surfaceVariant: '#E5E7EB', // Light gray for avatar background
-    border: '#E5E7EB', // Light gray for pin boxes
-    error: '#EF4444',
-    cardBackground: '#FFFFFF',
-  };
 
   const horizontalPadding = 40;
   const pinGap = 12;
@@ -111,7 +102,7 @@ function AppLockScreen({
     <SafeAreaView
       style={[
         styles.lockScreen,
-        { backgroundColor: lightTheme.background, paddingHorizontal: horizontalPadding },
+        { backgroundColor: colors.background, paddingHorizontal: horizontalPadding },
       ]}
     >
       <View style={styles.header}>
@@ -119,21 +110,21 @@ function AppLockScreen({
           style={[
             styles.avatar,
             {
-              backgroundColor: lightTheme.surfaceVariant,
+              backgroundColor: colors.surfaceVariant,
             },
           ]}
         >
           <Text
             style={[
               styles.avatarInitial,
-              { color: lightTheme.textPrimary },
+              { color: colors.textPrimary },
             ]}
           >
             {initials}
           </Text>
         </View>
         <Text
-          style={[styles.welcome, { color: lightTheme.textPrimary }]}
+          style={[styles.welcome, { color: colors.textPrimary }]}
           numberOfLines={1}
           adjustsFontSizeToFit
           minimumFontScale={0.78}
@@ -143,7 +134,7 @@ function AppLockScreen({
         <Text
           style={[
             styles.instruction,
-            { color: lightTheme.textSecondary },
+            { color: colors.textSecondary },
           ]}
         >
           Enter your 4-Digit PIN
@@ -167,8 +158,8 @@ function AppLockScreen({
                 {
                   width: pinSize,
                   height: pinHeight,
-                  borderColor: error ? lightTheme.error : lightTheme.border,
-                  backgroundColor: lightTheme.cardBackground,
+                  borderColor: error ? colors.error : colors.border,
+                  backgroundColor: colors.cardBackground,
                 },
               ]}
             >
@@ -176,7 +167,7 @@ function AppLockScreen({
                 <View
                   style={[
                     styles.pinDot,
-                    { backgroundColor: error ? lightTheme.error : lightTheme.textPrimary },
+                    { backgroundColor: error ? colors.error : colors.textPrimary },
                   ]}
                 />
               ) : null}
@@ -186,7 +177,7 @@ function AppLockScreen({
         <Text
           style={[
             styles.errorText,
-            { color: error ? lightTheme.error : 'transparent' },
+            { color: error ? colors.error : 'transparent' },
           ]}
         >
           {error || 'Passcode'}
@@ -220,18 +211,18 @@ function AppLockScreen({
               }
             >
               {isBiometric ? (
-                <FaceIdIcon color={lightTheme.textPrimary} size={32} />
+                <FaceIdIcon color={colors.textPrimary} size={32} />
               ) : isBackspace ? (
                 <MaterialIcons
                   name="chevron-left"
                   size={36}
-                  color={lightTheme.error}
+                  color={colors.error}
                 />
               ) : (
                 <Text
                   style={[
                     styles.keyText,
-                    { color: lightTheme.textPrimary },
+                    { color: colors.textPrimary },
                   ]}
                 >
                   {key}
@@ -246,7 +237,7 @@ function AppLockScreen({
         <Text
           style={[
             styles.logoutPrompt,
-            { color: lightTheme.textPrimary },
+            { color: colors.textSecondary },
           ]}
         >
           Not your account?
@@ -260,7 +251,7 @@ function AppLockScreen({
           <Text
             style={[
               styles.logoutLink,
-              { color: lightTheme.textPrimary },
+              { color: colors.primary },
             ]}
           >
             Log out
