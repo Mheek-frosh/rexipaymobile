@@ -2,9 +2,9 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BlurView } from 'expo-blur';
 import Svg, { Path } from 'react-native-svg';
 import { useTheme } from '../theme/ThemeContext';
-import Icon from 'react-native-remix-icon';
 import { Card, Chart2, More } from 'iconsax-react-native';
 import HomeScreen from '../screens/home/HomeScreen';
 import CardsScreen from '../screens/cards/CardsScreen';
@@ -60,14 +60,29 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
     <View
       style={[
         styles.tabBarContainer,
-        { bottom: Math.max(insets.bottom, 10) },
+        {
+          bottom: Math.max(insets.bottom, 10),
+          shadowOpacity: isDark ? 0.34 : 0.13,
+        },
       ]}
     >
-      <View style={[styles.tabBar, { 
-        backgroundColor: themeColors.cardBackground,
-        borderWidth: isDark ? 1 : 0,
-        borderColor: isDark ? themeColors.border : 'transparent'
-      }]}>
+      <BlurView
+        tint={isDark ? 'systemChromeMaterialDark' : 'systemChromeMaterialLight'}
+        intensity={isDark ? 72 : 82}
+        blurReductionFactor={3}
+        experimentalBlurMethod="dimezisBlurView"
+        style={[
+          styles.tabBar,
+          {
+            backgroundColor: isDark
+              ? 'rgba(12, 15, 22, 0.52)'
+              : 'rgba(255, 255, 255, 0.42)',
+            borderColor: isDark
+              ? 'rgba(255, 255, 255, 0.16)'
+              : 'rgba(255, 255, 255, 0.78)',
+          },
+        ]}
+      >
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
           const label = route.name === 'Stats' ? 'Stats' : route.name;
@@ -85,10 +100,12 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
             }
           };
 
-          const activeColor = '#172FC7'; // RexiPay primary navy
-          const inactiveColor = isDark ? '#D1D5DB' : '#111827';
+          const activeColor = themeColors.primary;
+          const inactiveColor = themeColors.textSecondary;
           const color = isFocused ? activeColor : inactiveColor;
-          const activeBgColor = isDark ? themeColors.surfaceVariant : '#E5E7EB';
+          const activeBgColor = isDark
+            ? 'rgba(62, 83, 231, 0.28)'
+            : 'rgba(23, 47, 199, 0.12)';
 
           let IconComponent;
           if (route.name === 'Home') {
@@ -107,6 +124,9 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
               activeOpacity={0.8}
               onPress={onPress}
               style={styles.tabButtonWrapper}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: isFocused }}
+              accessibilityLabel={`${label} tab`}
             >
               <View style={[styles.tabButton, isFocused && { backgroundColor: activeBgColor }]}>
                 {IconComponent}
@@ -117,7 +137,7 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
             </TouchableOpacity>
           );
         })}
-      </View>
+      </BlurView>
     </View>
   );
 };
@@ -143,19 +163,19 @@ const styles = StyleSheet.create({
     right: 16,
     zIndex: 1000,
     elevation: 10,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 18,
   },
   tabBar: {
     flexDirection: 'row',
-    borderRadius: 24,
+    borderRadius: 26,
+    borderWidth: 1,
     height: 64,
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 6,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.09,
-    shadowRadius: 10,
-    elevation: 5,
+    overflow: 'hidden',
   },
   tabButtonWrapper: {
     flex: 1,
@@ -166,9 +186,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 6,
-    paddingHorizontal: 18,
+    paddingHorizontal: 16,
     minWidth: 68,
-    borderRadius: 18,
+    borderRadius: 20,
   },
   tabLabel: {
     fontSize: 10.5,
