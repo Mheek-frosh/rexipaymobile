@@ -39,6 +39,7 @@ import SendCryptoAssetScreen from '../screens/crypto/SendCryptoAssetScreen';
 import TransactionDetailScreen from '../screens/transferscreen/TransactionDetailScreen';
 import DebitCardTransactionDetailScreen from '../screens/transferscreen/DebitCardTransactionDetailScreen';
 import AddCardScreen from '../screens/cards/AddCardScreen';
+import ChooseCardScreen from '../screens/cards/ChooseCardScreen';
 import ForgotPinPhoneScreen from '../screens/forgotpin/ForgotPinPhoneScreen';
 import ForgotPinOtpScreen from '../screens/forgotpin/ForgotPinOtpScreen';
 import ForgotPinSetPinScreen from '../screens/forgotpin/ForgotPinSetPinScreen';
@@ -147,6 +148,7 @@ export default function RootNavigator() {
         <Stack.Screen name="Biometrics" component={BiometricsScreen} />
 
         <Stack.Screen name="AddCard" component={AddCardScreen} />
+        <Stack.Screen name="ChooseCard" component={ChooseCardScreen} />
 
         <Stack.Screen name="DebitCardTransactionDetail" component={DebitCardTransactionDetailScreen} />
 

@@ -77,7 +77,7 @@ export default function CardsScreen() {
             </Text>
             <TouchableOpacity
               style={[styles.createCardButton, { backgroundColor: colors.primary }]}
-              onPress={() => navigation.navigate('AddCard')}
+              onPress={() => navigation.navigate('ChooseCard')}
               activeOpacity={0.86}
             >
               <Text style={styles.createCardButtonText}>Create Virtual Card</Text>

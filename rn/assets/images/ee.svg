@@ -1,0 +1,47 @@
+<svg width="800" height="500" viewBox="0 0 800 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Card Background -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0" y1="0" x2="800" y2="500">
+      <stop offset="0%" stop-color="#0A1F8F"/>
+      <stop offset="100%" stop-color="#1E5BFF"/>
+    </linearGradient>
+
+    <linearGradient id="waveGradient" x1="0" y1="0" x2="800" y2="0">
+      <stop offset="0%" stop-color="#3EA0FF" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.6"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded Card -->
+  <rect x="0" y="0" width="800" height="500" rx="40" fill="url(#bgGradient)"/>
+
+  <!-- Wave Effect -->
+  <path d="M0 320 C200 260 400 420 800 250 L800 500 L0 500 Z" fill="url(#waveGradient)" opacity="0.4"/>
+
+  <!-- Rexipay Logo -->
+  <g transform="translate(40,40)">
+    <rect width="60" height="60" rx="15" fill="#2F45FF"/>
+    <text x="30" y="38" text-anchor="middle" fill="white" font-size="28" font-family="Arial" font-weight="bold">R</text>
+  </g>
+
+  <!-- Rexipay Text -->
+  <text x="120" y="80" fill="white" font-size="36" font-family="Arial" font-weight="600">
+    Rexipay
+  </text>
+
+  <!-- VISA Text -->
+  <text x="650" y="80" fill="white" font-size="40" font-family="Arial" font-weight="bold">
+    VISA
+  </text>
+
+  <!-- Chip -->
+  <rect x="80" y="180" width="80" height="60" rx="10" fill="#D9D9D9"/>
+  <rect x="100" y="195" width="40" height="30" rx="8" fill="#BFBFBF"/>
+
+  <!-- Contactless Icon -->
+  <path d="M190 200 Q210 210 190 220" stroke="white" stroke-width="3" fill="none"/>
+  <path d="M200 190 Q230 210 200 230" stroke="white" stroke-width="3" fill="none"/>
+  <path d="M210 180 Q250 210 210 240" stroke="white" stroke-width="3" fill="none"/>
+
+</svg>
