@@ -7,7 +7,7 @@ import CryptoJS from 'crypto-js';
 import { saveOfflineWallet, loadOfflineWallet, getDeviceId } from '../utils/offlineStorage';
 
 const DEFAULT_CURRENCY = 'NGN';
-const DEFAULT_BALANCE = 250000; // Align with existing mock CURRENCY_ACCOUNTS
+const DEFAULT_BALANCE = 950000; // Align with existing mock CURRENCY_ACCOUNTS
 
 export const SYNC_STATUS = { PENDING: 'pending', SYNCED: 'synced', FAILED: 'failed' };
 

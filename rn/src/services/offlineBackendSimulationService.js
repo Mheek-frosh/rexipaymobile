@@ -8,11 +8,11 @@ export async function getSimulatedServerBalance(userId) {
   try {
     const balancesJson = await AsyncStorage.getItem(MOCK_SERVER_BALANCES_KEY);
     const balances = balancesJson ? JSON.parse(balancesJson) : {};
-    // Default initial balance is 250,000 NGN
-    return balances[userId] || { NGN: 250000 };
+    // Default initial balance is 950,000 NGN
+    return balances[userId] || { NGN: 950000 };
   } catch (e) {
     console.warn('Error reading simulated server balances:', e);
-    return { NGN: 250000 };
+    return { NGN: 950000 };
   }
 }
 
@@ -82,7 +82,7 @@ export async function simulateServerSync(transactions) {
     newlySyncedIds.push(transactionId);
 
     // Mock: deduct sender, credit receiver in server simulation db
-    const sBal = balances[senderId] || { NGN: 250000 };
+    const sBal = balances[senderId] || { NGN: 950000 };
     const rBal = balances[receiverId] || { NGN: 0 };
     const cur = currency || 'NGN';
 

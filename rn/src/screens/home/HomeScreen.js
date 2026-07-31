@@ -26,15 +26,14 @@ import HomeScreenSkeleton from '../../components/HomeScreenSkeleton';
 import { HOME_QUICK_SERVICES } from '../../data/homeServices';
 
 const CURRENCY_ACCOUNTS = [
-  { id: 'ngn', name: 'Naira', code: 'NGN', flag: '🇳🇬', balance: '₦250,000.00', symbol: '₦' },
-  { id: 'usd', name: 'US Dollar', code: 'USD', flag: '🇺🇸', balance: '$1,250.00', symbol: '$' },
-  { id: 'gbp', name: 'British Pound', code: 'GBP', flag: '🇬🇧', balance: '£850.00', symbol: '£' },
+  { id: 'ngn', name: 'Naira', code: 'NGN', flag: '🇳🇬', balance: '₦950,000.00', symbol: '₦' },
+  { id: 'usd', name: 'US Dollar', code: 'USD', flag: '🇺🇸', balance: '$1500.00', symbol: '$' },
+  { id: 'gbp', name: 'British Pound', code: 'GBP', flag: '🇬🇧', balance: '£1000.00', symbol: '£' },
 ];
 
 const { width } = Dimensions.get('window');
 const SIDE = 20;
 const INITIAL_SKELETON_DURATION = 4000;
-
 export default function HomeScreen() {
   const { colors, isDark } = useTheme();
   const { userName } = useAuth();
