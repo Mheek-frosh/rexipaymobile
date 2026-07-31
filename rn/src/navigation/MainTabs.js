@@ -15,7 +15,7 @@ const Tab = createBottomTabNavigator();
 
 function ExactHomeIcon({ color, size = 26, isFocused, isDark }) {
   if (isFocused) {
-    const keyholeColor = isDark ? '#1F222B' : '#FFFFFF';
+    const keyholeColor = isDark ? '#191C26' : '#FFFFFF';
     return (
       <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
         <Path
@@ -100,11 +100,11 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
             }
           };
 
-          const activeColor = themeColors.primary;
+          const activeColor = isDark ? '#5B78FF' : themeColors.primary;
           const inactiveColor = themeColors.textSecondary;
           const color = isFocused ? activeColor : inactiveColor;
           const activeBgColor = isDark
-            ? 'rgba(62, 83, 231, 0.28)'
+            ? 'rgba(91, 120, 255, 0.22)'
             : 'rgba(23, 47, 199, 0.12)';
 
           let IconComponent;

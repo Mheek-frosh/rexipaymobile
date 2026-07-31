@@ -6,6 +6,11 @@ export const COLORS = {
   navBackground: '#FFFFFF',
   surfaceVariant: '#F0F0F0',
   textPrimary: '#000000',
+  background: '#F8F9FA',
+  cardBackground: '#FFFFFF',
+  navBackground: '#FFFFFF',
+  surfaceVariant: '#F0F0F0',
+  textPrimary: '#000000',
   textSecondary: '#757575',
   border: '#E5E7EB',
   error: '#E53935',
@@ -13,8 +18,8 @@ export const COLORS = {
 };
 
 export const DARK_COLORS = {
-  primary: '#172FC7',
-  primaryLight: 'rgba(23, 47, 199, 0.2)',
+  primary: '#4F6EFF',
+  primaryLight: 'rgba(79, 110, 255, 0.2)',
   background: '#0D0D0D',
   cardBackground: '#1F222B',
   navBackground: '#1F222B',

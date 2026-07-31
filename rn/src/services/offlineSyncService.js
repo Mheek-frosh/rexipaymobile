@@ -6,6 +6,7 @@
 import NetInfo from '@react-native-community/netinfo';
 import { API_BASE_URL } from '../config/apiConfig';
 import { getWalletState, syncFromServer, markTransactionsSynced } from './offlineWalletService';
+import { simulateServerSync, simulateServerReconcile } from './offlineBackendSimulationService';
 
 let listeners = [];
 let isOnline = true;
@@ -47,16 +48,26 @@ export async function syncPendingTransactions() {
       body: JSON.stringify({ transactions: all }),
     });
     const data = await res.json();
-    if (!res.ok) {
-      return { success: false, error: data.error || 'Sync failed' };
+    if (res.ok && data.success) {
+      if (data.syncedIds?.length) {
+        await markTransactionsSynced(data.syncedIds);
+        return { success: true, synced: data.syncedIds };
+      }
+      return { success: true, synced: [] };
     }
-    if (data.success && data.syncedIds?.length) {
-      await markTransactionsSynced(data.syncedIds);
-      return { success: true, synced: data.syncedIds };
-    }
-    return { success: true, synced: [] };
+    return { success: false, error: data.error || 'Sync failed' };
   } catch (e) {
-    return { success: false, error: e.message || 'Network error' };
+    // Fallback: Run the simulated offline model locally
+    console.log('[Offline Mode Fallback] Running simulated server sync locally');
+    const data = await simulateServerSync(all);
+    if (data.success) {
+      if (data.syncedIds?.length) {
+        await markTransactionsSynced(data.syncedIds);
+        return { success: true, synced: data.syncedIds, isOfflineMock: true };
+      }
+      return { success: true, synced: [], isOfflineMock: true };
+    }
+    return { success: false, error: data.error || 'Sync simulation failed' };
   }
 }
 
@@ -64,13 +75,19 @@ export async function fetchAndReconcileWallet(userId) {
   try {
     const res = await fetch(`${API_BASE_URL}/api/wallet/reconcile?userId=${encodeURIComponent(userId)}`);
     const data = await res.json();
-    if (!res.ok) return { success: false, error: data.error || 'Reconcile failed' };
-    if (data.success && data.balance) {
+    if (res.ok && data.success && data.balance) {
       await syncFromServer(data.balance, true);
       return { success: true, balance: data.balance };
     }
-    return { success: false, error: 'No balance data' };
+    return { success: false, error: data.error || 'Reconcile failed' };
   } catch (e) {
-    return { success: false, error: e.message || 'Network error' };
+    // Fallback: Run the simulated offline model locally
+    console.log('[Offline Mode Fallback] Running simulated server reconcile locally');
+    const data = await simulateServerReconcile(userId);
+    if (data.success && data.balance) {
+      await syncFromServer(data.balance, true);
+      return { success: true, balance: data.balance, isOfflineMock: true };
+    }
+    return { success: false, error: data.error || 'Reconcile simulation failed' };
   }
 }
