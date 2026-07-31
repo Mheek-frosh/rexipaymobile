@@ -8,6 +8,7 @@ import { useTheme } from '../theme/ThemeContext';
 import { Card, Chart2, More } from 'iconsax-react-native';
 import HomeScreen from '../screens/home/HomeScreen';
 import CardsScreen from '../screens/cards/CardsScreen';
+import ChooseCardScreen from '../screens/cards/ChooseCardScreen';
 import StatsScreen from '../screens/stats/StatsScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 
@@ -149,7 +150,7 @@ export default function MainTabs() {
       screenOptions={{ headerShown: false }}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Cards" component={CardsScreen} />
+      <Tab.Screen name="Cards" component={ChooseCardScreen} />
       <Tab.Screen name="Stats" component={StatsScreen} />
       <Tab.Screen name="More" component={ProfileScreen} />
     </Tab.Navigator>

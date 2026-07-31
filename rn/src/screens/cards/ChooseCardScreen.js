@@ -12,7 +12,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
-import { useAuth } from '../../context/AuthContext';
 import Svg, {
   Defs,
   RadialGradient,
@@ -21,34 +20,61 @@ import Svg, {
   Ellipse,
   Rect,
   Path,
-  G,
-  Circle,
 } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = width - 40;
-const CARD_HEIGHT = CARD_WIDTH * 0.62;
 
-/* ────────────────────────────────────
-   Inline SVG Credit Card graphic
-   (based on cardcreate.svg design cues)
-──────────────────────────────────── */
-function RexipayCardSvg({ name = 'KABEER', expiry = '08/29', last4 = '4821' }) {
+// Card sized to fit nicely on any phone — 80% of screen width
+const CARD_WIDTH = width * 0.80;
+const CARD_HEIGHT = CARD_WIDTH * 0.60;
+
+/* ─────────────────────────────────────────────
+   Rexipay Logo embedded from logonew.svg paths
+   Rendered at a given size centred in card top
+───────────────────────────────────────────── */
+function RexipayLogoMark({ size = 44 }) {
+  // Original SVG viewBox: 0 0 724 738
+  return (
+    <Svg width={size} height={size} viewBox="0 0 724 738" fill="none">
+      <Defs>
+        <LinearGradient id="logoGrad" x1="173.543" y1="340.656" x2="342.752" y2="340.656" gradientUnits="userSpaceOnUse">
+          <Stop stopColor="#D8E6FF" />
+          <Stop offset="1" stopColor="#8BB3FB" />
+        </LinearGradient>
+      </Defs>
+      <Ellipse cx="362" cy="368.779" rx="362" ry="368.779" fill="rgba(255,255,255,0.18)" />
+      <Path
+        d="M321.601 340.656H194.694C183.013 340.656 173.543 349.959 173.543 361.434C173.543 372.909 183.013 382.211 194.694 382.211H321.601C333.282 382.211 342.752 372.909 342.752 361.434C342.752 349.959 333.282 340.656 321.601 340.656Z"
+        fill="url(#logoGrad)"
+      />
+      <Path
+        d="M311.989 419.992H216.617C205.572 419.992 196.619 428.787 196.619 439.636C196.619 450.486 205.572 459.281 216.617 459.281H311.989C323.033 459.281 331.986 450.486 331.986 439.636C331.986 428.787 323.033 419.992 311.989 419.992Z"
+        fill="white"
+      />
+      <Path
+        d="M284.04 225.062C272.492 225.062 263.253 231.107 258.634 242.44L248.625 271.151C244.005 285.506 253.244 297.595 268.642 297.595H425.701C449.568 297.595 468.045 316.484 468.045 340.661C468.045 364.083 450.337 385.239 425.701 385.239H384.126C364.879 385.239 352.561 404.883 363.339 420.749L452.647 553.726C458.806 562.792 468.045 568.081 479.594 568.081H518.088C535.026 568.081 545.035 549.193 535.026 536.348L474.204 454.749C518.088 435.105 545.035 392.794 545.035 340.661C545.035 275.684 494.222 225.062 426.471 225.062H284.04Z"
+        fill="white"
+      />
+    </Svg>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   SVG card background (gradient + shine + arcs)
+───────────────────────────────────────────── */
+function CardBackground() {
   const cw = CARD_WIDTH;
   const ch = CARD_HEIGHT;
-
   return (
     <Svg width={cw} height={ch} viewBox={`0 0 ${cw} ${ch}`}>
       <Defs>
-        {/* Card body gradient */}
         <LinearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <Stop offset="0%" stopColor="#2242E0" />
-          <Stop offset="60%" stopColor="#172FC7" />
+          <Stop offset="55%" stopColor="#172FC7" />
           <Stop offset="100%" stopColor="#0F1E8A" />
         </LinearGradient>
-        {/* Shine arc */}
-        <RadialGradient id="shineGrad" cx="75%" cy="45%" r="55%" fx="75%" fy="45%">
-          <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.18" />
+        <RadialGradient id="shineGrad" cx="76%" cy="38%" r="52%" fx="76%" fy="38%">
+          <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.20" />
           <Stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
         </RadialGradient>
         {/* Chip gradient */}
@@ -59,130 +85,76 @@ function RexipayCardSvg({ name = 'KABEER', expiry = '08/29', last4 = '4821' }) {
         </LinearGradient>
       </Defs>
 
-      {/* Card background */}
-      <Rect x={0} y={0} width={cw} height={ch} rx={20} ry={20} fill="url(#cardGrad)" />
+      {/* Card body */}
+      <Rect x={0} y={0} width={cw} height={ch} rx={18} ry={18} fill="url(#cardGrad)" />
 
-      {/* Radial shine effect (top-right sweep) */}
-      <Ellipse cx={cw * 0.82} cy={ch * 0.38} rx={cw * 0.55} ry={ch * 0.7} fill="url(#shineGrad)" />
+      {/* Shine sweep */}
+      <Ellipse cx={cw * 0.82} cy={ch * 0.35} rx={cw * 0.52} ry={ch * 0.72} fill="url(#shineGrad)" />
 
-      {/* Subtle arc line decoration */}
+      {/* Arc decorations */}
       <Path
-        d={`M ${cw * 0.5} ${-ch * 0.2} Q ${cw * 1.1} ${ch * 0.3} ${cw * 0.85} ${ch * 1.1}`}
-        stroke="rgba(255,255,255,0.08)"
-        strokeWidth="40"
+        d={`M ${cw * 0.48} ${-ch * 0.22} Q ${cw * 1.12} ${ch * 0.28} ${cw * 0.84} ${ch * 1.12}`}
+        stroke="rgba(255,255,255,0.07)"
+        strokeWidth="38"
         fill="none"
       />
       <Path
-        d={`M ${cw * 0.45} ${-ch * 0.15} Q ${cw * 1.05} ${ch * 0.35} ${cw * 0.8} ${ch * 1.05}`}
-        stroke="rgba(255,255,255,0.05)"
-        strokeWidth="28"
+        d={`M ${cw * 0.42} ${-ch * 0.14} Q ${cw * 1.06} ${ch * 0.34} ${cw * 0.78} ${ch * 1.06}`}
+        stroke="rgba(255,255,255,0.04)"
+        strokeWidth="26"
         fill="none"
       />
 
-      {/* ── HEADER ROW ── */}
-      {/* Rexipay logo mark (R in rounded square) */}
-      <Rect x={20} y={20} width={34} height={34} rx={9} ry={9} fill="rgba(255,255,255,0.18)" />
-      <Path
-        d="M29 27 h8 a5 5 0 0 1 0 10 h-8 z M37 37 l6 9"
-        stroke="#FFFFFF"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-
-      {/* VISA text */}
-      <Path
-        // Simplified VISA wordmark path (custom drawn approximation)
-        d="M 0 0"
-        fill="none"
-      />
-      {/* We use Text-as-SVG via foreignObject alternative — render via plain styled letters */}
-
-      {/* ── CHIP ── */}
-      <Rect x={20} y={ch * 0.42} width={46} height={34} rx={6} ry={6} fill="url(#chipGrad)" />
-      {/* Chip lines */}
-      <Rect x={31} y={ch * 0.42} width={2} height={34} fill="rgba(0,0,0,0.15)" />
-      <Rect x={38} y={ch * 0.42} width={2} height={34} fill="rgba(0,0,0,0.12)" />
-      <Rect x={20} y={ch * 0.42 + 11} width={46} height={2} fill="rgba(0,0,0,0.12)" />
-      <Rect x={20} y={ch * 0.42 + 21} width={46} height={2} fill="rgba(0,0,0,0.10)" />
-      {/* Centre oval on chip */}
-      <Ellipse cx={43} cy={ch * 0.42 + 17} rx={8} ry={10} fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="1.5" />
+      {/* EMV Chip */}
+      <Rect x={20} y={ch * 0.44} width={42} height={30} rx={5} ry={5} fill="url(#chipGrad)" />
+      <Rect x={30} y={ch * 0.44} width={1.8} height={30} fill="rgba(0,0,0,0.14)" />
+      <Rect x={36} y={ch * 0.44} width={1.8} height={30} fill="rgba(0,0,0,0.11)" />
+      <Rect x={20} y={ch * 0.44 + 9} width={42} height={1.8} fill="rgba(0,0,0,0.11)" />
+      <Rect x={20} y={ch * 0.44 + 19} width={42} height={1.8} fill="rgba(0,0,0,0.09)" />
+      <Ellipse cx={41} cy={ch * 0.44 + 15} rx={7} ry={9} fill="none" stroke="rgba(0,0,0,0.13)" strokeWidth="1.4" />
 
       {/* NFC waves */}
-      <Path d={`M ${76} ${ch * 0.42 + 6} Q ${84} ${ch * 0.42 + 17} ${76} ${ch * 0.42 + 28}`} stroke="rgba(255,255,255,0.7)" strokeWidth="2" fill="none" strokeLinecap="round" />
-      <Path d={`M ${82} ${ch * 0.42 + 2} Q ${93} ${ch * 0.42 + 17} ${82} ${ch * 0.42 + 32}`} stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" strokeLinecap="round" />
-      <Path d={`M ${88} ${ch * 0.42 - 2} Q ${103} ${ch * 0.42 + 17} ${88} ${ch * 0.42 + 36}`} stroke="rgba(255,255,255,0.3)" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <Path d={`M 69 ${ch * 0.44 + 4} Q 77 ${ch * 0.44 + 15} 69 ${ch * 0.44 + 26}`} stroke="rgba(255,255,255,0.65)" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <Path d={`M 75 ${ch * 0.44 + 0} Q 86 ${ch * 0.44 + 15} 75 ${ch * 0.44 + 30}`} stroke="rgba(255,255,255,0.45)" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <Path d={`M 81 ${ch * 0.44 - 4} Q 96 ${ch * 0.44 + 15} 81 ${ch * 0.44 + 34}`} stroke="rgba(255,255,255,0.25)" strokeWidth="2" fill="none" strokeLinecap="round" />
     </Svg>
   );
 }
 
-/* ────────────────────────────────────
-   Card number row with bullets + last4
-──────────────────────────────────── */
-function CardNumberRow({ last4 }) {
+/* ─────────────────────────────────────────────
+   Full Card Visual (logo only, no text data)
+───────────────────────────────────────────── */
+function CardVisual() {
   return (
-    <View style={styles.cardNumberRow}>
-      {[0, 1, 2].map((g) => (
-        <View key={g} style={styles.cardNumberGroup}>
-          {[0, 1, 2, 3].map((d) => (
-            <View key={d} style={styles.cardNumberDot} />
-          ))}
-        </View>
-      ))}
-      <Text style={styles.cardNumberLast4}>{last4}</Text>
-    </View>
-  );
-}
+    <View style={[styles.cardOuter, { width: CARD_WIDTH, height: CARD_HEIGHT }]}>
+      {/* SVG background layer */}
+      <CardBackground />
 
-/* ────────────────────────────────────
-   The full-card visual composite
-──────────────────────────────────── */
-function CardVisual({ name, expiry, last4 }) {
-  return (
-    <View style={[styles.cardVisualOuter, { width: CARD_WIDTH, height: CARD_HEIGHT }]}>
-      {/* SVG background */}
-      <RexipayCardSvg name={name} expiry={expiry} last4={last4} />
-
-      {/* Overlaid text content (positioned absolutely over the SVG) */}
+      {/* Overlay: logo top-left + VISA top-right only */}
       <View style={styles.cardOverlay}>
-        {/* Header: logo + VISA */}
+        {/* Rexipay logo mark + wordmark */}
         <View style={styles.cardHeader}>
           <View style={styles.cardLogoGroup}>
-            <View style={styles.cardLogoBox}>
-              <Text style={styles.cardLogoR}>R</Text>
-            </View>
-            <Text style={styles.cardLogoName}>Rexipay</Text>
+            <RexipayLogoMark size={38} />
+            <Text style={styles.cardLogoText}>Rexipay</Text>
           </View>
           <Text style={styles.cardVisaText}>VISA</Text>
         </View>
 
-        {/* Spacer — SVG draws chip here */}
-        <View style={{ height: CARD_HEIGHT * 0.22 }} />
+        {/* Spacer pushes chip to middle — chip is drawn in SVG */}
+        <View style={{ flex: 1 }} />
 
-        {/* Card Number */}
-        <CardNumberRow last4={last4} />
-
-        {/* Footer: holder + expiry */}
-        <View style={styles.cardFooter}>
-          <View>
-            <Text style={styles.cardFieldLabel}>CARD HOLDER</Text>
-            <Text style={styles.cardFieldValue}>{name}</Text>
-          </View>
-          <View style={{ alignItems: 'flex-end' }}>
-            <Text style={styles.cardFieldLabel}>EXPIRES</Text>
-            <Text style={styles.cardFieldValue}>{expiry}</Text>
-          </View>
-        </View>
+        {/* Bottom spacer so card has breathing room */}
+        <View style={{ height: 16 }} />
       </View>
     </View>
   );
 }
 
-/* ────────────────────────────────────
-   Option rows (Virtual / Physical)
-──────────────────────────────────── */
-function CardOptionRow({ icon, title, subtitle, badge, onPress, colors }) {
+/* ─────────────────────────────────────────────
+   Option Row component
+───────────────────────────────────────────── */
+function CardOptionRow({ icon, title, subtitle, onPress, colors }) {
   return (
     <TouchableOpacity
       style={[styles.optionRow, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
@@ -196,53 +168,35 @@ function CardOptionRow({ icon, title, subtitle, badge, onPress, colors }) {
         <Text style={[styles.optionTitle, { color: colors.textPrimary }]}>{title}</Text>
         <Text style={[styles.optionSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
       </View>
-      {badge ? (
-        <View style={[styles.badge, { backgroundColor: colors.surfaceVariant }]}>
-          <Text style={[styles.badgeText, { color: colors.textSecondary }]}>{badge}</Text>
-        </View>
-      ) : (
-        <View style={[styles.arrowBtn, { backgroundColor: colors.primary }]}>
-          <MaterialIcons name="arrow-forward" size={20} color="#FFF" />
-        </View>
-      )}
+      <View style={[styles.arrowBtn, { backgroundColor: colors.primary }]}>
+        <MaterialIcons name="arrow-forward" size={20} color="#FFF" />
+      </View>
     </TouchableOpacity>
   );
 }
 
-/* ────────────────────────────────────
-   Physical card faded placeholder
-──────────────────────────────────── */
+/* ─────────────────────────────────────────────
+   Physical card placeholder thumbnail
+───────────────────────────────────────────── */
 function PhysicalCardPlaceholder({ colors }) {
   return (
     <View style={[styles.physicalPlaceholder, { backgroundColor: colors.surfaceVariant }]}>
-      <View style={[styles.physicalLogoBox, { backgroundColor: colors.border }]}>
-        <Text style={[styles.physicalLogoR, { color: colors.textSecondary }]}>R</Text>
-      </View>
+      <RexipayLogoMark size={30} />
     </View>
   );
 }
 
-/* ────────────────────────────────────
-   Main Screen
-──────────────────────────────────── */
+/* ─────────────────────────────────────────────
+   Main Screen — used as the Cards tab directly
+───────────────────────────────────────────── */
 export default function ChooseCardScreen() {
   const { colors, isDark } = useTheme();
-  const { userName } = useAuth();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-
-  const displayName = (userName || 'KABEER').toUpperCase().split(' ')[0];
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background, paddingTop: insets.top }]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
-
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-          <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
-      </View>
 
       <ScrollView
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}
@@ -256,12 +210,13 @@ export default function ChooseCardScreen() {
 
         {/* Card Visual */}
         <View style={styles.cardSection}>
-          <CardVisual name={displayName} expiry="08/29" last4="4821" />
+          <CardVisual />
         </View>
 
-        {/* Virtual Card Option */}
+        {/* Section label */}
         <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>CARD OPTIONS</Text>
 
+        {/* Virtual Card */}
         <CardOptionRow
           icon="credit-card"
           title="Virtual card"
@@ -270,10 +225,10 @@ export default function ChooseCardScreen() {
           onPress={() => navigation.navigate('AddCard')}
         />
 
-        {/* Physical Card Option */}
+        {/* Physical Card — disabled */}
         <TouchableOpacity
           style={[styles.optionRowPhysical, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
-          activeOpacity={0.65}
+          activeOpacity={0.6}
           disabled
         >
           <PhysicalCardPlaceholder colors={colors} />
@@ -286,9 +241,9 @@ export default function ChooseCardScreen() {
           </View>
         </TouchableOpacity>
 
-        {/* Info note */}
-        <View style={[styles.infoBox, { backgroundColor: colors.primaryLight, borderColor: `${colors.primary}30` }]}>
-          <MaterialIcons name="info-outline" size={16} color={colors.primary} />
+        {/* Info strip */}
+        <View style={[styles.infoBox, { backgroundColor: colors.primaryLight, borderColor: `${colors.primary}28` }]}>
+          <MaterialIcons name="info-outline" size={15} color={colors.primary} />
           <Text style={[styles.infoText, { color: colors.primary }]}>
             Virtual cards are created instantly and can be used for online purchases and subscriptions.
           </Text>
@@ -298,54 +253,41 @@ export default function ChooseCardScreen() {
   );
 }
 
-/* ────────────────────────────────────
+/* ─────────────────────────────────────────────
    Styles
-──────────────────────────────────── */
+───────────────────────────────────────────── */
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   content: {
     paddingHorizontal: 20,
-    paddingTop: 4,
+    paddingTop: 16,
   },
   screenTitle: {
-    fontSize: 28,
+    fontSize: 27,
     fontWeight: '800',
-    letterSpacing: -0.5,
-    marginBottom: 6,
+    letterSpacing: -0.4,
+    marginBottom: 5,
   },
   screenSubtitle: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '400',
-    marginBottom: 28,
+    marginBottom: 24,
   },
 
-  /* Card Visual */
+  /* ── Card ── */
   cardSection: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 28,
     shadowColor: '#172FC7',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.35,
-    shadowRadius: 24,
-    elevation: 12,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.32,
+    shadowRadius: 20,
+    elevation: 10,
   },
-  cardVisualOuter: {
-    borderRadius: 20,
+  cardOuter: {
+    borderRadius: 18,
     overflow: 'hidden',
   },
   cardOverlay: {
@@ -354,9 +296,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    paddingHorizontal: 20,
-    paddingVertical: 18,
-    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -366,110 +307,52 @@ const styles = StyleSheet.create({
   cardLogoGroup: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 7,
   },
-  cardLogoBox: {
-    width: 34,
-    height: 34,
-    borderRadius: 9,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cardLogoR: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '800',
-  },
-  cardLogoName: {
-    color: '#FFF',
-    fontSize: 16,
+  cardLogoText: {
+    color: '#FFFFFF',
+    fontSize: 15,
     fontWeight: '700',
   },
   cardVisaText: {
     color: '#FFFFFF',
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '900',
-    letterSpacing: 1,
+    letterSpacing: 1.5,
     fontStyle: 'italic',
   },
 
-  /* Card Number */
-  cardNumberRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginTop: 4,
-  },
-  cardNumberGroup: {
-    flexDirection: 'row',
-    gap: 5,
-  },
-  cardNumberDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
-    backgroundColor: 'rgba(255,255,255,0.85)',
-  },
-  cardNumberLast4: {
-    color: '#FFFFFF',
-    fontSize: 17,
-    fontWeight: '600',
-    letterSpacing: 1,
-  },
-
-  /* Card Footer */
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-  },
-  cardFieldLabel: {
-    color: 'rgba(255,255,255,0.6)',
-    fontSize: 9,
-    fontWeight: '600',
-    letterSpacing: 0.8,
-    marginBottom: 3,
-  },
-  cardFieldValue: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-
-  /* Section label */
+  /* ── Section label ── */
   sectionLabel: {
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 1.2,
-    marginBottom: 12,
-    marginTop: 4,
+    marginBottom: 10,
   },
 
-  /* Option rows */
+  /* ── Option rows ── */
   optionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    borderRadius: 20,
+    padding: 15,
+    borderRadius: 18,
     borderWidth: 1,
-    marginBottom: 12,
-    gap: 14,
+    marginBottom: 10,
+    gap: 13,
   },
   optionRowPhysical: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    borderRadius: 20,
+    padding: 15,
+    borderRadius: 18,
     borderWidth: 1,
-    marginBottom: 12,
-    gap: 14,
-    opacity: 0.75,
+    marginBottom: 10,
+    gap: 13,
+    opacity: 0.72,
   },
   optionIconBox: {
-    width: 52,
-    height: 52,
+    width: 50,
+    height: 50,
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
@@ -478,67 +361,56 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   optionTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
-    marginBottom: 3,
+    marginBottom: 2,
   },
   optionSubtitle: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '400',
   },
   arrowBtn: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
   badge: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 9,
     paddingVertical: 5,
     borderRadius: 20,
   },
   badgeText: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: '700',
     letterSpacing: 0.5,
   },
 
-  /* Physical card placeholder thumbnail */
+  /* ── Physical placeholder ── */
   physicalPlaceholder: {
-    width: 52,
-    height: 52,
+    width: 50,
+    height: 50,
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  physicalLogoBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  physicalLogoR: {
-    fontSize: 18,
-    fontWeight: '800',
-  },
 
-  /* Info box */
+  /* ── Info box ── */
   infoBox: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 10,
-    padding: 14,
-    borderRadius: 14,
+    gap: 9,
+    padding: 13,
+    borderRadius: 13,
     borderWidth: 1,
-    marginTop: 8,
+    marginTop: 6,
   },
   infoText: {
     flex: 1,
-    fontSize: 13,
-    lineHeight: 19,
+    fontSize: 12,
+    lineHeight: 18,
     fontWeight: '500',
   },
 });
