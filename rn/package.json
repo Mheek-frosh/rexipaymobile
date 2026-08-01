@@ -8,7 +8,10 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "share": "expo start --tunnel"
+    "share": "expo start --tunnel",
+    "eas:build:android": "eas build --platform android --profile production",
+    "eas:build:ios": "eas build --platform ios --profile production",
+    "eas:build:preview": "eas build --profile preview"
   },
   "dependencies": {
     "@clerk/clerk-expo": "^2.19.31",

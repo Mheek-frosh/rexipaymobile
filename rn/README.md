@@ -23,6 +23,30 @@ React Native version of the RexiPay mobile app, built with Expo.
 
 4. Scan the QR code with **Expo Go** on your phone (same Wi‑Fi), or press `a` for Android / `i` for iOS simulator.
 
+## EAS Build
+
+- On Windows, local Android builds are not supported with EAS. Use the remote build service instead.
+
+- Login to EAS if you have not already:
+  ```bash
+  npx eas login
+  ```
+
+- Build for Android:
+  ```bash
+  npm run eas:build:android
+  ```
+
+- Build for iOS:
+  ```bash
+  npm run eas:build:ios
+  ```
+
+- Use the preview profile for internal test builds:
+  ```bash
+  npm run eas:build:preview
+  ```
+
 ## API Configuration
 
 - **Android Emulator**: Uses `http://10.0.2.2:3001` (localhost from emulator)

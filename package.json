@@ -7,6 +7,10 @@
     "start": "cd rn && npm start",
     "android": "cd rn && npm run android",
     "ios": "cd rn && npm run ios",
+    "eas:login": "cd rn && npx eas login",
+    "eas:build:android": "cd rn && npx eas build --platform android --profile preview",
+    "eas:build:ios": "cd rn && npx eas build --platform ios --profile preview",
+    "eas:build:development": "cd rn && npx eas build --platform android --profile development",
     "server": "npm run --prefix server start",
     "server:dev": "npm run --prefix server dev",
     "share": "cd rn && npm run share"
