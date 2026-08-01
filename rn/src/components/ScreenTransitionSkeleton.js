@@ -116,15 +116,49 @@ function CardsSkeleton({ blockProps, cardColor }) {
       <CenteredHeader blockProps={blockProps} />
       <View
         style={[
-          styles.emptyCardSkeleton,
+          styles.cardSkeleton,
           { backgroundColor: cardColor, borderColor: blockProps.baseColor },
         ]}
       >
-        <Block {...blockProps} style={styles.emptyCardArtwork} />
-        <Block {...blockProps} style={styles.emptyCardHeading} />
-        <Block {...blockProps} style={styles.emptyCardCopyLong} />
-        <Block {...blockProps} style={styles.emptyCardCopyShort} />
-        <Block {...blockProps} style={styles.emptyCardButton} />
+        <View style={styles.cardSkeletonTopRow}>
+          <Block {...blockProps} style={styles.cardSkeletonLogo} />
+          <Block {...blockProps} style={styles.cardSkeletonBadge} />
+        </View>
+        <Block {...blockProps} style={styles.cardSkeletonChip} />
+        <Block {...blockProps} style={styles.cardSkeletonNumber} />
+        <View style={styles.cardSkeletonMetaRow}>
+          <Block {...blockProps} style={styles.cardSkeletonName} />
+          <Block {...blockProps} style={styles.cardSkeletonExpiry} />
+        </View>
+      </View>
+      <View style={styles.sectionHeading}>
+        <Block {...blockProps} style={styles.sectionTitle} />
+        <Block {...blockProps} style={styles.sectionAction} />
+      </View>
+      {[0, 1].map((item) => (
+        <View
+          key={item}
+          style={[
+            styles.optionRowSkeleton,
+            { backgroundColor: cardColor, borderColor: blockProps.baseColor },
+          ]}
+        >
+          <View style={styles.optionIconSkeleton}>
+            <Block {...blockProps} style={styles.optionIconInner} />
+          </View>
+          <View style={styles.optionTextSkeleton}>
+            <Block {...blockProps} style={styles.optionTitleSkeleton} />
+            <Block {...blockProps} style={styles.optionSubtitleSkeleton} />
+          </View>
+          <Block {...blockProps} style={styles.optionArrowSkeleton} />
+        </View>
+      ))}
+      <View style={[styles.infoSkeleton, { backgroundColor: blockProps.baseColor }]}> 
+        <Block {...blockProps} style={styles.infoIconSkeleton} />
+        <View style={styles.infoTextSkeleton}>
+          <Block {...blockProps} style={styles.infoLineLong} />
+          <Block {...blockProps} style={styles.infoLineShort} />
+        </View>
       </View>
     </>
   );
@@ -319,6 +353,123 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 16,
     marginTop: 34,
+  },
+  cardSkeleton: {
+    borderWidth: 1.5,
+    borderStyle: 'solid',
+    borderRadius: 28,
+    padding: 24,
+    marginBottom: 28,
+  },
+  cardSkeletonTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  cardSkeletonLogo: {
+    width: 120,
+    height: 18,
+    borderRadius: 9,
+  },
+  cardSkeletonBadge: {
+    width: 72,
+    height: 18,
+    borderRadius: 9,
+  },
+  cardSkeletonChip: {
+    width: 58,
+    height: 40,
+    borderRadius: 12,
+    marginBottom: 28,
+  },
+  cardSkeletonNumber: {
+    width: '88%',
+    height: 20,
+    borderRadius: 10,
+    marginBottom: 18,
+  },
+  cardSkeletonMetaRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  cardSkeletonName: {
+    width: '48%',
+    height: 14,
+    borderRadius: 7,
+  },
+  cardSkeletonExpiry: {
+    width: '28%',
+    height: 14,
+    borderRadius: 7,
+  },
+  optionRowSkeleton: {
+    borderWidth: 1.5,
+    borderRadius: 20,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  optionIconSkeleton: {
+    width: 46,
+    height: 46,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  optionIconInner: {
+    width: 28,
+    height: 28,
+    borderRadius: 10,
+  },
+  optionTextSkeleton: {
+    flex: 1,
+  },
+  optionTitleSkeleton: {
+    width: '72%',
+    height: 14,
+    borderRadius: 7,
+    marginBottom: 10,
+  },
+  optionSubtitleSkeleton: {
+    width: '50%',
+    height: 12,
+    borderRadius: 6,
+  },
+  optionArrowSkeleton: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    marginLeft: 16,
+  },
+  infoSkeleton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 18,
+    borderRadius: 20,
+    marginTop: 24,
+  },
+  infoIconSkeleton: {
+    width: 34,
+    height: 34,
+    borderRadius: 12,
+    marginRight: 14,
+  },
+  infoTextSkeleton: {
+    flex: 1,
+  },
+  infoLineLong: {
+    width: '100%',
+    height: 12,
+    borderRadius: 6,
+    marginBottom: 10,
+  },
+  infoLineShort: {
+    width: '70%',
+    height: 12,
+    borderRadius: 6,
   },
   tabSwitch: {
     height: 52,
