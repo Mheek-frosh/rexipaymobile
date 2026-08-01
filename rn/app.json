@@ -22,7 +22,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.rexipay.app",
       "infoPlist": {
-        "NSFaceIDUsageDescription": "Allow RexiPay to use Face ID to securely unlock your app."
+        "NSFaceIDUsageDescription": "Allow RexiPay to use Face ID to securely unlock your app.",
+        "ITSAppUsesNonExemptEncryption": true
       }
     },
     "android": {
@@ -35,8 +36,10 @@
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO",
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
       ]
     },
     "web": {
