@@ -11,6 +11,7 @@ import {
   Alert,
   Animated,
   Platform,
+  Keyboard,
   KeyboardAvoidingView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -60,6 +61,7 @@ export default function OfflinePayScreen() {
   const [mode, setMode] = useState('main'); // main | scan_receiver | scan_tx | enter_amount | receive | success
   const [receiverData, setReceiverData] = useState(null);
   const [amount, setAmount] = useState('');
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
   const [successTx, setSuccessTx] = useState(null);
   const [manualReceiverId, setManualReceiverId] = useState('');
@@ -163,27 +165,31 @@ export default function OfflinePayScreen() {
       Alert.alert('Insufficient Balance', `Available: ${formatBalance(availableBalance)}`);
       return;
     }
-    (async () => {
-      try {
-        const hasHardware = await LocalAuthentication.hasHardwareAsync();
-        const enrolled = await LocalAuthentication.isEnrolledAsync();
-        const canUseBiometrics = hasHardware && enrolled;
+    Keyboard.dismiss();
+    setShowConfirmModal(true);
+  };
 
-        if (canUseBiometrics) {
-          const result = await LocalAuthentication.authenticateAsync({
-            promptMessage: 'Confirm offline payment',
-            fallbackLabel: 'Use PIN',
-          });
-          if (result.success) {
-            await performOfflineDebit();
-            return;
-          }
+  const handleConfirmOfflinePayment = async () => {
+    setShowConfirmModal(false);
+    try {
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      const enrolled = await LocalAuthentication.isEnrolledAsync();
+      const canUseBiometrics = hasHardware && enrolled;
+
+      if (canUseBiometrics) {
+        const result = await LocalAuthentication.authenticateAsync({
+          promptMessage: 'Confirm offline payment',
+          fallbackLabel: 'Use PIN',
+        });
+        if (result.success) {
+          await performOfflineDebit();
+          return;
         }
-        setShowPinModal(true);
-      } catch {
-        setShowPinModal(true);
       }
-    })();
+      setShowPinModal(true);
+    } catch {
+      setShowPinModal(true);
+    }
   };
 
   const performOfflineDebit = async () => {
@@ -516,6 +522,81 @@ export default function OfflinePayScreen() {
         )}
       </ScrollView>
 
+      <Modal
+        visible={showConfirmModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowConfirmModal(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowConfirmModal(false)}
+        >
+          <View
+            style={[styles.summaryModalWrap, { backgroundColor: colors.background }]}
+            onStartShouldSetResponder={() => true}
+          >
+            <View style={[styles.sheetHandle, { backgroundColor: colors.border }]} />
+            <Text style={[styles.summaryTitle, { color: colors.textPrimary }]}>
+              Confirm Offline Payment
+            </Text>
+            <Text style={[styles.summarySubtitle, { color: colors.textSecondary }]}>
+              Review the transaction details before authorizing payment.
+            </Text>
+
+            <View style={[styles.summaryCard, { backgroundColor: colors.cardBackground }]}>
+              <View style={[styles.summaryRow, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Recipient</Text>
+                <Text
+                  style={[styles.summaryValue, styles.summaryValueFlex, { color: colors.textPrimary }]}
+                  numberOfLines={1}
+                >
+                  {receiverData?.userName || 'Rexipay User'}
+                </Text>
+              </View>
+              <View style={[styles.summaryRow, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Rexipay ID</Text>
+                <Text
+                  style={[styles.summaryValue, styles.summaryValueFlex, { color: colors.textPrimary }]}
+                  numberOfLines={1}
+                >
+                  {receiverData?.userId || ''}
+                </Text>
+              </View>
+              <View style={[styles.summaryRow, styles.summaryRowLast]}>
+                <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Amount</Text>
+                <Text style={[styles.summaryAmount, { color: colors.primary }]}>
+                  {formatBalance(parseFloat(String(amount).replace(/,/g, '')) || 0)}
+                </Text>
+              </View>
+            </View>
+
+            <View style={[styles.offlineNotice, { backgroundColor: '#F59E0B18' }]}>
+              <MaterialIcons name="wifi-off" size={20} color="#F59E0B" />
+              <Text style={[styles.offlineNoticeText, { color: colors.textSecondary }]}>
+                This payment will be stored securely and marked as pending until it syncs.
+              </Text>
+            </View>
+
+            <View style={styles.summaryActions}>
+              <TouchableOpacity
+                style={[styles.cancelBtn, { borderColor: colors.border }]}
+                onPress={() => setShowConfirmModal(false)}
+              >
+                <Text style={[styles.cancelText, { color: colors.textSecondary }]}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.confirmBtn, { backgroundColor: colors.primary }]}
+                onPress={handleConfirmOfflinePayment}
+              >
+                <Text style={styles.confirmText}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
       <PinEntryModal
         visible={showPinModal}
         onSuccess={handlePinSuccess}
@@ -627,6 +708,56 @@ const styles = StyleSheet.create({
   cancelText: { fontSize: 16 },
   confirmBtn: { flex: 1, padding: 16, borderRadius: 16, alignItems: 'center' },
   confirmText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  summaryModalWrap: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: Platform.OS === 'ios' ? 36 : 24,
+  },
+  sheetHandle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  summaryTitle: { fontSize: 20, fontWeight: '700' },
+  summarySubtitle: { fontSize: 14, lineHeight: 20, marginTop: 6, marginBottom: 20 },
+  summaryCard: {
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+  },
+  summaryRowLast: { borderBottomWidth: 0 },
+  summaryLabel: { fontSize: 14 },
+  summaryValue: { fontSize: 15, fontWeight: '600', textAlign: 'right' },
+  summaryValueFlex: { flex: 1 },
+  summaryAmount: { fontSize: 18, fontWeight: '700' },
+  offlineNotice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    borderRadius: 12,
+    padding: 12,
+    marginTop: 16,
+    marginBottom: 24,
+  },
+  offlineNoticeText: { flex: 1, fontSize: 13, lineHeight: 18 },
+  summaryActions: { flexDirection: 'row', gap: 12 },
   qrWrap: {
     alignSelf: 'center',
     marginTop: 20,
