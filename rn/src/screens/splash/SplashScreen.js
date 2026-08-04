@@ -3,7 +3,7 @@ import { View, StyleSheet, Animated, Dimensions } from 'react-native';
 import { useTheme } from '../../theme/ThemeContext';
 
 const { width } = Dimensions.get('window');
-const logoWidth = width * 0.82;
+const logoWidth = Math.min(width * 0.6, 260);
 
 export default function SplashScreen({ onFinish }) {
   const { isDark } = useTheme();
