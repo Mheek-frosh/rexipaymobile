@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -15,13 +15,261 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
+import Svg, { Path } from 'react-native-svg';
 import { useTheme } from '../../theme/ThemeContext';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as Haptics from 'expo-haptics';
 import { resolveAccount } from '../../services/bankService';
 import { NIGERIAN_BANKS } from '../../data/nigerianBanks';
-import PinEntryModal from '../../components/PinEntryModal';
 import TransactionProcessingModal from '../../components/TransactionProcessingModal';
+
+const TRANSFER_PIN_KEYS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 'biometric', 0, 'backspace'];
+
+function FaceIdIcon({ color, size = 32 }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 48 48" fill="none">
+      <Path
+        d="M15 4H10a6 6 0 0 0-6 6v5M33 4h5a6 6 0 0 1 6 6v5M15 44H10a6 6 0 0 1-6-6v-5M33 44h5a6 6 0 0 0 6-6v-5"
+        stroke={color}
+        strokeWidth="3.2"
+        strokeLinecap="round"
+      />
+      <Path
+        d="M16 17v4M32 17v4M24 16v9.5c0 2-1.2 3.2-3.2 3.2M17.5 34c1.8 2 4 3 6.5 3s4.7-1 6.5-3"
+        stroke={color}
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+function TransferPinBottomSheet({
+  visible,
+  amount,
+  recipient,
+  onSuccess,
+  onCancel,
+}) {
+  const { colors } = useTheme();
+  const [pin, setPin] = useState('');
+  const [error, setError] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const completionTimer = useRef(null);
+  const authorizationStartedRef = useRef(false);
+
+  useEffect(() => {
+    if (!visible) {
+      setPin('');
+      setError('');
+      setVerifying(false);
+      authorizationStartedRef.current = false;
+      return undefined;
+    }
+
+    let mounted = true;
+    setBiometricAvailable(false);
+    Promise.all([
+      LocalAuthentication.hasHardwareAsync(),
+      LocalAuthentication.isEnrolledAsync(),
+    ])
+      .then(([hasHardware, isEnrolled]) => {
+        if (mounted) setBiometricAvailable(hasHardware && isEnrolled);
+      })
+      .catch(() => {
+        if (mounted) setBiometricAvailable(false);
+      });
+
+    return () => {
+      mounted = false;
+      if (completionTimer.current) {
+        clearTimeout(completionTimer.current);
+        completionTimer.current = null;
+      }
+    };
+  }, [visible]);
+
+  const completeAuthorization = () => {
+    if (authorizationStartedRef.current) return;
+    authorizationStartedRef.current = true;
+    setVerifying(true);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    completionTimer.current = setTimeout(() => {
+      completionTimer.current = null;
+      onSuccess();
+    }, 180);
+  };
+
+  const handleBiometric = async () => {
+    if (!biometricAvailable || authorizationStartedRef.current) return;
+    authorizationStartedRef.current = true;
+    setError('');
+    setVerifying(true);
+    try {
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: `Confirm transfer to ${recipient || 'recipient'}`,
+        cancelLabel: 'Use PIN',
+        disableDeviceFallback: true,
+      });
+      if (result.success) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+        onSuccess();
+        return;
+      }
+      setError('Face ID was not completed. Enter your PIN instead.');
+    } catch (_) {
+      setError('Face ID is unavailable. Enter your PIN instead.');
+    } finally {
+      authorizationStartedRef.current = false;
+      setVerifying(false);
+    }
+  };
+
+  const handleKeyPress = (key) => {
+    if (authorizationStartedRef.current) return;
+    setError('');
+
+    if (key === 'biometric') {
+      handleBiometric();
+      return;
+    }
+
+    if (key === 'backspace') {
+      Haptics.selectionAsync().catch(() => {});
+      setPin((current) => current.slice(0, -1));
+      return;
+    }
+
+    Haptics.selectionAsync().catch(() => {});
+    const nextPin = `${pin}${key}`.slice(0, 4);
+    setPin(nextPin);
+    if (nextPin.length === 4) completeAuthorization();
+  };
+
+  const handleCancel = () => {
+    if (authorizationStartedRef.current) return;
+    onCancel();
+  };
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      statusBarTranslucent
+      onRequestClose={handleCancel}
+    >
+      <TouchableOpacity
+        style={styles.transferPinOverlay}
+        activeOpacity={1}
+        onPress={handleCancel}
+        accessibilityRole="button"
+        accessibilityLabel="Close transfer PIN sheet"
+      >
+        <View
+          style={[styles.transferPinSheet, { backgroundColor: colors.background }]}
+          onStartShouldSetResponder={() => true}
+        >
+          <View style={[styles.transferPinHandle, { backgroundColor: colors.border }]} />
+
+          <View style={styles.transferPinHeader}>
+            <View style={styles.transferPinHeading}>
+              <Text style={[styles.transferPinTitle, { color: colors.textPrimary }]}>
+                Enter 4-digit PIN
+              </Text>
+              <Text style={[styles.transferPinSubtitle, { color: colors.textSecondary }]}>
+                Confirm {amount} transfer to {recipient}
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={[styles.transferPinClose, { backgroundColor: colors.surfaceVariant }]}
+              onPress={handleCancel}
+              disabled={verifying}
+              accessibilityRole="button"
+              accessibilityLabel="Cancel transfer authorization"
+            >
+              <MaterialIcons name="close" size={20} color={colors.textPrimary} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.transferPinBoxes}>
+            {[0, 1, 2, 3].map((index) => (
+              <View
+                key={index}
+                style={[
+                  styles.transferPinBox,
+                  {
+                    borderColor: error ? colors.error : colors.border,
+                    backgroundColor: colors.cardBackground,
+                  },
+                ]}
+              >
+                {index < pin.length ? (
+                  <View
+                    style={[
+                      styles.transferPinDot,
+                      { backgroundColor: error ? colors.error : colors.textPrimary },
+                    ]}
+                  />
+                ) : null}
+              </View>
+            ))}
+          </View>
+
+          <Text
+            style={[
+              styles.transferPinError,
+              { color: error ? colors.error : 'transparent' },
+            ]}
+          >
+            {error || 'Secure authorization'}
+          </Text>
+
+          <View style={styles.transferPinKeypad}>
+            {TRANSFER_PIN_KEYS.map((key) => {
+              const isBiometric = key === 'biometric';
+              const isBackspace = key === 'backspace';
+              const biometricDisabled = isBiometric && !biometricAvailable;
+
+              return (
+                <TouchableOpacity
+                  key={key}
+                  style={[
+                    styles.transferPinKey,
+                    (verifying || biometricDisabled) && styles.transferPinKeyDisabled,
+                  ]}
+                  activeOpacity={0.6}
+                  disabled={verifying || biometricDisabled}
+                  onPress={() => handleKeyPress(key)}
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    isBiometric
+                      ? 'Confirm with Face ID'
+                      : isBackspace
+                        ? 'Delete digit'
+                        : `Digit ${key}`
+                  }
+                >
+                  {isBiometric ? (
+                    <FaceIdIcon color={colors.textPrimary} size={32} />
+                  ) : isBackspace ? (
+                    <MaterialIcons name="chevron-left" size={36} color={colors.error} />
+                  ) : (
+                    <Text style={[styles.transferPinKeyText, { color: colors.textPrimary }]}>
+                      {key}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+      </TouchableOpacity>
+    </Modal>
+  );
+}
 
 const RECENT_RECIPIENTS = [
   {
@@ -74,6 +322,7 @@ export default function TransferScreen() {
   const [processingLabel, setProcessingLabel] = useState('Sending money...');
   const [showTransferFailedModal, setShowTransferFailedModal] = useState(false);
   const [transferFailureReason, setTransferFailureReason] = useState('Network timeout while confirming transfer.');
+  const pinSheetTimerRef = useRef(null);
 
   const cleanAccount = accountNumber.replace(/\D/g, '');
   const canResolve = cleanAccount.length === 10 && selectedBank;
@@ -102,6 +351,10 @@ export default function TransferScreen() {
     return () => clearTimeout(t);
   }, [canResolve, selectedBank?.code]);
 
+  useEffect(() => () => {
+    if (pinSheetTimerRef.current) clearTimeout(pinSheetTimerRef.current);
+  }, []);
+
   const handleNext = () => {
     if (!selectedBank) {
       Alert.alert('Error', 'Please select a bank.');
@@ -127,27 +380,13 @@ export default function TransferScreen() {
     setShowSummaryModal(true);
   };
 
-  const handleConfirmFromSummary = async () => {
+  const handleConfirmFromSummary = () => {
     setShowSummaryModal(false);
-    try {
-      const hasHardware = await LocalAuthentication.hasHardwareAsync();
-      const enrolled = await LocalAuthentication.isEnrolledAsync();
-      const canUseBiometrics = hasHardware && enrolled;
-
-      if (canUseBiometrics) {
-        const result = await LocalAuthentication.authenticateAsync({
-          promptMessage: 'Confirm transfer',
-          fallbackLabel: 'Use PIN',
-        });
-        if (result.success) {
-          handlePinSuccess();
-          return;
-        }
-      }
+    if (pinSheetTimerRef.current) clearTimeout(pinSheetTimerRef.current);
+    pinSheetTimerRef.current = setTimeout(() => {
+      pinSheetTimerRef.current = null;
       setShowPinModal(true);
-    } catch {
-      setShowPinModal(true);
-    }
+    }, 250);
   };
 
   const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -502,11 +741,12 @@ export default function TransferScreen() {
         </TouchableOpacity>
       </Modal>
 
-      <PinEntryModal
+      <TransferPinBottomSheet
         visible={showPinModal}
+        amount={`â‚¦${amount ? Number(amount).toLocaleString() : '0'}`}
+        recipient={transferRecipient}
         onSuccess={handlePinSuccess}
         onCancel={() => setShowPinModal(false)}
-        title="Enter 4-digit PIN to confirm transfer"
       />
 
       <TransactionProcessingModal
@@ -741,6 +981,98 @@ const styles = StyleSheet.create({
   summaryValue: { fontSize: 15, fontWeight: '600' },
   summaryAmount: { fontSize: 18, fontWeight: '700' },
   summaryActions: { flexDirection: 'row', gap: 12 },
+  transferPinOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    justifyContent: 'flex-end',
+  },
+  transferPinSheet: {
+    width: '100%',
+    maxWidth: 480,
+    maxHeight: '92%',
+    alignSelf: 'center',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingHorizontal: 32,
+    paddingTop: 12,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 24,
+  },
+  transferPinHandle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 22,
+  },
+  transferPinHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 16,
+  },
+  transferPinHeading: { flex: 1 },
+  transferPinTitle: {
+    fontSize: 24,
+    lineHeight: 30,
+    fontWeight: '700',
+    letterSpacing: -0.4,
+  },
+  transferPinSubtitle: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 5,
+  },
+  transferPinClose: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  transferPinBoxes: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 10,
+    marginTop: 28,
+  },
+  transferPinBox: {
+    flex: 1,
+    maxWidth: 64,
+    height: 62,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  transferPinDot: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+  },
+  transferPinError: {
+    minHeight: 20,
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '500',
+    marginTop: 10,
+  },
+  transferPinKeypad: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  transferPinKey: {
+    width: '30%',
+    height: 58,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  transferPinKeyText: {
+    fontSize: 26,
+    fontWeight: '600',
+  },
+  transferPinKeyDisabled: { opacity: 0.3 },
   processingOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
