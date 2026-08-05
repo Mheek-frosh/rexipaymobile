@@ -177,9 +177,6 @@ function TransferPinBottomSheet({
           <View style={styles.transferPinHeader}>
             <View style={styles.transferPinHeading}>
               <Text style={[styles.transferPinTitle, { color: colors.textPrimary }]}>
-                Enter 4-digit PIN
-              </Text>
-              <Text style={[styles.transferPinSubtitle, { color: colors.textSecondary }]}>
                 Confirm {amount} transfer to {recipient}
               </Text>
             </View>
