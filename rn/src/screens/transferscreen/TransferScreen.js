@@ -740,7 +740,7 @@ export default function TransferScreen() {
 
       <TransferPinBottomSheet
         visible={showPinModal}
-        amount={`â‚¦${amount ? Number(amount).toLocaleString() : '0'}`}
+        amount={`\u20A6${amount ? Number(amount).toLocaleString() : '0'}`}
         recipient={transferRecipient}
         onSuccess={handlePinSuccess}
         onCancel={() => setShowPinModal(false)}
