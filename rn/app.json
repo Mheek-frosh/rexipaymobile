@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "icon": "./assets/images/app-icon.png",
+    "icon": "./assets/images/png.png",
     "splash": {
       "image": "./assets/images/light-logo-splash.png",
       "resizeMode": "contain",
@@ -30,7 +30,7 @@
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "backgroundColor": "#172FC7",
-        "foregroundImage": "./assets/images/app-icon-foreground.png"
+        "foregroundImage": "./assets/images/png.png"
       },
       "package": "com.rexipay.app",
       "permissions": [
@@ -43,7 +43,7 @@
       ]
     },
     "web": {
-      "favicon": "./assets/images/app-icon.png"
+      "favicon": "./assets/images/png.png"
     },
     "plugins": [
       "@react-native-community/datetimepicker",
