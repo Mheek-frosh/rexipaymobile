@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -11,9 +11,8 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
-import * as LocalAuthentication from 'expo-local-authentication';
 import { useTheme } from '../../theme/ThemeContext';
-import PinEntryModal from '../../components/PinEntryModal';
+import TransactionPinBottomSheet from '../../components/TransactionPinBottomSheet';
 import TransactionProcessingModal from '../../components/TransactionProcessingModal';
 
 const DATA_PLANS = [
@@ -43,6 +42,11 @@ export default function AirtimeScreen({ initialTab = 0 }) {
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
   const [processingPurchase, setProcessingPurchase] = useState(false);
+  const pinSheetTimerRef = useRef(null);
+
+  useEffect(() => () => {
+    if (pinSheetTimerRef.current) clearTimeout(pinSheetTimerRef.current);
+  }, []);
 
   const phoneDigits = (phone || '').replace(/\D/g, '');
   const isValidPhone = phoneDigits.length >= 10 && phoneDigits.length <= 11;
@@ -64,25 +68,13 @@ export default function AirtimeScreen({ initialTab = 0 }) {
     setShowSummaryModal(true);
   };
 
-  const handleConfirmFromSummary = async () => {
+  const handleConfirmFromSummary = () => {
     setShowSummaryModal(false);
-    const hasBiometrics = await LocalAuthentication.hasHardwareAsync();
-    const enrolled = await LocalAuthentication.isEnrolledAsync();
-    const canUseBiometrics = hasBiometrics && enrolled;
-
-    if (canUseBiometrics) {
-      const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Confirm purchase with Face ID',
-        fallbackLabel: 'Use PIN',
-      });
-      if (result.success) {
-        proceedToSuccess();
-      } else {
-        setShowPinModal(true);
-      }
-    } else {
+    if (pinSheetTimerRef.current) clearTimeout(pinSheetTimerRef.current);
+    pinSheetTimerRef.current = setTimeout(() => {
+      pinSheetTimerRef.current = null;
       setShowPinModal(true);
-    }
+    }, 250);
   };
 
   const handlePinSuccess = () => {
@@ -107,6 +99,10 @@ export default function AirtimeScreen({ initialTab = 0 }) {
   const summaryAmount = selectedTab === 0 ? amount : selectedPlan?.price;
   const summaryLabel =
     selectedTab === 0 ? 'Airtime' : `${selectedPlan?.name} Data`;
+  const purchaseAmount =
+    selectedTab === 0
+      ? `\u20A6${amount ? Number(amount).toLocaleString() : '0'}`
+      : selectedPlan?.price || '\u20A60';
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -326,11 +322,11 @@ export default function AirtimeScreen({ initialTab = 0 }) {
         </TouchableOpacity>
       </Modal>
 
-      <PinEntryModal
+      <TransactionPinBottomSheet
         visible={showPinModal}
+        title={`Confirm ${purchaseAmount} ${selectedTab === 0 ? 'airtime' : 'data'} purchase for ${phone}`}
         onSuccess={handlePinSuccess}
         onCancel={() => setShowPinModal(false)}
-        title="Enter 4-digit PIN to confirm"
       />
 
       <Modal visible={showNetworkModal} transparent animationType="slide">
