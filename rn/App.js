@@ -8,6 +8,7 @@ import { ClerkProvider, ClerkLoaded } from '@clerk/clerk-expo';
 import * as SecureStore from 'expo-secure-store';
 import { AuthProvider } from './src/context/AuthContext';
 import { NotificationProvider } from './src/context/NotificationContext';
+import { WalletProvider } from './src/context/WalletContext';
 import { ThemeProvider } from './src/theme/ThemeContext';
 import { startNetworkMonitoring } from './src/services/offlineSyncService';
 import RootNavigator from './src/navigation/RootNavigator';
@@ -113,22 +114,24 @@ export default function App() {
           <SafeAreaProvider>
             <ThemeProvider>
               <AuthProvider>
-                <AppLockGate>
-                  <NotificationProvider>
-                    <View style={{ flex: 1 }}>
-                      <NavigationContainer
-                        ref={navigationRef}
-                        onStateChange={handleNavigationStateChange}
-                      >
-                        <StatusBar style="auto" />
-                        <RootNavigator />
-                      </NavigationContainer>
-                      {showRouteSkeleton && (
-                        <ScreenTransitionSkeleton routeName={routeSkeletonName} />
-                      )}
-                    </View>
-                  </NotificationProvider>
-                </AppLockGate>
+                <WalletProvider>
+                  <AppLockGate>
+                    <NotificationProvider>
+                      <View style={{ flex: 1 }}>
+                        <NavigationContainer
+                          ref={navigationRef}
+                          onStateChange={handleNavigationStateChange}
+                        >
+                          <StatusBar style="auto" />
+                          <RootNavigator />
+                        </NavigationContainer>
+                        {showRouteSkeleton && (
+                          <ScreenTransitionSkeleton routeName={routeSkeletonName} />
+                        )}
+                      </View>
+                    </NotificationProvider>
+                  </AppLockGate>
+                </WalletProvider>
               </AuthProvider>
             </ThemeProvider>
           </SafeAreaProvider>

@@ -17,6 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Svg, { Path } from 'react-native-svg';
 import { useTheme } from '../../theme/ThemeContext';
+import { useWallet } from '../../context/WalletContext';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as Haptics from 'expo-haptics';
 import { resolveAccount } from '../../services/bankService';
@@ -301,6 +302,7 @@ const RECENT_RECIPIENTS = [
 
 export default function TransferScreen() {
   const { colors } = useTheme();
+  const { debitNgn } = useWallet();
   const navigation = useNavigation();
   const [accountNumber, setAccountNumber] = useState('');
   const [selectedBank, setSelectedBank] = useState(null);
@@ -415,6 +417,11 @@ export default function TransferScreen() {
   };
 
   const completeTransfer = async () => {
+    const debitResult = await debitNgn(amount);
+    if (!debitResult.success) {
+      Alert.alert('Transfer failed', debitResult.error);
+      return;
+    }
     await playSuccessFeedback();
     navigation.navigate('PaymentSuccess', {
       amount: amount,

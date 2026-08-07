@@ -12,6 +12,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import { useWallet } from '../../context/WalletContext';
 import TransactionPinBottomSheet from '../../components/TransactionPinBottomSheet';
 import TransactionProcessingModal from '../../components/TransactionProcessingModal';
 
@@ -32,6 +33,7 @@ const NETWORKS = [
 
 export default function AirtimeScreen({ initialTab = 0 }) {
   const { colors } = useTheme();
+  const { debitNgn } = useWallet();
   const navigation = useNavigation();
   const [selectedTab, setSelectedTab] = useState(initialTab);
   const [phone, setPhone] = useState('');
@@ -89,6 +91,11 @@ export default function AirtimeScreen({ initialTab = 0 }) {
     setProcessingPurchase(true);
     await new Promise((resolve) => setTimeout(resolve, 1600));
     setProcessingPurchase(false);
+    const debitResult = await debitNgn(amt);
+    if (!debitResult.success) {
+      Alert.alert('Purchase failed', debitResult.error);
+      return;
+    }
     navigation.navigate('PaymentSuccess', {
       amount: amt,
       recipient,

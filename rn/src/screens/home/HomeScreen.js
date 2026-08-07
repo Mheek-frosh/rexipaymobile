@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
+import { formatNairaBalance, useWallet } from '../../context/WalletContext';
 import { useTheme } from '../../theme/ThemeContext';
 import { AccountSwitcherSheet } from '../../components/BottomSheet';
 import DraggableQuickActions from '../../components/DraggableQuickActions';
@@ -26,7 +27,7 @@ import HomeScreenSkeleton from '../../components/HomeScreenSkeleton';
 import { HOME_QUICK_SERVICES } from '../../data/homeServices';
 
 const CURRENCY_ACCOUNTS = [
-  { id: 'ngn', name: 'Naira', code: 'NGN', flag: '🇳🇬', balance: '₦950,000.00', symbol: '₦' },
+  { id: 'ngn', name: 'Naira', code: 'NGN', flag: '🇳🇬', balance: null, symbol: '₦' },
   { id: 'usd', name: 'US Dollar', code: 'USD', flag: '🇺🇸', balance: '$1500.00', symbol: '$' },
   { id: 'gbp', name: 'British Pound', code: 'GBP', flag: '🇬🇧', balance: '£1000.00', symbol: '£' },
 ];
@@ -38,6 +39,7 @@ export default function HomeScreen() {
   const { colors, isDark } = useTheme();
   const { userName } = useAuth();
   const { notifications } = useNotifications();
+  const { ngnBalance } = useWallet();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
@@ -139,7 +141,13 @@ export default function HomeScreen() {
     .join('')
     .toUpperCase() || 'MU';
 
-  const currentAccount = CURRENCY_ACCOUNTS.find((a) => a.id === selectedAccount) || CURRENCY_ACCOUNTS[0];
+  const currencyAccounts = CURRENCY_ACCOUNTS.map((account) =>
+    account.id === 'ngn'
+      ? { ...account, balance: formatNairaBalance(ngnBalance) }
+      : account
+  );
+  const currentAccount =
+    currencyAccounts.find((account) => account.id === selectedAccount) || currencyAccounts[0];
 
   const unreadNotificationCount = notifications.filter((n) => !n.read).length;
 
@@ -503,6 +511,7 @@ export default function HomeScreen() {
         onClose={() => setShowAccountSheet(false)}
         selectedAccount={selectedAccount}
         onSelect={(acc) => setSelectedAccount(acc.id)}
+        accounts={currencyAccounts}
       />
     </View>
   );

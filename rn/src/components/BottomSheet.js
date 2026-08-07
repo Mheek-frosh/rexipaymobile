@@ -19,7 +19,13 @@ const CURRENCY_ACCOUNTS = [
   { id: 'gbp', name: 'British Pound', code: 'GBP', flag: '🇬🇧', balance: '£850.00', symbol: '£' },
 ];
 
-export function AccountSwitcherSheet({ visible, onClose, selectedAccount, onSelect }) {
+export function AccountSwitcherSheet({
+  visible,
+  onClose,
+  selectedAccount,
+  onSelect,
+  accounts = CURRENCY_ACCOUNTS,
+}) {
   const { colors } = useTheme();
   const slideAnim = React.useRef(new Animated.Value(height)).current;
 
@@ -66,7 +72,7 @@ export function AccountSwitcherSheet({ visible, onClose, selectedAccount, onSele
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             Select an account to view balance
           </Text>
-          {CURRENCY_ACCOUNTS.map((acc) => (
+          {accounts.map((acc) => (
             <TouchableOpacity
               key={acc.id}
               style={[

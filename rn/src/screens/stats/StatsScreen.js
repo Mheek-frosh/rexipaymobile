@@ -13,6 +13,7 @@ import Svg, { Line } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import { formatNairaBalance, useWallet } from '../../context/WalletContext';
 
 const PENDING_ORANGE = '#F59E0B';
 const PENDING_ORANGE_LIGHT = 'rgba(245, 158, 11, 0.15)';
@@ -191,6 +192,7 @@ function SpendingChart({ data, colors }) {
 
 export default function StatsScreen() {
   const { colors } = useTheme();
+  const { ngnBalance } = useWallet();
   const navigation = useNavigation();
   const [selectedPeriod, setSelectedPeriod] = useState('This Week');
   const [selectedTimeRange, setSelectedTimeRange] = useState('6m');
@@ -212,7 +214,9 @@ export default function StatsScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Current Balance */}
         <Text style={[styles.currentBalanceLabel, { color: colors.textSecondary }]}>Current Balance</Text>
-        <Text style={[styles.currentBalanceAmount, { color: colors.textPrimary }]}>₦250,000</Text>
+        <Text style={[styles.currentBalanceAmount, { color: colors.textPrimary }]}>
+          {formatNairaBalance(ngnBalance)}
+        </Text>
 
         {/* Time range pills */}
         <View style={styles.timeRangeRow}>

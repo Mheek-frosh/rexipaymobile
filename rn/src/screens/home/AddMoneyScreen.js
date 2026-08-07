@@ -10,6 +10,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import { useWallet } from '../../context/WalletContext';
 import TransactionProcessingModal from '../../components/TransactionProcessingModal';
 
 const METHODS = [
@@ -20,6 +21,7 @@ const METHODS = [
 
 export default function AddMoneyScreen() {
   const { colors } = useTheme();
+  const { creditNgn } = useWallet();
   const navigation = useNavigation();
   const [amount, setAmount] = useState('');
   const [selectedMethod, setSelectedMethod] = useState('card');
@@ -30,6 +32,8 @@ export default function AddMoneyScreen() {
     setProcessing(true);
     await new Promise((resolve) => setTimeout(resolve, 1600));
     setProcessing(false);
+    const creditResult = await creditNgn(amount);
+    if (!creditResult.success) return;
     navigation.navigate('PaymentSuccess', {
       amount: amount,
       recipient: 'Add Money',

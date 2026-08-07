@@ -11,6 +11,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import { useWallet } from '../../context/WalletContext';
 import TransactionProcessingModal from '../../components/TransactionProcessingModal';
 
 const CRYPTO_ASSETS = [
@@ -21,6 +22,7 @@ const CRYPTO_ASSETS = [
 
 export default function CryptoSellScreen() {
   const { colors } = useTheme();
+  const { creditNgn } = useWallet();
   const navigation = useNavigation();
   const [selectedCrypto, setSelectedCrypto] = useState('btc');
   const [amount, setAmount] = useState('');
@@ -36,6 +38,8 @@ export default function CryptoSellScreen() {
     setProcessing(true);
     await new Promise((resolve) => setTimeout(resolve, 1600));
     setProcessing(false);
+    const creditResult = await creditNgn(usdValue);
+    if (!creditResult.success) return;
     navigation.navigate('PaymentSuccess', {
       amount: usdValue.toFixed(2),
       recipient: `Sold ${asset?.symbol}`,

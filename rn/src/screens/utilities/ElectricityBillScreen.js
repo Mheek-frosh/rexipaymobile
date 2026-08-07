@@ -11,11 +11,13 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import { useWallet } from '../../context/WalletContext';
 import { fetchDiscos } from '../../services/appContentService';
 import TransactionProcessingModal from '../../components/TransactionProcessingModal';
 
 export default function ElectricityBillScreen() {
   const { colors } = useTheme();
+  const { debitNgn } = useWallet();
   const navigation = useNavigation();
   const [discos, setDiscos] = useState([]);
   const [disco, setDisco] = useState('');
@@ -49,6 +51,11 @@ export default function ElectricityBillScreen() {
     setProcessing(true);
     await new Promise((resolve) => setTimeout(resolve, 1400));
     setProcessing(false);
+    const debitResult = await debitNgn(amount);
+    if (!debitResult.success) {
+      Alert.alert('Electricity payment failed', debitResult.error);
+      return;
+    }
     Alert.alert('Electricity', `Top-up ₦${amount} for ${meter} (${disco}) — confirm when payment is live.`);
   };
 

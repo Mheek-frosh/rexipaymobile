@@ -20,6 +20,7 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import QRCode from 'react-native-qrcode-svg';
 import { useTheme } from '../../theme/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
+import { useWallet } from '../../context/WalletContext';
 import {
   getWalletState,
   computeAvailableBalance,
@@ -51,6 +52,7 @@ function formatBalance(amount) {
 export default function OfflinePayScreen() {
   const { colors } = useTheme();
   const { user, userPhone, userName } = useAuth();
+  const { creditNgn, debitNgn, ngnBalance } = useWallet();
   const navigation = useNavigation();
   const [permission, requestPermission] = useCameraPermissions();
 
@@ -109,7 +111,7 @@ export default function OfflinePayScreen() {
   }, [isOnline, userId, loadWallet]);
 
   const availableBalance = walletState
-    ? computeAvailableBalance(walletState, DEFAULT_CURRENCY)
+    ? Math.min(computeAvailableBalance(walletState, DEFAULT_CURRENCY), ngnBalance)
     : 0;
 
   const myQRPayload = JSON.stringify({
@@ -210,6 +212,11 @@ export default function OfflinePayScreen() {
         Alert.alert('Error', res.error || 'Transaction failed');
         return;
       }
+      const debitResult = await debitNgn(amt);
+      if (!debitResult.success) {
+        Alert.alert('Error', debitResult.error || 'Could not update wallet balance');
+        return;
+      }
       setSuccessTx(res.transaction);
       setWalletState(res.state);
       setMode('success');
@@ -235,6 +242,7 @@ export default function OfflinePayScreen() {
       const state = await getWalletState();
       const res = await recordOfflineCredit(state, tx);
       if (res.success) {
+        await creditNgn(tx.amount);
         setWalletState(res.state);
         Alert.alert('Success', `${formatBalance({ amount: tx.amount, currency: tx.currency })} received from sender`);
         loadWallet();

@@ -7,10 +7,12 @@ import {
   StyleSheet,
   ScrollView,
   Modal,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import { useWallet } from '../../context/WalletContext';
 import TransactionProcessingModal from '../../components/TransactionProcessingModal';
 
 const CURRENCIES = [
@@ -21,6 +23,7 @@ const CURRENCIES = [
 
 export default function BankConvertScreen() {
   const { colors } = useTheme();
+  const { creditNgn, debitNgn } = useWallet();
   const navigation = useNavigation();
   const [fromCurrency, setFromCurrency] = useState('ngn');
   const [toCurrency, setToCurrency] = useState('usd');
@@ -47,6 +50,16 @@ export default function BankConvertScreen() {
     setProcessing(true);
     await new Promise((resolve) => setTimeout(resolve, 1600));
     setProcessing(false);
+    const balanceResult =
+      fromCurrency === 'ngn'
+        ? await debitNgn(numAmount)
+        : toCurrency === 'ngn'
+          ? await creditNgn(convertedAmount)
+          : { success: true };
+    if (!balanceResult.success) {
+      Alert.alert('Conversion failed', balanceResult.error);
+      return;
+    }
     navigation.navigate('PaymentSuccess', {
       amount: convertedAmount.toFixed(2),
       recipient: `Converted to ${toCur?.name}`,
