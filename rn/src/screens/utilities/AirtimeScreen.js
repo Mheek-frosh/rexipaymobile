@@ -31,10 +31,10 @@ const NETWORKS = [
   { name: '9mobile', code: '9MOBILE' },
 ];
 
-export default function AirtimeScreen() {
+export default function AirtimeScreen({ initialTab = 0 }) {
   const { colors } = useTheme();
   const navigation = useNavigation();
-  const [selectedTab, setSelectedTab] = useState(0);
+  const [selectedTab, setSelectedTab] = useState(initialTab);
   const [phone, setPhone] = useState('');
   const [amount, setAmount] = useState('');
   const [selectedPlan, setSelectedPlan] = useState(null);
