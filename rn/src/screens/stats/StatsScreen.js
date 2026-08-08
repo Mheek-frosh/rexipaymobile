@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -6,10 +6,16 @@ import {
   ScrollView,
   StyleSheet,
   Modal,
-  Animated,
   Dimensions,
 } from 'react-native';
-import Svg, { Line } from 'react-native-svg';
+import Svg, {
+  Defs,
+  G,
+  LinearGradient,
+  Path,
+  Stop,
+  Text as SvgText,
+} from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
@@ -65,17 +71,27 @@ const CHART_DATA_BY_RANGE = {
 
 // Legend: categories with colors for infographics
 const CATEGORY_LEGEND = [
-  { label: 'Transfers', color: '#172FC7', percent: 42 },
-  { label: 'Airtimes', color: '#FFD166', percent: 26 },
-  { label: 'ATM card debit', color: '#FF6B6B', percent: 20 },
-  { label: 'Others', color: '#7B61FF', percent: 12 },
+  {
+    label: 'Transfers',
+    color: '#173BDA',
+    endColor: '#102ABF',
+    percent: 42,
+    labelRadius: 91,
+  },
+  { label: 'Airtimes', color: '#FFB321', endColor: '#FFC94D', percent: 26 },
+  {
+    label: 'ATM card',
+    color: '#FF4148',
+    endColor: '#FF696D',
+    percent: 20,
+    labelRadius: 91,
+    labelOffsetX: -15,
+  },
+  { label: 'Others', color: '#8554DA', endColor: '#A66DF0', percent: 12 },
 ];
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-// Chart spans most of width and ~half visible height (image proportions)
-const CONTENT_PADDING = 40;
-const CHART_BLOCK_PADDING = 32; // 16 each side
-const CHART_WIDTH = SCREEN_WIDTH - CONTENT_PADDING - CHART_BLOCK_PADDING;
+const DONUT_DISPLAY_SIZE = Math.min(SCREEN_WIDTH - 80, 320);
 
 const RECENT_TRANSACTIONS = [
   { id: '1', name: 'Divine Chiamaka', amount: '25,000', type: 'sent', dateTime: 'Today | 2:30 PM', statusDisplay: 'Success' },
@@ -108,85 +124,191 @@ function formatNaira(value, withDecimals = false) {
   });
 }
 
-// Professional spending chart: clean bars, no tooltip, single theme color
-function SpendingChart({ data, colors }) {
-  const CHART_AREA_HEIGHT = 200;
-  const LABEL_HEIGHT = 24;
-  const maxValue = Math.max(...data.map((d) => d.total), 1);
-  const maxBars = 7;
-  const animValues = useRef(Array.from({ length: maxBars }, () => new Animated.Value(0))).current;
+const polarPoint = (center, radius, angle) => {
+  const radians = ((angle - 90) * Math.PI) / 180;
+  return {
+    x: center + radius * Math.cos(radians),
+    y: center + radius * Math.sin(radians),
+  };
+};
 
-  useEffect(() => {
-    Animated.stagger(
-      80,
-      animValues.slice(0, data.length).map((v) =>
-        Animated.timing(v, {
-          toValue: 1,
-          duration: 480,
-          useNativeDriver: false,
-        }),
-      ),
-    ).start();
-  }, []);
+const createDonutSlice = (startAngle, endAngle) => {
+  const center = 150;
+  const outerRadius = 124;
+  const innerRadius = 72;
+  const gap = 1.4;
+  const start = startAngle + gap / 2;
+  const end = endAngle - gap / 2;
+  const outerStart = polarPoint(center, outerRadius, start);
+  const outerEnd = polarPoint(center, outerRadius, end);
+  const innerEnd = polarPoint(center, innerRadius, end);
+  const innerStart = polarPoint(center, innerRadius, start);
+  const largeArc = end - start > 180 ? 1 : 0;
 
-  const chartWidth = CHART_WIDTH;
-  const barGroupWidth = chartWidth / data.length;
-  const barWidth = Math.max(20, barGroupWidth - 10);
+  return [
+    `M ${outerStart.x} ${outerStart.y}`,
+    `A ${outerRadius} ${outerRadius} 0 ${largeArc} 1 ${outerEnd.x} ${outerEnd.y}`,
+    `L ${innerEnd.x} ${innerEnd.y}`,
+    `A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${innerStart.x} ${innerStart.y}`,
+    'Z',
+  ].join(' ');
+};
+
+function InteractiveDonutChart({ total, colors }) {
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  let runningAngle = 0;
+  const slices = CATEGORY_LEGEND.map((item) => {
+    const startAngle = runningAngle;
+    const endAngle = runningAngle + item.percent * 3.6;
+    runningAngle = endAngle;
+    const middleAngle = (startAngle + endAngle) / 2;
+    const labelPoint = polarPoint(150, item.labelRadius || 99, middleAngle);
+    labelPoint.x += item.labelOffsetX || 0;
+
+    return {
+      ...item,
+      startAngle,
+      endAngle,
+      labelPoint,
+    };
+  });
+  const selectedCategory = selectedIndex === null ? null : slices[selectedIndex];
+  const centerAmount = selectedCategory
+    ? Math.round((total * selectedCategory.percent) / 100)
+    : total;
+
+  const selectCategory = (index) => {
+    setSelectedIndex((current) => (current === index ? null : index));
+  };
 
   return (
-    <View style={[styles.chartOuter, { width: chartWidth }]}>
-      <View style={[styles.chartGridWrap, { width: chartWidth, height: CHART_AREA_HEIGHT }]} pointerEvents="none">
-        <Svg width={chartWidth} height={CHART_AREA_HEIGHT} style={StyleSheet.absoluteFill}>
-          {[0, 1, 2, 3].map((i) => {
-            const y = 8 + (i / 3) * (CHART_AREA_HEIGHT - 16);
+    <>
+      <View
+        style={[
+          styles.donutWrap,
+          { width: DONUT_DISPLAY_SIZE, height: DONUT_DISPLAY_SIZE },
+        ]}
+      >
+        <Svg
+          width={DONUT_DISPLAY_SIZE}
+          height={DONUT_DISPLAY_SIZE}
+          viewBox="0 0 300 300"
+        >
+          <Defs>
+            {slices.map((item, index) => (
+              <LinearGradient
+                id={`donut-gradient-${index}`}
+                key={item.label}
+                x1="0"
+                y1="0"
+                x2="1"
+                y2="1"
+              >
+                <Stop offset="0" stopColor={item.color} />
+                <Stop offset="1" stopColor={item.endColor} />
+              </LinearGradient>
+            ))}
+          </Defs>
+
+          {slices.map((item, index) => {
+            const selected = selectedIndex === index;
+            const faded = selectedIndex !== null && !selected;
+
             return (
-              <Line
-                key={i}
-                x1={0}
-                y1={y}
-                x2={chartWidth}
-                y2={y}
-                stroke={colors.border}
-                strokeWidth={1}
-                strokeDasharray="3 4"
-                strokeOpacity={0.6}
-              />
+              <G key={`slice-${item.label}`} opacity={faded ? 0.48 : 1}>
+                <Path
+                  accessibilityLabel={`${item.label}, ${item.percent} percent`}
+                  accessible
+                  d={createDonutSlice(item.startAngle, item.endAngle)}
+                  fill={`url(#donut-gradient-${index})`}
+                  onPress={() => selectCategory(index)}
+                  stroke={colors.cardBackground}
+                  strokeLinejoin="round"
+                  strokeWidth={3}
+                />
+              </G>
+            );
+          })}
+
+          {slices.map((item, index) => {
+            const selected = selectedIndex === index;
+            const faded = selectedIndex !== null && !selected;
+
+            return (
+              <G key={`label-${item.label}`} opacity={faded ? 0.6 : 1}>
+                <SvgText
+                  x={item.labelPoint.x}
+                  y={item.labelPoint.y}
+                  dy="5"
+                  fill="#FFFFFF"
+                  fontSize="16"
+                  fontWeight="800"
+                  textAnchor="middle"
+                  onPress={() => selectCategory(index)}
+                >
+                  {item.percent}%
+                </SvgText>
+              </G>
             );
           })}
         </Svg>
+
+        <View pointerEvents="none" style={styles.donutCenter}>
+          <Text
+            style={[styles.donutCenterLabel, { color: colors.textSecondary }]}
+            numberOfLines={1}
+          >
+            {selectedCategory ? selectedCategory.label : 'Total spent'}
+          </Text>
+          <Text
+            style={[styles.donutCenterAmount, { color: colors.textPrimary }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+          >
+            {formatNaira(centerAmount)}
+          </Text>
+          {selectedCategory ? (
+            <Text style={[styles.donutCenterPercent, { color: selectedCategory.color }]}>
+              {selectedCategory.percent}% of spending
+            </Text>
+          ) : null}
+        </View>
       </View>
 
-      <View style={[styles.chartBarsRow, { height: CHART_AREA_HEIGHT + LABEL_HEIGHT }]}>
-        {data.map((item, index) => {
-          const barHeight = (item.total / maxValue) * (CHART_AREA_HEIGHT - 12);
-          const height = animValues[index].interpolate({
-            inputRange: [0, 1],
-            outputRange: [0, barHeight],
-          });
+      <View style={styles.legendGrid}>
+        {slices.map((item, index) => {
+          const selected = selectedIndex === index;
           return (
-            <View key={`${item.label}-${index}`} style={[styles.chartBarCol, { width: barGroupWidth }]}>
-              <View style={[styles.chartBarSlot, { height: CHART_AREA_HEIGHT }]}>
-                <Animated.View
-                  style={[
-                    styles.chartBar,
-                    {
-                      width: barWidth,
-                      height,
-                      backgroundColor: colors.primary,
-                      borderTopLeftRadius: 8,
-                      borderTopRightRadius: 8,
-                    },
-                  ]}
-                />
-              </View>
-              <Text style={[styles.chartBarLabel, { color: colors.textSecondary }]} numberOfLines={1}>
+            <TouchableOpacity
+              key={item.label}
+              activeOpacity={0.75}
+              accessibilityRole="button"
+              accessibilityState={{ selected }}
+              accessibilityLabel={`${item.label}, ${item.percent} percent`}
+              onPress={() => selectCategory(index)}
+              style={[
+                styles.legendCard,
+                {
+                  backgroundColor: selected ? `${item.color}12` : colors.cardBackground,
+                  borderColor: selected ? item.color : colors.border,
+                },
+              ]}
+            >
+              <View style={[styles.legendDot, { backgroundColor: item.color }]} />
+              <Text
+                style={[styles.legendLabel, { color: colors.textPrimary }]}
+                numberOfLines={1}
+              >
                 {item.label}
               </Text>
-            </View>
+              <Text style={[styles.legendPercent, { color: colors.textPrimary }]}>
+                {item.percent}%
+              </Text>
+            </TouchableOpacity>
           );
         })}
       </View>
-    </View>
+    </>
   );
 }
 
@@ -249,26 +371,17 @@ export default function StatsScreen() {
         {/* Spending overview – professional chart section */}
         <View style={[styles.chartBlock, { backgroundColor: colors.cardBackground }]}>
           <Text style={[styles.chartSectionTitle, { color: colors.textPrimary }]}>Spending overview</Text>
-          <View style={styles.chartTimeRow}>
-            <Text style={[styles.chartTimeLabel, { color: colors.textSecondary }]}>
-              {selectedTimeRange === 'today' && 'Today'}
-              {selectedTimeRange === '7d' && 'Last 7 days'}
-              {selectedTimeRange === '3m' && 'Last 3 months'}
-              {(selectedTimeRange === '6m' || selectedTimeRange === 'custom') && 'Last 6 months'}
-            </Text>
-            <Text style={[styles.chartTotalLabel, { color: colors.textPrimary }]}>
-              Total spent: {formatNaira(chartData.reduce((sum, d) => sum + d.total, 0))}
-            </Text>
-          </View>
-          <SpendingChart key={selectedTimeRange} data={chartData} colors={colors} />
-          <View style={[styles.legendRow, { borderTopColor: colors.border }]}>
-            {CATEGORY_LEGEND.map((item) => (
-              <View key={item.label} style={styles.legendChip}>
-                <View style={[styles.legendChipDot, { backgroundColor: item.color }]} />
-                <Text style={[styles.legendChipText, { color: colors.textSecondary }]}>{item.label} {item.percent}%</Text>
-              </View>
-            ))}
-          </View>
+          <Text style={[styles.chartTimeLabel, { color: colors.textSecondary }]}>
+            {selectedTimeRange === 'today' && 'Today'}
+            {selectedTimeRange === '7d' && 'Last 7 days'}
+            {selectedTimeRange === '3m' && 'Last 3 months'}
+            {(selectedTimeRange === '6m' || selectedTimeRange === 'custom') && 'Last 6 months'}
+          </Text>
+          <InteractiveDonutChart
+            key={selectedTimeRange}
+            colors={colors}
+            total={chartData.reduce((sum, item) => sum + item.total, 0)}
+          />
         </View>
 
         {/* Transactions */}
@@ -396,82 +509,92 @@ const styles = StyleSheet.create({
 
   // Chart – professional spending overview
   chartBlock: {
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingTop: 24,
+    paddingBottom: 18,
     marginBottom: 28,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.06,
+    shadowRadius: 24,
+    elevation: 2,
   },
   chartSectionTitle: {
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: '700',
-    marginBottom: 8,
-  },
-  chartTimeRow: {
-    marginBottom: 16,
+    marginBottom: 5,
   },
   chartTimeLabel: {
-    fontSize: 13,
-    marginBottom: 2,
+    fontSize: 14,
+    marginBottom: 8,
   },
-  chartTotalLabel: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  chartOuter: {
+  donutWrap: {
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
     position: 'relative',
-    alignSelf: 'stretch',
   },
-  chartGridWrap: {
+  donutCenter: {
     position: 'absolute',
-    left: 0,
-    top: 0,
-  },
-  chartBarsRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    width: '100%',
-  },
-  chartBarCol: {
+    width: '44%',
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  chartBarSlot: {
+  donutCenterLabel: {
+    maxWidth: '100%',
+    fontSize: 12,
+    lineHeight: 17,
+    textAlign: 'center',
+  },
+  donutCenterAmount: {
     width: '100%',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
+    fontSize: 22,
+    lineHeight: 29,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+    marginTop: 3,
+    textAlign: 'center',
   },
-  chartBar: {
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
+  donutCenterPercent: {
+    fontSize: 10,
+    lineHeight: 14,
+    fontWeight: '700',
+    marginTop: 2,
   },
-  chartBarLabel: {
-    fontSize: 11,
-    fontWeight: '500',
-    marginTop: 6,
-  },
-
-  // Legend – compact horizontal chips
-  legendRow: {
+  legendGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
-    marginTop: 18,
-    paddingTop: 16,
-    borderTopWidth: 1,
+    justifyContent: 'space-between',
+    rowGap: 10,
+    marginTop: 10,
   },
-  legendChip: {
+  legendCard: {
+    width: '48.5%',
+    minHeight: 64,
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingHorizontal: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
   },
-  legendChipDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  legendDot: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    marginRight: 9,
   },
-  legendChipText: {
+  legendLabel: {
+    flex: 1,
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: '600',
   },
-
+  legendPercent: {
+    fontSize: 13,
+    fontWeight: '700',
+    marginLeft: 5,
+  },
+  // Legend – compact horizontal chips
   // Transactions
   transactionsSection: { marginTop: 8 },
   transactionsHeader: {
