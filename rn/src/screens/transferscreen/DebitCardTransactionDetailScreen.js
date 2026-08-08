@@ -13,6 +13,7 @@ import { captureRef } from 'react-native-view-shot';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 
 const SUCCESS_GREEN = '#10B981';
 const PENDING_ORANGE = '#F59E0B';
@@ -97,9 +98,7 @@ export default function DebitCardTransactionDetailScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
-          <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
+        <AppBackButton onPress={() => navigation.goBack()} style={styles.headerBtn} />
         <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Transaction Details</Text>
         <View style={styles.headerBtn} />
       </View>

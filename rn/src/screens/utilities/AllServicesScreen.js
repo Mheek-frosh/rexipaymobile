@@ -10,6 +10,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 import { fetchAllServices } from '../../services/appContentService';
 
 const { width } = Dimensions.get('window');
@@ -43,9 +44,10 @@ export default function AllServicesScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
-          <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
+        <AppBackButton
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          onPress={() => navigation.goBack()}
+        />
         <Text style={[styles.title, { color: colors.textPrimary }]}>All services</Text>
         <View style={{ width: 24 }} />
       </View>

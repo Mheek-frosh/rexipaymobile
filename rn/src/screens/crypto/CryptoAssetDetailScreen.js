@@ -12,6 +12,7 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 import { fetchCoinDetail, formatUsd, formatCompactUsd } from '../../services/coingeckoService';
 import SparklineChart from '../../components/SparklineChart';
 import AppLoader from '../../components/AppLoader';
@@ -61,9 +62,10 @@ export default function CryptoAssetDetailScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
-          <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
+        <AppBackButton
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          onPress={() => navigation.goBack()}
+        />
         <Text style={[styles.headerTitle, { color: colors.textPrimary }]} numberOfLines={1}>
           {coin?.name || 'Asset'}
         </Text>

@@ -17,6 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Svg, { Path } from 'react-native-svg';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 import { useWallet } from '../../context/WalletContext';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as Haptics from 'expo-haptics';
@@ -468,9 +469,7 @@ export default function TransferScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.appBar}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
+        <AppBackButton onPress={() => navigation.goBack()} />
         <Text style={[styles.appBarTitle, { color: colors.textPrimary }]}>Transfer to Bank</Text>
         <View style={{ width: 24 }} />
       </View>

@@ -10,8 +10,8 @@ import {
   Alert,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 import PrimaryButton from '../../components/PrimaryButton';
 import { sendPinResetOtp } from '../../services/authService';
 
@@ -57,9 +57,7 @@ export default function ForgotPinOtpScreen() {
       style={[styles.container, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <TouchableOpacity style={styles.back} onPress={() => navigation.goBack()}>
-        <MaterialIcons name="arrow-back" size={24} color={colors.textPrimary} />
-      </TouchableOpacity>
+      <AppBackButton style={styles.back} onPress={() => navigation.goBack()} />
 
       <Text style={[styles.title, { color: colors.textPrimary }]}>Enter verification code</Text>
       <Text style={[styles.subtitle, { color: colors.textSecondary }]}>

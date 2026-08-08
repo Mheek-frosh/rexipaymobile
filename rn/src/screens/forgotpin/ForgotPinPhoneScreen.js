@@ -13,6 +13,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 import PrimaryButton from '../../components/PrimaryButton';
 import CountryPickerSheet from '../../components/CountryPickerSheet';
 import { COUNTRIES } from '../../data/countries';
@@ -62,9 +63,7 @@ export default function ForgotPinPhoneScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <TouchableOpacity style={styles.back} onPress={() => navigation.goBack()}>
-          <MaterialIcons name="arrow-back" size={24} color={colors.textPrimary} />
-        </TouchableOpacity>
+        <AppBackButton style={styles.back} onPress={() => navigation.goBack()} />
 
         <View style={[styles.iconWrap, { backgroundColor: colors.primaryLight }]}>
           <MaterialIcons name="lock-reset" size={40} color={colors.primary} />

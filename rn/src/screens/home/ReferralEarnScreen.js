@@ -13,6 +13,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 import { fetchReferralOverview } from '../../services/appContentService';
 
 export default function ReferralEarnScreen() {
@@ -58,9 +59,10 @@ export default function ReferralEarnScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
-          <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
+        <AppBackButton
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          onPress={() => navigation.goBack()}
+        />
         <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Refer & earn</Text>
         <View style={{ width: 24 }} />
       </View>

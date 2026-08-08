@@ -12,6 +12,7 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 import PrimaryButton from '../../components/PrimaryButton';
 import { verifyPinResetAndSetPin } from '../../services/authService';
 
@@ -110,9 +111,10 @@ export default function ForgotPinSetPinScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <TouchableOpacity style={styles.back} onPress={() => (step === 1 ? navigation.goBack() : setStep(1))}>
-          <MaterialIcons name="arrow-back" size={24} color={colors.textPrimary} />
-        </TouchableOpacity>
+        <AppBackButton
+          style={styles.back}
+          onPress={() => (step === 1 ? navigation.goBack() : setStep(1))}
+        />
 
         <View style={[styles.iconWrap, { backgroundColor: colors.primaryLight }]}>
           <MaterialIcons name="lock" size={40} color={colors.primary} />

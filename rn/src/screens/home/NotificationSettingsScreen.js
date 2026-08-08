@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 
 const STORAGE_KEY = '@rexipay_notification_prefs';
 
@@ -82,13 +83,11 @@ export default function NotificationSettingsScreen() {
           },
         ]}
       >
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
+        <AppBackButton
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          onPress={() => navigation.goBack()}
           style={styles.backBtn}
-        >
-          <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
+        />
         <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Notification preferences</Text>
         <View style={{ width: 40 }} />
       </View>

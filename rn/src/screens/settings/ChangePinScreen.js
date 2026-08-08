@@ -9,6 +9,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 import * as LocalAuthentication from 'expo-local-authentication';
 import PinEntryModal from '../../components/PinEntryModal';
 
@@ -51,9 +52,7 @@ export default function ChangePinScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
+        <AppBackButton onPress={() => navigation.goBack()} />
         <Text style={[styles.title, { color: colors.textPrimary }]}>Change PIN</Text>
         <View style={{ width: 24 }} />
       </View>

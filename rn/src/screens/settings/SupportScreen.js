@@ -15,6 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 
 const BOT_QUICK_TOPICS = [
   {
@@ -127,9 +128,7 @@ export default function SupportScreen() {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}
     >
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
+        <AppBackButton onPress={() => navigation.goBack()} />
         <Text style={[styles.title, { color: colors.textPrimary }]}>Support</Text>
         <View style={{ width: 24 }} />
       </View>

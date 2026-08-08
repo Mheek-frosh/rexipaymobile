@@ -11,6 +11,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 
 export default function AddCardScreen() {
   const { colors } = useTheme();
@@ -24,9 +25,7 @@ export default function AddCardScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
+        <AppBackButton onPress={() => navigation.goBack()} />
         <Text style={[styles.title, { color: colors.textPrimary }]}>Cards</Text>
         <View style={{ width: 24 }} />
       </View>

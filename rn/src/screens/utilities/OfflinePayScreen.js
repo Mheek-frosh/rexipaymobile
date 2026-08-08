@@ -19,6 +19,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import QRCode from 'react-native-qrcode-svg';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 import { useAuth } from '../../context/AuthContext';
 import { useWallet } from '../../context/WalletContext';
 import {
@@ -265,9 +266,7 @@ export default function OfflinePayScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.appBar}>
-        <TouchableOpacity onPress={() => mode === 'main' ? navigation.goBack() : setMode('main')}>
-          <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
+        <AppBackButton onPress={() => mode === 'main' ? navigation.goBack() : setMode('main')} />
         <Text style={[styles.appBarTitle, { color: colors.textPrimary }]}>Offline Pay</Text>
         <View style={{ width: 24 }} />
       </View>

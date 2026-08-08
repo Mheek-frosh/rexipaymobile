@@ -17,6 +17,7 @@ import CountryPickerSheet from '../../components/CountryPickerSheet';
 import PrimaryButton from '../../components/PrimaryButton';
 import { COUNTRIES } from '../../data/countries';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 
 const defaultCountry = COUNTRIES[0];
 
@@ -116,9 +117,7 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <TouchableOpacity style={styles.back} onPress={() => navigation.goBack()}>
-          <Text style={[styles.backText, { color: colors.textPrimary }]}>← Back</Text>
-        </TouchableOpacity>
+        <AppBackButton style={styles.back} onPress={() => navigation.goBack()} />
 
         <Text style={[styles.title, { color: colors.textPrimary }]}>Log in to RexiPay</Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
@@ -276,8 +275,13 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { flexGrow: 1, padding: 20, paddingBottom: 40 },
-  back: { marginTop: 20 },
-  backText: { fontSize: 16, fontWeight: '500' },
+  back: {
+    alignItems: 'center',
+    height: 40,
+    justifyContent: 'center',
+    marginTop: 20,
+    width: 40,
+  },
   title: { fontSize: 28, fontWeight: '700', marginTop: 40 },
   subtitle: { fontSize: 15, marginTop: 10 },
   label: { fontSize: 15, fontWeight: '600', marginTop: 24, marginBottom: 12 },

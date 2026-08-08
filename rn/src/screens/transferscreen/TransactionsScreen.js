@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 import { useAuth } from '../../context/AuthContext';
 import { getWalletState } from '../../services/offlineWalletService';
 
@@ -72,9 +73,7 @@ export default function TransactionsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
+        <AppBackButton onPress={() => navigation.goBack()} style={styles.backBtn} />
         <Text style={[styles.title, { color: colors.textPrimary }]}>Transaction History</Text>
         <View style={styles.backBtn} />
       </View>

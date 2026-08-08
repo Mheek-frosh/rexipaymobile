@@ -8,9 +8,9 @@ import {
   Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { MaterialIcons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 
 const formatNaira = (val) => `₦${(val / 1000000).toFixed(0)}M`;
 
@@ -32,9 +32,7 @@ export default function ChangeLimitScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
+        <AppBackButton onPress={() => navigation.goBack()} />
         <Text style={[styles.title, { color: colors.textPrimary }]}>Change Limit</Text>
         <View style={{ width: 24 }} />
       </View>

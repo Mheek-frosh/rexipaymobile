@@ -2,8 +2,8 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../theme/ThemeContext';
+import AppBackButton from './AppBackButton';
 
 /**
  * Consistent header for health sub-flows (back, title, optional subtitle).
@@ -23,15 +23,11 @@ export default function HealthFlowHeader({ title, subtitle }) {
         },
       ]}
     >
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
+      <AppBackButton
         hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+        onPress={() => navigation.goBack()}
         style={styles.back}
-        accessibilityRole="button"
-        accessibilityLabel="Go back"
-      >
-        <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-      </TouchableOpacity>
+      />
       <View style={styles.center}>
         <Text style={[styles.title, { color: colors.textPrimary }]} numberOfLines={1}>
           {title}

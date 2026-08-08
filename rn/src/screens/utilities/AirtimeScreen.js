@@ -12,6 +12,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 import { useWallet } from '../../context/WalletContext';
 import TransactionPinBottomSheet from '../../components/TransactionPinBottomSheet';
 import TransactionProcessingModal from '../../components/TransactionProcessingModal';
@@ -114,9 +115,7 @@ export default function AirtimeScreen({ initialTab = 0 }) {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
+        <AppBackButton onPress={() => navigation.goBack()} />
         <Text style={[styles.title, { color: colors.textPrimary }]}>
           Airtime & Data
         </Text>

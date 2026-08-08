@@ -15,6 +15,7 @@ import { Swipeable, RectButton } from 'react-native-gesture-handler';
 import * as Haptics from 'expo-haptics';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 import { useNotifications, NOTIFICATION_TYPES } from '../../context/NotificationContext';
 
 function NotificationRow({ item, colors, onOpenDetail, onDelete, swipeRef, onSwipeableOpen }) {
@@ -158,13 +159,11 @@ export default function NotificationsScreen() {
         ]}
       >
         <View style={styles.headerSide}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
+          <AppBackButton
             hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            onPress={() => navigation.goBack()}
             style={styles.backBtn}
-          >
-            <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-          </TouchableOpacity>
+          />
         </View>
         <View style={styles.headerCenter}>
           <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Notifications</Text>

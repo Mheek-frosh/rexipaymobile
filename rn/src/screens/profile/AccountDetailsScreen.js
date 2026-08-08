@@ -5,6 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 
 export default function AccountDetailsScreen() {
   const { colors } = useTheme();
@@ -39,12 +40,10 @@ export default function AccountDetailsScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 20), borderBottomColor: colors.border }]}>
         <View style={styles.headerSide}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
+          <AppBackButton
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-          </TouchableOpacity>
+            onPress={() => navigation.goBack()}
+          />
         </View>
         <View style={styles.headerTitleRow}>
           <Text style={styles.headerFlag}>🇳🇬</Text>

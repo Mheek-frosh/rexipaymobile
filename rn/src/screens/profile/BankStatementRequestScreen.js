@@ -14,6 +14,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 import PrimaryButton from '../../components/PrimaryButton';
 
 const PERIODS = [
@@ -79,13 +80,11 @@ export default function BankStatementRequestScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 16), borderBottomColor: colors.border }]}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
+        <AppBackButton
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          onPress={() => navigation.goBack()}
           style={styles.headerBack}
-        >
-          <MaterialIcons name="arrow-back-ios" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
+        />
         <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Bank statement</Text>
         <View style={{ width: 24 }} />
       </View>

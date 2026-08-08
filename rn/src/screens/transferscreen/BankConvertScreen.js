@@ -16,6 +16,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../theme/ThemeContext';
+import AppBackButton from '../../components/AppBackButton';
 import { formatNairaBalance, useWallet } from '../../context/WalletContext';
 import TransactionProcessingModal from '../../components/TransactionProcessingModal';
 
@@ -129,15 +130,7 @@ export default function BankConvertScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 14) + 6 }]}>
-        <TouchableOpacity
-          accessibilityLabel="Go back"
-          accessibilityRole="button"
-          activeOpacity={0.75}
-          style={[styles.headerButton, { backgroundColor: colors.cardBackground }]}
-          onPress={() => navigation.goBack()}
-        >
-          <MaterialIcons name="arrow-back-ios-new" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
+        <AppBackButton style={styles.headerButton} onPress={() => navigation.goBack()} />
         <Text style={[styles.title, { color: colors.textPrimary }]}>Convert</Text>
         <View style={styles.headerButtonPlaceholder} />
       </View>
