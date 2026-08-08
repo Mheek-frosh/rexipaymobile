@@ -301,6 +301,16 @@ const RECENT_RECIPIENTS = [
   },
 ];
 
+function getRecipientInitials(name) {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase();
+}
+
 export default function TransferScreen() {
   const { colors } = useTheme();
   const { debitNgn } = useWallet();
@@ -326,6 +336,10 @@ export default function TransferScreen() {
 
   const cleanAccount = accountNumber.replace(/\D/g, '');
   const canResolve = cleanAccount.length === 10 && selectedBank;
+  const canContinue = Boolean(canResolve && accountName && !isResolving);
+  const filteredRecipients = RECENT_RECIPIENTS.filter((recipient) =>
+    recipient.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
+  );
 
   const resolveAccountName = useCallback(async () => {
     if (!canResolve) return;
@@ -349,7 +363,7 @@ export default function TransferScreen() {
     if (!canResolve) return;
     const t = setTimeout(resolveAccountName, 500);
     return () => clearTimeout(t);
-  }, [canResolve, selectedBank?.code]);
+  }, [canResolve, resolveAccountName]);
 
   useEffect(() => () => {
     if (pinSheetTimerRef.current) clearTimeout(pinSheetTimerRef.current);
@@ -471,112 +485,162 @@ export default function TransferScreen() {
       <View style={styles.appBar}>
         <AppBackButton onPress={() => navigation.goBack()} />
         <Text style={[styles.appBarTitle, { color: colors.textPrimary }]}>Transfer to Bank</Text>
-        <View style={{ width: 24 }} />
+        <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
-        {/* Recipient Card */}
-        <View style={[styles.recipientCard, { backgroundColor: colors.cardBackground }]}>
-          <Text style={[styles.cardTitle, { color: colors.textPrimary }]}>Recipient Account</Text>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={[styles.pageTitle, { color: colors.textPrimary }]}>Who are you paying?</Text>
+        <Text style={[styles.pageSubtitle, { color: colors.textSecondary }]}>
+          Choose a recent recipient or add a new bank account.
+        </Text>
 
+        <View
+          style={[
+            styles.searchBox,
+            { backgroundColor: colors.cardBackground, borderColor: colors.border },
+          ]}
+        >
+          <MaterialIcons name="search" size={22} color={colors.textSecondary} />
           <TextInput
-            style={[styles.input, { color: colors.textPrimary, borderBottomColor: colors.border }]}
-            placeholder="Enter 10 digits Account Number"
-            placeholderTextColor="#9E9E9E"
-            value={accountNumber}
-            onChangeText={(t) => setAccountNumber(t.replace(/\D/g, '').slice(0, 10))}
-            keyboardType="number-pad"
+            style={[styles.searchInput, { color: colors.textPrimary }]}
+            placeholder="Search recipient"
+            placeholderTextColor={colors.textSecondary}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            returnKeyType="search"
           />
+        </View>
 
+        <View style={styles.sectionHeadingRow}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Recent</Text>
           <TouchableOpacity
-            style={[styles.bankSelect, { borderBottomColor: colors.border }]}
-            onPress={() => setShowBankModal(true)}
+            accessibilityRole="button"
+            hitSlop={8}
+            onPress={() => setSearchQuery('')}
           >
-            {selectedBank ? (
-              <View style={styles.bankRow}>
-                <Text style={styles.bankLogo}>{selectedBank.logo}</Text>
-                <Text style={[styles.bankName, { color: colors.textPrimary }]}>{selectedBank.name}</Text>
-              </View>
-            ) : (
-              <Text style={[styles.placeholder, { color: colors.textSecondary }]}>Select Bank</Text>
-            )}
-            <MaterialIcons name="keyboard-arrow-down" size={24} color={colors.textSecondary} />
+            <Text style={[styles.seeAllText, { color: colors.primary }]}>See all</Text>
           </TouchableOpacity>
+        </View>
 
-          {isResolving && (
-            <View style={styles.resolving}>
-              <ActivityIndicator size="small" color={colors.primary} />
-              <Text style={[styles.resolvingText, { color: colors.textSecondary }]}>
-                Resolving account...
-              </Text>
-            </View>
-          )}
-
-          {accountName && !isResolving && selectedBank && (
-            <View style={[styles.resolvedCard, { backgroundColor: colors.primaryLight }]}>
-              <View style={styles.resolvedRow}>
-                <View>
-                  <Text style={[styles.resolvedBank, { color: colors.textPrimary }]}>
-                    {selectedBank.name}
-                  </Text>
-                  <Text style={[styles.resolvedAcc, { color: colors.textSecondary }]}>
-                    Account: {cleanAccount}
+        {filteredRecipients.length > 0 ? (
+          <View style={styles.recentGrid}>
+            {filteredRecipients.map((item) => (
+              <TouchableOpacity
+                accessibilityLabel={`Pay ${item.name}`}
+                accessibilityRole="button"
+                activeOpacity={0.72}
+                key={item.accountNumber}
+                style={styles.recentPerson}
+                onPress={() => handleRecentTap(item)}
+              >
+                <View style={[styles.recentAvatar, { backgroundColor: colors.primaryLight }]}>
+                  <Text style={[styles.recentInitials, { color: colors.primary }]}>
+                    {getRecipientInitials(item.name)}
                   </Text>
                 </View>
-                <MaterialIcons name="check-circle" size={28} color={colors.success} />
-              </View>
-              <View style={[styles.ownerBox, { backgroundColor: colors.cardBackground }]}>
-                <Text style={[styles.ownerLabel, { color: colors.textSecondary }]}>
-                  Account Name
+                <Text style={[styles.recentFirstName, { color: colors.textPrimary }]} numberOfLines={1}>
+                  {item.name.split(' ')[0]}
                 </Text>
-                <Text style={[styles.ownerName, { color: colors.textPrimary }]} numberOfLines={2}>
-                  {accountName}
-                </Text>
-              </View>
-            </View>
-          )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        ) : (
+          <Text style={[styles.emptyRecentText, { color: colors.textSecondary }]}>No matching recipients</Text>
+        )}
 
-          <TouchableOpacity
-            style={[styles.nextBtn, { backgroundColor: colors.primary }]}
-            onPress={handleNext}
-            disabled={!accountName}
-          >
-            <Text style={styles.nextBtnText}>Next</Text>
-          </TouchableOpacity>
-        </View>
+        <View style={[styles.sectionDivider, { backgroundColor: colors.border }]} />
 
-        {/* Recent Section */}
-        <View style={[styles.recentSection, { backgroundColor: colors.cardBackground }]}>
-          <View style={[styles.searchBox, { backgroundColor: colors.background }]}>
-            <MaterialIcons name="search" size={20} color="#9E9E9E" />
+        <Text style={[styles.sectionTitle, styles.newRecipientTitle, { color: colors.textPrimary }]}>
+          New bank recipient
+        </Text>
+
+        <View
+          style={[
+            styles.formRow,
+            { backgroundColor: colors.cardBackground, borderColor: colors.border },
+          ]}
+        >
+          <View style={[styles.formIcon, { backgroundColor: colors.primaryLight }]}>
+            <MaterialIcons name="credit-card" size={24} color={colors.primary} />
+          </View>
+          <View style={styles.formCopy}>
+            <Text style={[styles.formLabel, { color: colors.textPrimary }]}>Account number</Text>
             <TextInput
-              style={[styles.searchInput, { color: colors.textPrimary }]}
-              placeholder="Search Recipient name"
-              placeholderTextColor="#9E9E9E"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
+              accessibilityLabel="Recipient account number"
+              keyboardType="number-pad"
+              maxLength={10}
+              onChangeText={(value) => setAccountNumber(value.replace(/\D/g, '').slice(0, 10))}
+              placeholder="Enter 10-digit account number"
+              placeholderTextColor={colors.textSecondary}
+              style={[styles.accountInput, { color: colors.textPrimary }]}
+              value={accountNumber}
             />
           </View>
-          <Text style={[styles.recentTitle, { color: colors.textPrimary }]}>Most Recent</Text>
-          {RECENT_RECIPIENTS.filter((r) =>
-            r.name.toLowerCase().includes(searchQuery.toLowerCase())
-          ).map((item, i) => (
-            <TouchableOpacity
-              key={i}
-              style={[styles.recentItem, { borderBottomColor: colors.border }]}
-              onPress={() => handleRecentTap(item)}
-            >
-              <View style={[styles.recentAvatar, { backgroundColor: colors.primaryLight }]}>
-                <MaterialIcons name="person" size={24} color={colors.primary} />
-              </View>
-              <View style={styles.recentInfo}>
-                <Text style={[styles.recentName, { color: colors.textPrimary }]}>{item.name}</Text>
-                <Text style={[styles.recentEmail, { color: colors.textSecondary }]}>{item.email}</Text>
-              </View>
-              <Text style={[styles.recentAmount, { color: colors.error }]}>{item.amount}</Text>
-            </TouchableOpacity>
-          ))}
         </View>
+
+        <TouchableOpacity
+          accessibilityRole="button"
+          activeOpacity={0.75}
+          style={[
+            styles.formRow,
+            { backgroundColor: colors.cardBackground, borderColor: colors.border },
+          ]}
+          onPress={() => setShowBankModal(true)}
+        >
+          <View style={[styles.formIcon, { backgroundColor: colors.primaryLight }]}>
+            <MaterialIcons name="account-balance" size={24} color={colors.primary} />
+          </View>
+          <View style={styles.formCopy}>
+            <Text style={[styles.formLabel, { color: colors.textPrimary }]}>Bank</Text>
+            <Text style={[styles.formValue, { color: colors.textSecondary }]} numberOfLines={1}>
+              {selectedBank?.name || 'Select bank'}
+            </Text>
+          </View>
+          <MaterialIcons name="chevron-right" size={25} color={colors.textSecondary} />
+        </TouchableOpacity>
+
+        {isResolving && (
+          <View style={styles.resolving}>
+            <ActivityIndicator size="small" color={colors.primary} />
+            <Text style={[styles.resolvingText, { color: colors.textSecondary }]}>Verifying recipient...</Text>
+          </View>
+        )}
+
+        {accountName && !isResolving && selectedBank && (
+          <View style={[styles.resolvedInline, { backgroundColor: colors.primaryLight }]}>
+            <MaterialIcons name="check-circle" size={22} color={colors.success} />
+            <View style={styles.resolvedInlineCopy}>
+              <Text style={[styles.resolvedInlineName, { color: colors.textPrimary }]}>{accountName}</Text>
+              <Text style={[styles.resolvedInlineMeta, { color: colors.textSecondary }]}>
+                {selectedBank.name} {'\u00B7'} {cleanAccount}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        <View style={styles.verificationNote}>
+          <MaterialIcons name="verified-user" size={22} color={colors.primary} />
+          <Text style={[styles.verificationText, { color: colors.textSecondary }]}>
+            Recipient will be verified before transfer
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          accessibilityRole="button"
+          activeOpacity={0.85}
+          disabled={!canContinue}
+          onPress={handleNext}
+          style={[
+            styles.nextBtn,
+            { backgroundColor: canContinue ? colors.primary : colors.surfaceVariant },
+          ]}
+        >
+          <Text style={[styles.nextBtnText, !canContinue && { color: colors.textSecondary }]}>Continue</Text>
+        </TouchableOpacity>
       </ScrollView>
 
       <Modal visible={showBankModal} transparent animationType="slide">
@@ -801,7 +865,9 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   appBarTitle: { fontSize: 18, fontWeight: '700' },
-  content: { paddingBottom: 40 },
+  content: { paddingHorizontal: 20, paddingBottom: 40, paddingTop: 8 },
+  pageTitle: { fontSize: 25, fontWeight: '800', letterSpacing: -0.5 },
+  pageSubtitle: { fontSize: 13, lineHeight: 19, marginTop: 5 },
   recipientCard: {
     marginHorizontal: 20,
     marginTop: 10,
@@ -869,11 +935,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    minHeight: 52,
     borderRadius: 25,
+    borderWidth: 1,
     gap: 12,
+    marginTop: 22,
   },
-  searchInput: { flex: 1, fontSize: 14 },
+  searchInput: { flex: 1, fontSize: 14, paddingVertical: 0 },
+  sectionHeadingRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 24,
+  },
+  sectionTitle: { fontSize: 15, fontWeight: '700' },
+  seeAllText: { fontSize: 13, fontWeight: '700' },
+  recentGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 15,
+  },
+  recentPerson: { alignItems: 'center', width: 58 },
   recentTitle: { fontSize: 16, fontWeight: '700', marginTop: 30 },
   recentItem: {
     flexDirection: 'row',
@@ -889,6 +971,43 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  recentInitials: { fontSize: 16, fontWeight: '800' },
+  recentFirstName: { fontSize: 12, fontWeight: '500', marginTop: 8, maxWidth: 58 },
+  emptyRecentText: { fontSize: 13, marginTop: 20, textAlign: 'center' },
+  sectionDivider: { height: StyleSheet.hairlineWidth, marginTop: 24 },
+  newRecipientTitle: { marginBottom: 14, marginTop: 24 },
+  formRow: {
+    alignItems: 'center',
+    borderRadius: 16,
+    borderWidth: 1,
+    flexDirection: 'row',
+    marginBottom: 12,
+    minHeight: 68,
+    paddingHorizontal: 14,
+  },
+  formIcon: {
+    alignItems: 'center',
+    borderRadius: 12,
+    height: 42,
+    justifyContent: 'center',
+    width: 42,
+  },
+  formCopy: { flex: 1, marginLeft: 12 },
+  formLabel: { fontSize: 13, fontWeight: '600' },
+  formValue: { fontSize: 13, marginTop: 4 },
+  accountInput: { fontSize: 13, marginTop: 1, paddingHorizontal: 0, paddingVertical: 2 },
+  resolvedInline: {
+    alignItems: 'center',
+    borderRadius: 16,
+    flexDirection: 'row',
+    marginTop: 2,
+    padding: 14,
+  },
+  resolvedInlineCopy: { flex: 1, marginLeft: 10 },
+  resolvedInlineName: { fontSize: 14, fontWeight: '700' },
+  resolvedInlineMeta: { fontSize: 12, marginTop: 3 },
+  verificationNote: { alignItems: 'center', flexDirection: 'row', marginTop: 18 },
+  verificationText: { flex: 1, fontSize: 12, lineHeight: 18, marginLeft: 9 },
   recentInfo: { flex: 1 },
   recentName: { fontSize: 15, fontWeight: '600' },
   recentEmail: { fontSize: 13, marginTop: 4 },
