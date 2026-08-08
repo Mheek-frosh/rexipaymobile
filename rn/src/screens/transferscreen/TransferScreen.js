@@ -322,6 +322,7 @@ export default function TransferScreen() {
   const [showBankModal, setShowBankModal] = useState(false);
   const [amount, setAmount] = useState('');
   const [showAmountModal, setShowAmountModal] = useState(false);
+  const [showRecentModal, setShowRecentModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [transferRecipient, setTransferRecipient] = useState('');
   const [transferRecipientBank, setTransferRecipientBank] = useState('');
@@ -477,6 +478,7 @@ export default function TransferScreen() {
     setTransferRecipient(item.name);
     setTransferRecipientBank(item.bankName || '');
     setTransferRecipientAccount(item.accountNumber || '');
+    setShowRecentModal(false);
     setShowAmountModal(true);
   };
 
@@ -520,7 +522,7 @@ export default function TransferScreen() {
           <TouchableOpacity
             accessibilityRole="button"
             hitSlop={8}
-            onPress={() => setSearchQuery('')}
+            onPress={() => setShowRecentModal(true)}
           >
             <Text style={[styles.seeAllText, { color: colors.primary }]}>See all</Text>
           </TouchableOpacity>
@@ -642,6 +644,82 @@ export default function TransferScreen() {
           <Text style={[styles.nextBtnText, !canContinue && { color: colors.textSecondary }]}>Continue</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <Modal
+        animationType="fade"
+        onRequestClose={() => setShowRecentModal(false)}
+        statusBarTranslucent
+        transparent
+        visible={showRecentModal}
+      >
+        <View style={styles.recentModalOverlay}>
+          <TouchableOpacity
+            accessibilityLabel="Close recent recipients"
+            accessibilityRole="button"
+            activeOpacity={1}
+            onPress={() => setShowRecentModal(false)}
+            style={styles.recentModalBackdrop}
+          />
+
+          <View
+            onStartShouldSetResponder={() => true}
+            style={[
+              styles.recentModalCard,
+              { backgroundColor: colors.cardBackground, borderColor: colors.border },
+            ]}
+          >
+            <View style={[styles.recentModalHeader, { borderBottomColor: colors.border }]}>
+              <View style={styles.recentModalHeading}>
+                <Text style={[styles.recentModalTitle, { color: colors.textPrimary }]}>Recent recipients</Text>
+                <Text style={[styles.recentModalSubtitle, { color: colors.textSecondary }]}>
+                  Choose someone you have paid before
+                </Text>
+              </View>
+              <TouchableOpacity
+                accessibilityRole="button"
+                hitSlop={10}
+                onPress={() => setShowRecentModal(false)}
+              >
+                <Text style={[styles.recentModalClose, { color: colors.primary }]}>Close</Text>
+              </TouchableOpacity>
+            </View>
+
+            <FlatList
+              contentContainerStyle={styles.recentModalList}
+              data={RECENT_RECIPIENTS}
+              keyExtractor={(item) => item.accountNumber}
+              showsVerticalScrollIndicator={false}
+              ItemSeparatorComponent={() => (
+                <View style={[styles.recentModalDivider, { backgroundColor: colors.border }]} />
+              )}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  accessibilityLabel={`Pay ${item.name}`}
+                  accessibilityRole="button"
+                  activeOpacity={0.7}
+                  onPress={() => handleRecentTap(item)}
+                  style={styles.recentModalRow}
+                >
+                  <View style={[styles.recentModalAvatar, { backgroundColor: colors.primaryLight }]}>
+                    <Text style={[styles.recentModalInitials, { color: colors.primary }]}>
+                      {getRecipientInitials(item.name)}
+                    </Text>
+                  </View>
+                  <View style={styles.recentModalRecipientInfo}>
+                    <Text style={[styles.recentModalName, { color: colors.textPrimary }]} numberOfLines={1}>
+                      {item.name}
+                    </Text>
+                    <Text style={[styles.recentModalMeta, { color: colors.textSecondary }]} numberOfLines={1}>
+                      {item.bankName} {'\u00B7'} {item.accountNumber}
+                    </Text>
+                  </View>
+                  <MaterialIcons name="chevron-right" size={24} color={colors.textSecondary} />
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
 
       <Modal visible={showBankModal} transparent animationType="slide">
         <TouchableOpacity
@@ -1012,6 +1090,45 @@ const styles = StyleSheet.create({
   recentName: { fontSize: 15, fontWeight: '600' },
   recentEmail: { fontSize: 13, marginTop: 4 },
   recentAmount: { fontSize: 15, fontWeight: '700' },
+  recentModalOverlay: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(5, 8, 20, 0.56)',
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  recentModalBackdrop: { ...StyleSheet.absoluteFillObject },
+  recentModalCard: {
+    borderRadius: 20,
+    borderWidth: 1,
+    maxHeight: '72%',
+    overflow: 'hidden',
+    width: '100%',
+  },
+  recentModalHeader: {
+    alignItems: 'flex-start',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    flexDirection: 'row',
+    padding: 20,
+  },
+  recentModalHeading: { flex: 1, paddingRight: 12 },
+  recentModalTitle: { fontSize: 19, fontWeight: '800', letterSpacing: -0.3 },
+  recentModalSubtitle: { fontSize: 12, lineHeight: 18, marginTop: 4 },
+  recentModalClose: { fontSize: 14, fontWeight: '700', paddingTop: 2 },
+  recentModalList: { paddingHorizontal: 18, paddingVertical: 6 },
+  recentModalRow: { alignItems: 'center', flexDirection: 'row', minHeight: 72 },
+  recentModalAvatar: {
+    alignItems: 'center',
+    borderRadius: 22,
+    height: 44,
+    justifyContent: 'center',
+    width: 44,
+  },
+  recentModalInitials: { fontSize: 14, fontWeight: '800' },
+  recentModalRecipientInfo: { flex: 1, marginLeft: 12, marginRight: 8 },
+  recentModalName: { fontSize: 14, fontWeight: '700' },
+  recentModalMeta: { fontSize: 12, marginTop: 4 },
+  recentModalDivider: { height: StyleSheet.hairlineWidth, marginLeft: 56 },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
