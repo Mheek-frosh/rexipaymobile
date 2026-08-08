@@ -8,9 +8,9 @@ export const HOME_QUICK_SERVICES = [
   { id: 'electricity', icon: 'bolt',                label: 'Electricity',    color: '#D97706', bg: '#FFFBEB', route: 'ElectricityBill' },
   { id: 'tv',        icon: 'tv',                    label: 'TV Sub',         color: '#7C3AED', bg: '#F5F3FF', route: 'TvSubscription' },
   { id: 'offline',   icon: 'wifi-off',              label: 'Offline Pay',    color: '#059669', bg: '#ECFDF5', route: 'OfflinePay' },
-  { id: 'shopping',  icon: 'shopping-bag',          label: 'Shopping',       color: '#DB2777', bg: '#FDF2F8', route: 'ShoppingHub' },
+  { id: 'giftcards', icon: 'card-giftcard',         label: 'Gift Card',      color: '#DB2777', bg: '#FDF2F8', route: 'GiftCards' },
+  { id: 'shopping',  icon: 'shopping-bag',          label: 'Shopping',       color: '#374151', bg: '#F9FAFB', route: 'ShoppingHub' },
   { id: 'deals',     icon: 'local-offer',           label: 'Deals',          color: '#DC2626', bg: '#FEF2F2', route: 'DealsHub' },
-  { id: 'more',      icon: 'more-horiz',            label: 'More',           color: '#374151', bg: '#F9FAFB', route: 'AllServices' },
 ];
 
 /** All services: Savings first, then same items as home (full list). */

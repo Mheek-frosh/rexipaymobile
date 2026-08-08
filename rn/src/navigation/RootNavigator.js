@@ -56,6 +56,7 @@ import InternetDataScreen from '../screens/utilities/InternetDataScreen';
 import ElectricityBillScreen from '../screens/utilities/ElectricityBillScreen';
 import ShoppingHubScreen from '../screens/utilities/ShoppingHubScreen';
 import DealsHubScreen from '../screens/utilities/DealsHubScreen';
+import GiftCardsScreen from '../screens/utilities/GiftCardsScreen';
 import HealthHubScreen from '../screens/utilities/HealthHubScreen';
 import CryptoMarketScreen from '../screens/crypto/CryptoMarketScreen';
 import CryptoAssetDetailScreen from '../screens/crypto/CryptoAssetDetailScreen';
@@ -128,6 +129,7 @@ export default function RootNavigator() {
         <Stack.Screen name="ElectricityBill" component={ElectricityBillScreen} />
         <Stack.Screen name="ShoppingHub" component={ShoppingHubScreen} />
         <Stack.Screen name="DealsHub" component={DealsHubScreen} />
+        <Stack.Screen name="GiftCards" component={GiftCardsScreen} />
         <Stack.Screen name="HealthHub" component={HealthHubScreen} />
         <Stack.Screen name="CryptoMarket" component={CryptoMarketScreen} />
         <Stack.Screen name="CryptoAssetDetail" component={CryptoAssetDetailScreen} />
