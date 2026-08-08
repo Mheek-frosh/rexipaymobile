@@ -1,9 +1,10 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Animated, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
 import Svg, { Path } from 'react-native-svg';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '../theme/ThemeContext';
 import { Card, Chart2, More } from 'iconsax-react-native';
 import HomeScreen from '../screens/home/HomeScreen';
@@ -53,7 +54,97 @@ function ExactHomeIcon({ color, size = 26, isFocused, isDark }) {
   );
 }
 
-const CustomTabBar = ({ state, descriptors, navigation }) => {
+function AnimatedTabButton({
+  activeBgColor,
+  color,
+  icon,
+  isFocused,
+  label,
+  onPress,
+}) {
+  const pressScale = useRef(new Animated.Value(1)).current;
+  const focusProgress = useRef(new Animated.Value(isFocused ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.spring(focusProgress, {
+      toValue: isFocused ? 1 : 0,
+      damping: 14,
+      stiffness: 190,
+      mass: 0.7,
+      useNativeDriver: true,
+    }).start();
+  }, [focusProgress, isFocused]);
+
+  const handlePressIn = () => {
+    Animated.spring(pressScale, {
+      toValue: 0.84,
+      damping: 18,
+      stiffness: 360,
+      mass: 0.55,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(pressScale, {
+      toValue: 1,
+      damping: 9,
+      stiffness: 230,
+      mass: 0.65,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePress = () => {
+    Haptics.selectionAsync().catch(() => {});
+    onPress();
+  };
+
+  const focusScale = focusProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.96, 1],
+  });
+  const focusLift = focusProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -1.5],
+  });
+
+  return (
+    <TouchableOpacity
+      accessibilityLabel={`${label} tab`}
+      accessibilityRole="tab"
+      accessibilityState={{ selected: isFocused }}
+      activeOpacity={1}
+      onPress={handlePress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      style={styles.tabButtonWrapper}
+    >
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          styles.activeTabPill,
+          { backgroundColor: activeBgColor, opacity: focusProgress },
+        ]}
+      />
+      <Animated.View style={{ transform: [{ scale: pressScale }] }}>
+        <Animated.View
+          style={[
+            styles.tabButton,
+            { transform: [{ translateY: focusLift }, { scale: focusScale }] },
+          ]}
+        >
+          {icon}
+          <Text style={[styles.tabLabel, { color, fontWeight: isFocused ? '700' : '600' }]}>
+            {label}
+          </Text>
+        </Animated.View>
+      </Animated.View>
+    </TouchableOpacity>
+  );
+}
+
+const CustomTabBar = ({ state, navigation }) => {
   const { colors: themeColors, isDark } = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -85,7 +176,6 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
         ]}
       >
         {state.routes.map((route, index) => {
-          const { options } = descriptors[route.key];
           const label = route.name === 'Stats' ? 'Stats' : route.name;
           const isFocused = state.index === index;
 
@@ -120,22 +210,15 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
           }
 
           return (
-            <TouchableOpacity
-              key={index}
-              activeOpacity={0.8}
+            <AnimatedTabButton
+              activeBgColor={activeBgColor}
+              color={color}
+              icon={IconComponent}
+              isFocused={isFocused}
+              key={route.key}
+              label={label}
               onPress={onPress}
-              style={styles.tabButtonWrapper}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: isFocused }}
-              accessibilityLabel={`${label} tab`}
-            >
-              <View style={[styles.tabButton, isFocused && { backgroundColor: activeBgColor }]}>
-                {IconComponent}
-                <Text style={[styles.tabLabel, { color, fontWeight: isFocused ? '700' : '600' }]}>
-                  {label}
-                </Text>
-              </View>
-            </TouchableOpacity>
+            />
           );
         })}
       </BlurView>
@@ -182,6 +265,14 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    minHeight: 54,
+    position: 'relative',
+  },
+  activeTabPill: {
+    borderRadius: 20,
+    height: 48,
+    position: 'absolute',
+    width: 68,
   },
   tabButton: {
     alignItems: 'center',
@@ -194,5 +285,5 @@ const styles = StyleSheet.create({
   tabLabel: {
     fontSize: 10.5,
     marginTop: 2,
-  }
+  },
 });
