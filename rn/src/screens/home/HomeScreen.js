@@ -117,7 +117,7 @@ export default function HomeScreen() {
     { id: 'send', label: 'Send', icon: 'arrow-upward', color: '#172FC7', bg: '#EEF0FF', route: 'Transfer' },
     { id: 'receive', label: 'Receive', icon: 'arrow-downward', color: '#10B981', bg: '#ECFDF5', route: 'BankReceive' },
     { id: 'convert', label: 'Convert', icon: 'currency-exchange', color: '#F59E0B', bg: '#FFF7ED', route: 'BankConvert' },
-    { id: 'scan', label: 'Scan', icon: 'qr-code-scanner', color: '#8B5CF6', bg: '#F5F3FF', route: 'AllServices' },
+    { id: 'scan', label: 'Scan', icon: 'qr-code-scanner', color: '#8B5CF6', bg: '#F5F3FF', route: 'ScanToPay' },
   ]);
 
   const [cryptoQuickActions, setCryptoQuickActions] = useState([

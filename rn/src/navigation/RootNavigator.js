@@ -58,6 +58,7 @@ import ShoppingHubScreen from '../screens/utilities/ShoppingHubScreen';
 import DealsHubScreen from '../screens/utilities/DealsHubScreen';
 import GiftCardsScreen from '../screens/utilities/GiftCardsScreen';
 import HealthHubScreen from '../screens/utilities/HealthHubScreen';
+import ScanToPayScreen from '../screens/utilities/ScanToPayScreen';
 import CryptoMarketScreen from '../screens/crypto/CryptoMarketScreen';
 import CryptoAssetDetailScreen from '../screens/crypto/CryptoAssetDetailScreen';
 
@@ -131,6 +132,7 @@ export default function RootNavigator() {
         <Stack.Screen name="DealsHub" component={DealsHubScreen} />
         <Stack.Screen name="GiftCards" component={GiftCardsScreen} />
         <Stack.Screen name="HealthHub" component={HealthHubScreen} />
+        <Stack.Screen name="ScanToPay" component={ScanToPayScreen} />
         <Stack.Screen name="CryptoMarket" component={CryptoMarketScreen} />
         <Stack.Screen name="CryptoAssetDetail" component={CryptoAssetDetailScreen} />
         <Stack.Screen name="ChangeLimit" component={ChangeLimitScreen} />
