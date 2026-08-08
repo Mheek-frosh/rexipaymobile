@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Animated, Platform, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Mask, Path, Rect } from 'react-native-svg';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '../theme/ThemeContext';
 import { Card, Chart2, More } from 'iconsax-react-native';
@@ -15,20 +15,30 @@ import ProfileScreen from '../screens/profile/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
-function ExactHomeIcon({ color, size = 26, isFocused, isDark }) {
+function ExactHomeIcon({ color, size = 26, isFocused }) {
   if (isFocused) {
-    const keyholeColor = isDark ? '#191C26' : '#FFFFFF';
     return (
       <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <Mask
+          id="home-active-cutout"
+          x="0"
+          y="0"
+          width="24"
+          height="24"
+          maskUnits="userSpaceOnUse"
+        >
+          <Rect width="24" height="24" fill="#FFFFFF" />
+          <Path
+            d="M 12 15.2 L 12 18.5"
+            stroke="#000000"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+          />
+        </Mask>
         <Path
           d="M 12 3.2 C 11.2 3.2 10.5 3.6 10 4.1 L 3.8 10 C 2.9 10.9 2.4 12.1 2.4 13.4 L 2.4 18.5 C 2.4 20.7 4.2 22.5 6.4 22.5 L 17.6 22.5 C 19.8 22.5 21.6 20.7 21.6 18.5 L 21.6 13.4 C 21.6 12.1 21.1 10.9 20.2 10 L 14 4.1 C 13.5 3.6 12.8 3.2 12 3.2 Z"
           fill={color}
-        />
-        <Path
-          d="M 12 15.2 L 12 18.5"
-          stroke={keyholeColor}
-          strokeWidth="2.4"
-          strokeLinecap="round"
+          mask="url(#home-active-cutout)"
         />
       </Svg>
     );
@@ -147,6 +157,10 @@ function AnimatedTabButton({
 const CustomTabBar = ({ state, navigation }) => {
   const { colors: themeColors, isDark } = useTheme();
   const insets = useSafeAreaInsets();
+  const isIOS = Platform.OS === 'ios';
+  const glassTint = isIOS
+    ? (isDark ? 'systemUltraThinMaterialDark' : 'systemUltraThinMaterialLight')
+    : (isDark ? 'systemChromeMaterialDark' : 'systemChromeMaterialLight');
 
   return (
     <View
@@ -154,27 +168,35 @@ const CustomTabBar = ({ state, navigation }) => {
         styles.tabBarContainer,
         {
           bottom: Math.max(insets.bottom, 10),
-          shadowOpacity: isDark ? 0.34 : 0.13,
+          shadowColor: isDark ? '#000000' : '#172FC7',
+          shadowOpacity: isDark ? 0.3 : 0.11,
         },
       ]}
     >
       <BlurView
-        tint={isDark ? 'systemChromeMaterialDark' : 'systemChromeMaterialLight'}
-        intensity={isDark ? 72 : 82}
-        blurReductionFactor={3}
-        experimentalBlurMethod="dimezisBlurView"
+        tint={glassTint}
+        intensity={isIOS ? 94 : (isDark ? 72 : 82)}
+        blurReductionFactor={isIOS ? 1 : 3}
+        experimentalBlurMethod={isIOS ? undefined : 'dimezisBlurView'}
         style={[
           styles.tabBar,
           {
-            backgroundColor: isDark
-              ? 'rgba(12, 15, 22, 0.52)'
-              : 'rgba(255, 255, 255, 0.42)',
+            backgroundColor: isIOS
+              ? (isDark ? 'rgba(13, 16, 24, 0.28)' : 'rgba(255, 255, 255, 0.2)')
+              : (isDark ? 'rgba(12, 15, 22, 0.72)' : 'rgba(255, 255, 255, 0.68)'),
             borderColor: isDark
-              ? 'rgba(255, 255, 255, 0.16)'
-              : 'rgba(255, 255, 255, 0.78)',
+              ? 'rgba(255, 255, 255, 0.18)'
+              : 'rgba(255, 255, 255, 0.86)',
           },
         ]}
       >
+        <View
+          pointerEvents="none"
+          style={[
+            styles.glassHighlight,
+            { backgroundColor: isDark ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.78)' },
+          ]}
+        />
         {state.routes.map((route, index) => {
           const label = route.name === 'Stats' ? 'Stats' : route.name;
           const isFocused = state.index === index;
@@ -200,7 +222,7 @@ const CustomTabBar = ({ state, navigation }) => {
 
           let IconComponent;
           if (route.name === 'Home') {
-            IconComponent = <ExactHomeIcon color={color} size={22} isFocused={isFocused} isDark={isDark} />;
+            IconComponent = <ExactHomeIcon color={color} size={22} isFocused={isFocused} />;
           } else if (route.name === 'Cards') {
             IconComponent = <Card size={22} color={color} variant={isFocused ? 'Bold' : 'Outline'} />;
           } else if (route.name === 'Stats') {
@@ -247,19 +269,26 @@ const styles = StyleSheet.create({
     right: 16,
     zIndex: 1000,
     elevation: 10,
-    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 18,
+    shadowRadius: 22,
   },
   tabBar: {
     flexDirection: 'row',
-    borderRadius: 26,
+    borderRadius: 28,
     borderWidth: 1,
-    height: 64,
+    height: 66,
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 6,
     overflow: 'hidden',
+  },
+  glassHighlight: {
+    borderRadius: 1,
+    height: 1,
+    left: 22,
+    position: 'absolute',
+    right: 22,
+    top: 1,
   },
   tabButtonWrapper: {
     flex: 1,
@@ -269,10 +298,12 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   activeTabPill: {
-    borderRadius: 20,
-    height: 48,
+    borderRadius: 22,
+    bottom: 5,
+    left: 3,
     position: 'absolute',
-    width: 68,
+    right: 3,
+    top: 5,
   },
   tabButton: {
     alignItems: 'center',
