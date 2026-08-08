@@ -6,29 +6,34 @@ import {
   StyleSheet,
   ScrollView,
   TextInput,
+  Keyboard,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
 import AppBackButton from '../../components/AppBackButton';
+import BankTransferBottomSheet from '../../components/BankTransferBottomSheet';
+import { useAuth } from '../../context/AuthContext';
 import { useWallet } from '../../context/WalletContext';
 import TransactionProcessingModal from '../../components/TransactionProcessingModal';
 
 const METHODS = [
   { id: 'card', icon: 'credit-card', label: 'Debit/Credit Card', desc: 'Instant' },
-  { id: 'bank', icon: 'account-balance', label: 'Bank Transfer', desc: '1-2 business days' },
+  { id: 'bank', icon: 'account-balance', label: 'Bank Transfer', desc: 'Instant transfer' },
   { id: 'ussd', icon: 'phone', label: 'USSD', desc: 'Instant' },
 ];
 
 export default function AddMoneyScreen() {
   const { colors } = useTheme();
+  const { userAccountNumber, userName } = useAuth();
   const { creditNgn } = useWallet();
   const navigation = useNavigation();
   const [amount, setAmount] = useState('');
   const [selectedMethod, setSelectedMethod] = useState('card');
   const [processing, setProcessing] = useState(false);
+  const [bankTransferVisible, setBankTransferVisible] = useState(false);
 
-  const handleAdd = async () => {
+  const completeFunding = async () => {
     if (!amount || parseFloat(amount) <= 0) return;
     setProcessing(true);
     await new Promise((resolve) => setTimeout(resolve, 1600));
@@ -41,6 +46,21 @@ export default function AddMoneyScreen() {
       type: 'transfer',
       ref: 'REF' + Date.now(),
     });
+  };
+
+  const handleAdd = () => {
+    if (!amount || parseFloat(amount) <= 0) return;
+    Keyboard.dismiss();
+    if (selectedMethod === 'bank') {
+      setBankTransferVisible(true);
+      return;
+    }
+    completeFunding();
+  };
+
+  const confirmBankTransfer = () => {
+    setBankTransferVisible(false);
+    completeFunding();
   };
 
   return (
@@ -99,6 +119,16 @@ export default function AddMoneyScreen() {
           <Text style={styles.addBtnText}>Add ₦{amount ? Number(amount).toLocaleString() : '0'}</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <BankTransferBottomSheet
+        visible={bankTransferVisible}
+        accountName={`${userName || 'RexiPay User'} / RexiPay`}
+        accountNumber={userAccountNumber || '0123456789'}
+        amount={amount}
+        fee={50}
+        onClose={() => setBankTransferVisible(false)}
+        onConfirm={confirmBankTransfer}
+      />
 
       <TransactionProcessingModal
         visible={processing}
