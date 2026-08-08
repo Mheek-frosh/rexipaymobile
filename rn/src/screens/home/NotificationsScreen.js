@@ -179,13 +179,6 @@ export default function NotificationsScreen() {
               <Text style={[styles.markAll, { color: colors.primary }]}>Mark all</Text>
             </TouchableOpacity>
           ) : null}
-          <TouchableOpacity
-            onPress={() => navigation.navigate('NotificationSettings')}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            style={styles.settingsBtn}
-          >
-            <MaterialIcons name="tune" size={24} color={colors.primary} />
-          </TouchableOpacity>
         </View>
       </View>
 
@@ -231,14 +224,6 @@ export default function NotificationsScreen() {
             <Text style={[styles.emptySub, { color: colors.textSecondary }]}>
               We'll notify you here about transaction updates, security alerts, and exclusive offers.
             </Text>
-            <TouchableOpacity
-              style={[styles.prefsLink, { borderColor: colors.border, backgroundColor: colors.cardBackground }]}
-              onPress={() => navigation.navigate('NotificationSettings')}
-              activeOpacity={0.7}
-            >
-              <MaterialIcons name="tune" size={18} color={colors.primary} />
-              <Text style={[styles.prefsLinkText, { color: colors.textPrimary }]}>Configure Settings</Text>
-            </TouchableOpacity>
           </View>
         }
       />
@@ -256,8 +241,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   headerSide: {
-    minWidth: 44,
-    alignItems: 'center',
+    minWidth: 88,
+    alignItems: 'flex-start',
     justifyContent: 'center',
   },
   headerRight: {
@@ -266,7 +251,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     gap: 4,
   },
-  settingsBtn: { padding: 6 },
   backBtn: { padding: 8 },
   headerCenter: {
     flex: 1,
@@ -400,15 +384,4 @@ const styles = StyleSheet.create({
   },
   emptyTitle: { fontSize: 19, fontWeight: '700', textAlign: 'center', marginBottom: 8, letterSpacing: -0.2 },
   emptySub: { fontSize: 14, lineHeight: 22, textAlign: 'center', maxWidth: 280, opacity: 0.8 },
-  prefsLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 24,
-    paddingVertical: 12,
-    paddingHorizontal: 18,
-    borderRadius: 14,
-    borderWidth: 1,
-  },
-  prefsLinkText: { fontSize: 15, fontWeight: '600' },
 });
