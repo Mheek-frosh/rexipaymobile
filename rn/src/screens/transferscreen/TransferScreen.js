@@ -299,6 +299,56 @@ const RECENT_RECIPIENTS = [
     accountNumber: '5544332211',
     bankName: 'Zenith Bank',
   },
+  {
+    name: 'Amina Bello',
+    accountNumber: '2034567891',
+    bankName: 'First Bank',
+  },
+  {
+    name: 'Daniel Okoro',
+    accountNumber: '3145678902',
+    bankName: 'Kuda Bank',
+  },
+  {
+    name: 'Chisom Eze',
+    accountNumber: '4256789013',
+    bankName: 'Fidelity Bank',
+  },
+  {
+    name: 'Tobi Adeyemi',
+    accountNumber: '5367890124',
+    bankName: 'Stanbic IBTC',
+  },
+  {
+    name: 'Fatima Musa',
+    accountNumber: '6478901235',
+    bankName: 'Polaris Bank',
+  },
+  {
+    name: 'Emeka Nwosu',
+    accountNumber: '7589012346',
+    bankName: 'Union Bank',
+  },
+  {
+    name: 'Ruth Johnson',
+    accountNumber: '8690123457',
+    bankName: 'Wema Bank',
+  },
+  {
+    name: 'Bola Williams',
+    accountNumber: '9701234568',
+    bankName: 'FCMB',
+  },
+  {
+    name: 'Nneka Obi',
+    accountNumber: '1812345679',
+    bankName: 'Sterling Bank',
+  },
+  {
+    name: 'Seyi Martins',
+    accountNumber: '2923456780',
+    bankName: 'Opay',
+  },
 ];
 
 function getRecipientInitials(name) {
@@ -323,6 +373,7 @@ export default function TransferScreen() {
   const [amount, setAmount] = useState('');
   const [showAmountModal, setShowAmountModal] = useState(false);
   const [showRecentModal, setShowRecentModal] = useState(false);
+  const [recentModalSearch, setRecentModalSearch] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [transferRecipient, setTransferRecipient] = useState('');
   const [transferRecipientBank, setTransferRecipientBank] = useState('');
@@ -341,6 +392,14 @@ export default function TransferScreen() {
   const filteredRecipients = RECENT_RECIPIENTS.filter((recipient) =>
     recipient.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
   );
+  const modalRecipients = RECENT_RECIPIENTS.filter((recipient) => {
+    const query = recentModalSearch.trim().toLowerCase();
+    return (
+      recipient.name.toLowerCase().includes(query) ||
+      recipient.bankName.toLowerCase().includes(query) ||
+      recipient.accountNumber.includes(query)
+    );
+  });
 
   const resolveAccountName = useCallback(async () => {
     if (!canResolve) return;
@@ -474,11 +533,16 @@ export default function TransferScreen() {
     await runTransferProcessing();
   };
 
+  const closeRecentModal = () => {
+    setShowRecentModal(false);
+    setRecentModalSearch('');
+  };
+
   const handleRecentTap = (item) => {
     setTransferRecipient(item.name);
     setTransferRecipientBank(item.bankName || '');
     setTransferRecipientAccount(item.accountNumber || '');
-    setShowRecentModal(false);
+    closeRecentModal();
     setShowAmountModal(true);
   };
 
@@ -522,7 +586,10 @@ export default function TransferScreen() {
           <TouchableOpacity
             accessibilityRole="button"
             hitSlop={8}
-            onPress={() => setShowRecentModal(true)}
+            onPress={() => {
+              setRecentModalSearch('');
+              setShowRecentModal(true);
+            }}
           >
             <Text style={[styles.seeAllText, { color: colors.primary }]}>See all</Text>
           </TouchableOpacity>
@@ -530,7 +597,7 @@ export default function TransferScreen() {
 
         {filteredRecipients.length > 0 ? (
           <View style={styles.recentGrid}>
-            {filteredRecipients.map((item) => (
+            {filteredRecipients.slice(0, 4).map((item) => (
               <TouchableOpacity
                 accessibilityLabel={`Pay ${item.name}`}
                 accessibilityRole="button"
@@ -647,7 +714,7 @@ export default function TransferScreen() {
 
       <Modal
         animationType="fade"
-        onRequestClose={() => setShowRecentModal(false)}
+        onRequestClose={closeRecentModal}
         statusBarTranslucent
         transparent
         visible={showRecentModal}
@@ -657,7 +724,7 @@ export default function TransferScreen() {
             accessibilityLabel="Close recent recipients"
             accessibilityRole="button"
             activeOpacity={1}
-            onPress={() => setShowRecentModal(false)}
+            onPress={closeRecentModal}
             style={styles.recentModalBackdrop}
           />
 
@@ -678,17 +745,56 @@ export default function TransferScreen() {
               <TouchableOpacity
                 accessibilityRole="button"
                 hitSlop={10}
-                onPress={() => setShowRecentModal(false)}
+                onPress={closeRecentModal}
               >
                 <Text style={[styles.recentModalClose, { color: colors.primary }]}>Close</Text>
               </TouchableOpacity>
             </View>
 
+            <View
+              style={[
+                styles.recentModalSearchBox,
+                { backgroundColor: colors.background, borderColor: colors.border },
+              ]}
+            >
+              <MaterialIcons name="search" size={21} color={colors.textSecondary} />
+              <TextInput
+                accessibilityLabel="Search recent recipients"
+                autoCapitalize="none"
+                onChangeText={setRecentModalSearch}
+                placeholder="Search name, bank or account"
+                placeholderTextColor={colors.textSecondary}
+                returnKeyType="search"
+                style={[styles.recentModalSearchInput, { color: colors.textPrimary }]}
+                value={recentModalSearch}
+              />
+              {recentModalSearch.length > 0 && (
+                <TouchableOpacity
+                  accessibilityLabel="Clear recipient search"
+                  accessibilityRole="button"
+                  hitSlop={8}
+                  onPress={() => setRecentModalSearch('')}
+                >
+                  <MaterialIcons name="cancel" size={19} color={colors.textSecondary} />
+                </TouchableOpacity>
+              )}
+            </View>
+
             <FlatList
               contentContainerStyle={styles.recentModalList}
-              data={RECENT_RECIPIENTS}
+              data={modalRecipients}
               keyExtractor={(item) => item.accountNumber}
+              keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
+              style={styles.recentModalFlatList}
+              ListEmptyComponent={(
+                <View style={styles.recentModalEmpty}>
+                  <MaterialIcons name="person-search" size={28} color={colors.textSecondary} />
+                  <Text style={[styles.recentModalEmptyText, { color: colors.textSecondary }]}>
+                    No recipients match your search
+                  </Text>
+                </View>
+              )}
               ItemSeparatorComponent={() => (
                 <View style={[styles.recentModalDivider, { backgroundColor: colors.border }]} />
               )}
@@ -1100,7 +1206,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     borderTopWidth: 1,
-    maxHeight: '80%',
+    height: '80%',
     overflow: 'hidden',
     width: '100%',
   },
@@ -1114,7 +1220,25 @@ const styles = StyleSheet.create({
   recentModalTitle: { fontSize: 19, fontWeight: '800', letterSpacing: -0.3 },
   recentModalSubtitle: { fontSize: 12, lineHeight: 18, marginTop: 4 },
   recentModalClose: { fontSize: 14, fontWeight: '700', paddingTop: 2 },
-  recentModalList: { paddingHorizontal: 18, paddingTop: 6, paddingBottom: 24 },
+  recentModalSearchBox: {
+    alignItems: 'center',
+    borderRadius: 25,
+    borderWidth: 1,
+    flexDirection: 'row',
+    gap: 10,
+    marginHorizontal: 18,
+    marginTop: 14,
+    minHeight: 48,
+    paddingHorizontal: 14,
+  },
+  recentModalSearchInput: { flex: 1, fontSize: 13, paddingVertical: 0 },
+  recentModalFlatList: { flex: 1, marginTop: 8 },
+  recentModalList: {
+    flexGrow: 1,
+    paddingBottom: 24,
+    paddingHorizontal: 18,
+    paddingTop: 2,
+  },
   recentModalRow: { alignItems: 'center', flexDirection: 'row', minHeight: 72 },
   recentModalAvatar: {
     alignItems: 'center',
@@ -1128,6 +1252,8 @@ const styles = StyleSheet.create({
   recentModalName: { fontSize: 14, fontWeight: '700' },
   recentModalMeta: { fontSize: 12, marginTop: 4 },
   recentModalDivider: { height: StyleSheet.hairlineWidth, marginLeft: 56 },
+  recentModalEmpty: { alignItems: 'center', flex: 1, justifyContent: 'center', paddingVertical: 40 },
+  recentModalEmptyText: { fontSize: 13, marginTop: 10 },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
