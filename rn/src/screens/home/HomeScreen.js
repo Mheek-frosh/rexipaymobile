@@ -392,7 +392,9 @@ export default function HomeScreen() {
                   {HOME_QUICK_SERVICES.map((item, index) => (
                     <TouchableOpacity key={index} style={styles.serviceItem} onPress={() => handleQuickService(item)}>
                       <View style={[styles.serviceCard, { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' }]}>
-                        <MaterialIcons name={item.icon} size={28} color={item.color} />
+                        <View style={[styles.serviceIconBox, { backgroundColor: colors.primaryLight }]}>
+                          <MaterialIcons name={item.icon} size={24} color={colors.primary} />
+                        </View>
                         <Text style={[styles.serviceText, { color: colors.textPrimary }]} numberOfLines={1}>{item.label}</Text>
                       </View>
                     </TouchableOpacity>
@@ -789,6 +791,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.03,
     shadowRadius: 6,
     elevation: 2,
+  },
+  serviceIconBox: {
+    alignItems: 'center',
+    borderRadius: 14,
+    height: 42,
+    justifyContent: 'center',
+    width: 42,
   },
   serviceText: {
     fontSize: 9.5,

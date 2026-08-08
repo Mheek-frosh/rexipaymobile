@@ -163,7 +163,7 @@ export default function DraggableQuickActions({
                 <View
                   style={[
                     styles.actionIconBox,
-                    { backgroundColor: isDark ? `${action.color}33` : action.bg },
+                    { backgroundColor: colors.primaryLight },
                     isDragging && {
                       borderWidth: 2.5,
                       borderColor: '#172FC7',
@@ -175,7 +175,7 @@ export default function DraggableQuickActions({
                     isEditing && !isDragging && styles.jiggleBorder,
                   ]}
                 >
-                  <MaterialIcons name={action.icon} size={21} color={action.color} />
+                  <MaterialIcons name={action.icon} size={21} color={colors.primary} />
                 </View>
                 <Text style={[styles.actionBtnText, { color: colors.textPrimary }]}>{action.label}</Text>
               </TouchableOpacity>
