@@ -225,7 +225,7 @@ const CustomTabBar = ({ state, navigation }) => {
         tint={glassTint}
         intensity={isIOS ? 94 : (isDark ? 72 : 82)}
         blurReductionFactor={isIOS ? 1 : 3}
-        experimentalBlurMethod={isIOS ? undefined : 'dimezisBlurView'}
+        blurMethod={isIOS ? undefined : 'dimezisBlurView'}
         onLayout={(event) => setTabBarWidth(event.nativeEvent.layout.width)}
         style={[
           styles.tabBar,

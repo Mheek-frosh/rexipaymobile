@@ -21,6 +21,7 @@ import AppBackButton from '../../components/AppBackButton';
 import { useWallet } from '../../context/WalletContext';
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as Haptics from 'expo-haptics';
+import { useAudioPlayer } from 'expo-audio';
 import { resolveAccount } from '../../services/bankService';
 import { NIGERIAN_BANKS } from '../../data/nigerianBanks';
 import TransactionProcessingModal from '../../components/TransactionProcessingModal';
@@ -362,6 +363,7 @@ function getRecipientInitials(name) {
 }
 
 export default function TransferScreen() {
+  const successPlayer = useAudioPlayer(null);
   const { colors } = useTheme();
   const { debitNgn } = useWallet();
   const navigation = useNavigation();
@@ -473,19 +475,12 @@ export default function TransferScreen() {
       // ignore haptic errors
     }
 
-    // Soft completion chime — load expo-av only here so missing/outdated native
-    // ExponentAV (Expo Go mismatch, dev client, etc.) does not crash app startup.
+    // The hook releases the player when this screen unmounts.
     try {
-      const { Audio } = await import('expo-av');
-      const { sound } = await Audio.Sound.createAsync({
+      successPlayer.replace({
         uri: 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3',
       });
-      await sound.playAsync();
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status?.didJustFinish) {
-          sound.unloadAsync();
-        }
-      });
+      successPlayer.play();
     } catch (_) {
       // ignore sound errors
     }

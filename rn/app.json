@@ -61,7 +61,8 @@
         {
           "faceIDPermission": "Allow RexiPay to use Face ID to securely unlock your app."
         }
-      ]
+      ],
+      "expo-asset"
     ],
     "extra": {
       "eas": {

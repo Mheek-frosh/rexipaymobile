@@ -2,6 +2,23 @@
 
 React Native version of the RexiPay mobile app, built with Expo.
 
+## Expo Go on iPhone
+
+This app targets Expo SDK 57. Use Expo Go for SDK 57 on your iPhone.
+After upgrading dependencies, stop any old Expo server and restart from this folder:
+
+```bash
+npm install
+npx expo start --go --clear
+```
+
+Scan the new QR code with your iPhone camera while the phone and computer are on
+the same Wi-Fi network. For a tunnel, use `npm run share -- --clear` instead.
+Run Expo commands from `rn`; the repository-root start scripts forward here.
+
+To check SDK dependency compatibility, run `npx expo install --check` and
+`npx expo-doctor`. Existing development builds must be rebuilt after this SDK upgrade.
+
 ## Setup
 
 1. Install dependencies:

@@ -16,10 +16,10 @@
     "share": "cd rn && npm run share"
   },
   "dependencies": {
-    "expo": "^55.0.23",
-    "expo-updates": "~55.0.24",
-    "react": "19.2.0",
-    "react-native": "0.83.6"
+    "expo": "~57.0.24",
+    "expo-updates": "~57.0.22",
+    "react": "19.2.3",
+    "react-native": "0.86.3"
   },
   "devDependencies": {
     "@expo/ngrok": "^4.1.3",

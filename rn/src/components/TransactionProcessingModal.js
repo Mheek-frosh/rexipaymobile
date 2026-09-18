@@ -28,7 +28,7 @@ export default function TransactionProcessingModal({
         <BlurView
           intensity={18}
           tint={isDark ? 'dark' : 'light'}
-          experimentalBlurMethod="dimezisBlurView"
+          blurMethod="dimezisBlurView"
           style={StyleSheet.absoluteFill}
         />
         <View
