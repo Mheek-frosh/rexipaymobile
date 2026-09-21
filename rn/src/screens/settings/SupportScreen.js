@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useRef, useState } from 'react';
 import {
   View,
@@ -127,11 +128,11 @@ export default function SupportScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}
     >
-      <View style={styles.header}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.header}>
         <AppBackButton onPress={() => navigation.goBack()} />
         <Text style={[styles.title, { color: colors.textPrimary }]}>Support</Text>
         <View style={{ width: 24 }} />
-      </View>
+      </SafeAreaView>
       <View style={styles.content}>
         <View style={[styles.botTopCard, { backgroundColor: colors.cardBackground }]}>
           <View style={[styles.botAvatar, { backgroundColor: colors.primaryLight }]}>
@@ -273,7 +274,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 12,
     paddingBottom: 16,
   },
   title: { fontSize: 18, fontWeight: '700' },

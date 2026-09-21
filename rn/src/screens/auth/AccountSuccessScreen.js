@@ -1,5 +1,7 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView,
+} from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../theme/ThemeContext';

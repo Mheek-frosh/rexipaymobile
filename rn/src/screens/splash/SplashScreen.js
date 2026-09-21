@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated, Dimensions } from 'react-native';
+import { StyleSheet, Animated, Dimensions } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../theme/ThemeContext';
 
 const { width } = Dimensions.get('window');
@@ -43,7 +44,7 @@ export default function SplashScreen({ onFinish }) {
   }, []);
 
   return (
-    <View
+    <SafeAreaView
       style={[
         styles.container,
         { backgroundColor: isDark ? '#0D0D0D' : '#FFFFFF' },
@@ -73,7 +74,7 @@ export default function SplashScreen({ onFinish }) {
           resizeMode="contain"
         />
       </Animated.View>
-    </View>
+    </SafeAreaView>
   );
 }
 

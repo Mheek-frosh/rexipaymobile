@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
@@ -213,11 +214,11 @@ export default function ScanToPayScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={[styles.container, { backgroundColor: colors.background }]}
     >
-      <View style={styles.header}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.header}>
         <AppBackButton onPress={() => navigation.goBack()} />
         <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Scan to Pay</Text>
         <View style={styles.headerSpacer} />
-      </View>
+      </SafeAreaView>
 
       <ScrollView
         contentContainerStyle={styles.content}
@@ -315,7 +316,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 12,
     paddingBottom: 16,
   },
   headerTitle: { fontSize: 18, fontWeight: '700' },

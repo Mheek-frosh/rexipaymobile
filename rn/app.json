@@ -5,16 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "icon": "./assets/images/png.png",
-    "splash": {
-      "image": "./assets/images/light-logo-splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff",
-      "dark": {
-        "image": "./assets/images/dark-logo-splash.png",
-        "backgroundColor": "#0D0D0D"
-      }
-    },
+    "icon": "./assets/images/app-icon.png",
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -30,7 +21,7 @@
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "backgroundColor": "#172FC7",
-        "foregroundImage": "./assets/images/png.png"
+        "foregroundImage": "./assets/images/app-icon-foreground.png"
       },
       "package": "com.rexipay.app",
       "permissions": [
@@ -62,7 +53,20 @@
           "faceIDPermission": "Allow RexiPay to use Face ID to securely unlock your app."
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/light-logo-splash.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff",
+          "dark": {
+            "image": "./assets/images/dark-logo-splash.png",
+            "backgroundColor": "#0D0D0D"
+          },
+          "imageWidth": 200
+        }
+      ]
     ],
     "extra": {
       "eas": {

@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View,
@@ -37,7 +38,7 @@ export default function CardsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.header}>
         <View style={{ width: 24 }} />
         <Text style={[styles.title, { color: colors.textPrimary }]}>Cards</Text>
         {HAS_VIRTUAL_CARD ? (
@@ -47,7 +48,7 @@ export default function CardsScreen() {
         ) : (
           <View style={{ width: 24 }} />
         )}
-      </View>
+      </SafeAreaView>
 
       <ScrollView
         contentContainerStyle={styles.content}
@@ -376,7 +377,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 12,
     paddingBottom: 16,
   },
   title: { fontSize: 18, fontWeight: '700' },

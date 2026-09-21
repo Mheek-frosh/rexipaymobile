@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { ClerkProvider, ClerkLoaded } from '@clerk/clerk-expo';
 import * as SecureStore from 'expo-secure-store';
 import { AuthProvider } from './src/context/AuthContext';
@@ -52,6 +52,19 @@ const tokenCache = {
 };
 
 export default function App() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider initialMetrics={initialWindowMetrics} style={{ flex: 1 }}>
+        <ThemeProvider>
+          <StatusBar style="auto" />
+          <AppContent />
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
+  );
+}
+
+function AppContent() {
   const [splashDone, setSplashDone] = useState(false);
   const [showRouteSkeleton, setShowRouteSkeleton] = useState(false);
   const [routeSkeletonName, setRouteSkeletonName] = useState(null);
@@ -95,47 +108,32 @@ export default function App() {
   };
 
   if (!splashDone) {
-    return (
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <SafeAreaProvider>
-          <ThemeProvider>
-            <StatusBar style="auto" />
-            <SplashScreen onFinish={() => setSplashDone(true)} />
-          </ThemeProvider>
-        </SafeAreaProvider>
-      </GestureHandlerRootView>
-    );
+    return <SplashScreen onFinish={() => setSplashDone(true)} />;
   }
 
   return (
     <ClerkProvider tokenCache={tokenCache} publishableKey={CLERK_PUBLISHABLE_KEY}>
       <ClerkLoaded>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <SafeAreaProvider>
-            <ThemeProvider>
-              <AuthProvider>
-                <WalletProvider>
-                  <AppLockGate>
-                    <NotificationProvider>
-                      <View style={{ flex: 1 }}>
-                        <NavigationContainer
-                          ref={navigationRef}
-                          onStateChange={handleNavigationStateChange}
-                        >
-                          <StatusBar style="auto" />
-                          <RootNavigator />
-                        </NavigationContainer>
-                        {showRouteSkeleton && (
-                          <ScreenTransitionSkeleton routeName={routeSkeletonName} />
-                        )}
-                      </View>
-                    </NotificationProvider>
-                  </AppLockGate>
-                </WalletProvider>
-              </AuthProvider>
-            </ThemeProvider>
-          </SafeAreaProvider>
-        </GestureHandlerRootView>
+        <AuthProvider>
+          <WalletProvider>
+            <AppLockGate>
+              <NotificationProvider>
+                <View style={{ flex: 1 }}>
+                  <NavigationContainer
+                    ref={navigationRef}
+                    onStateChange={handleNavigationStateChange}
+                  >
+                    <StatusBar style="auto" />
+                    <RootNavigator />
+                  </NavigationContainer>
+                  {showRouteSkeleton && (
+                    <ScreenTransitionSkeleton routeName={routeSkeletonName} />
+                  )}
+                </View>
+              </NotificationProvider>
+            </AppLockGate>
+          </WalletProvider>
+        </AuthProvider>
       </ClerkLoaded>
     </ClerkProvider>
   );

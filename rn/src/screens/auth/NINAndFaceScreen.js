@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View,
@@ -6,7 +7,6 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
-  SafeAreaView,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';

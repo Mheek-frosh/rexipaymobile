@@ -3,8 +3,6 @@ import {
   AccessibilityInfo,
   Animated,
   Dimensions,
-  Platform,
-  StatusBar,
   StyleSheet,
   View,
 } from 'react-native';
@@ -77,7 +75,7 @@ export default function ScreenTransitionSkeleton({ routeName }) {
         styles.overlay,
         {
           backgroundColor: colors.background,
-          paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 10 : 54,
+          paddingTop: insets.top + 12,
           bottom:
             Math.max(insets.bottom, 10) +
             COMPACT_TAB_BAR_HEIGHT +

@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
@@ -265,11 +266,11 @@ export default function OfflinePayScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.appBar}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.appBar}>
         <AppBackButton onPress={() => mode === 'main' ? navigation.goBack() : setMode('main')} />
         <Text style={[styles.appBarTitle, { color: colors.textPrimary }]}>Offline Pay</Text>
         <View style={{ width: 24 }} />
-      </View>
+      </SafeAreaView>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Status Banner */}
@@ -627,7 +628,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 12,
     paddingBottom: 16,
   },
   appBarTitle: { fontSize: 18, fontWeight: '700' },

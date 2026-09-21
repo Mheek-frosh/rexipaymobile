@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSignUp } from '@clerk/clerk-expo';
 import { useNavigation } from '@react-navigation/native';
 import { Eye, EyeSlash } from 'iconsax-react-native';
@@ -6,7 +7,6 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,

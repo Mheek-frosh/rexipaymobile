@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -59,11 +60,11 @@ export default function SettingsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.header}>
         <AppBackButton onPress={() => navigation.goBack()} />
         <Text style={[styles.title, { color: colors.textPrimary }]}>Settings</Text>
         <View style={{ width: 24 }} />
-      </View>
+      </SafeAreaView>
       <ScrollView contentContainerStyle={styles.content}>
         {SETTINGS_SECTIONS.map((section, si) => (
           <View key={si} style={styles.section}>
@@ -123,7 +124,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 12,
     paddingBottom: 16,
   },
   title: { fontSize: 18, fontWeight: '700' },

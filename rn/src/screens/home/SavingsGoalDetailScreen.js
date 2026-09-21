@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useCallback, useState } from 'react';
 import {
   View,
@@ -134,7 +135,7 @@ export default function SavingsGoalDetailScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.header}>
         <AppBackButton
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           onPress={() => navigation.goBack()}
@@ -143,7 +144,7 @@ export default function SavingsGoalDetailScreen() {
           {goal.name}
         </Text>
         <View style={{ width: 24 }} />
-      </View>
+      </SafeAreaView>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={[styles.hero, { backgroundColor: colors.primary }]}>
@@ -289,7 +290,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 12,
     paddingBottom: 8,
   },
   title: { fontSize: 18, fontWeight: '700', flex: 1, textAlign: 'center', marginHorizontal: 8 },

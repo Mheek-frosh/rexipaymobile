@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useRef } from 'react';
 import {
   View,
@@ -97,11 +98,11 @@ export default function DebitCardTransactionDetailScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.header}>
         <AppBackButton onPress={() => navigation.goBack()} style={styles.headerBtn} />
         <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Transaction Details</Text>
         <View style={styles.headerBtn} />
-      </View>
+      </SafeAreaView>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View ref={viewRef} collapsable={false} style={[styles.card, { backgroundColor: colors.cardBackground }]}>
@@ -157,7 +158,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 50,
+    paddingTop: 12,
     paddingBottom: 16,
   },
   headerBtn: { width: 40 },

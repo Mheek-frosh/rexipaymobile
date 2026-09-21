@@ -18,6 +18,7 @@ import PrimaryButton from '../../components/PrimaryButton';
 import { COUNTRIES } from '../../data/countries';
 import { useTheme } from '../../theme/ThemeContext';
 import AppBackButton from '../../components/AppBackButton';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const defaultCountry = COUNTRIES[0];
 
@@ -27,6 +28,7 @@ function isValidEmail(value) {
 }
 
 export default function LoginScreen() {
+  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const { signIn, isLoaded, setActive } = useSignIn();
   const { signOut } = useClerkAuth();
@@ -113,7 +115,7 @@ export default function LoginScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
-        contentContainerStyle={styles.scroll}
+        contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 40 }]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >

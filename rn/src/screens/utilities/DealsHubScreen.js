@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -24,14 +25,14 @@ export default function DealsHubScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.header}>
         <AppBackButton
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           onPress={() => navigation.goBack()}
         />
         <Text style={[styles.title, { color: colors.textPrimary }]}>Deals</Text>
         <View style={{ width: 24 }} />
-      </View>
+      </SafeAreaView>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={[styles.sub, { color: colors.textSecondary }]}>
@@ -66,7 +67,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 12,
     paddingBottom: 12,
   },
   title: { fontSize: 18, fontWeight: '700' },

@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View,
@@ -51,11 +52,11 @@ export default function ChangePinScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.header}>
         <AppBackButton onPress={() => navigation.goBack()} />
         <Text style={[styles.title, { color: colors.textPrimary }]}>Change PIN</Text>
         <View style={{ width: 24 }} />
-      </View>
+      </SafeAreaView>
 
       <View style={styles.content}>
         <View style={[styles.iconWrap, { backgroundColor: colors.primaryLight }]}>
@@ -102,7 +103,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 12,
     paddingBottom: 16,
   },
   title: { fontSize: 18, fontWeight: '700' },

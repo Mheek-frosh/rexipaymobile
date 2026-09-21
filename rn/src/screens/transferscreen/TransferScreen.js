@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
@@ -543,11 +544,11 @@ export default function TransferScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.appBar}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.appBar}>
         <AppBackButton onPress={() => navigation.goBack()} />
         <Text style={[styles.appBarTitle, { color: colors.textPrimary }]}>Transfer to Bank</Text>
         <View style={{ width: 40 }} />
-      </View>
+      </SafeAreaView>
 
       <ScrollView
         contentContainerStyle={styles.content}
@@ -1040,7 +1041,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 12,
     paddingBottom: 16,
   },
   appBarTitle: { fontSize: 18, fontWeight: '700' },

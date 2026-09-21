@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View,
@@ -94,11 +95,11 @@ export default function ProfileScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.appBar}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.appBar}>
         <View style={{ width: 24 }} />
         <Text style={[styles.appBarTitle, { color: colors.textPrimary }]}>My Profile</Text>
         <View style={{ width: 24 }} />
-      </View>
+      </SafeAreaView>
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* User Info Card */}
@@ -232,7 +233,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 12,
     paddingBottom: 16,
   },
   appBarTitle: { fontSize: 18, fontWeight: '700' },

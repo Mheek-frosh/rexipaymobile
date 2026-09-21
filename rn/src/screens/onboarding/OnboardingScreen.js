@@ -3,18 +3,15 @@ import {
   View,
   Text,
   StyleSheet,
-  Dimensions,
   TouchableOpacity,
   Platform,
   ScrollView,
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import PrimaryButton from '../../components/PrimaryButton';
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const ACCENT = '#172FC7';
 
@@ -59,7 +56,7 @@ function CarouselSlide({ item }) {
     <View style={styles.slide}>
       <Image source={{ uri: item.imageUri }} style={styles.slideImage} resizeMode="cover" />
       <View style={styles.imageOverlay} />
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} style={styles.slideScroll} contentInsetAdjustmentBehavior="never" showsVerticalScrollIndicator={false}>
         <View style={styles.iconWrap}>
           <MaterialIcons name={item.icon} size={36} color={ACCENT} />
         </View>
@@ -69,7 +66,7 @@ function CarouselSlide({ item }) {
         </Text>
         <Text style={[styles.subHeader, styles.textShadow]}>{item.subHeader}</Text>
         <Text style={[styles.description, styles.textShadow]}>{item.description}</Text>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -78,53 +75,35 @@ const AUTO_LOOP_MS = 4200;
 
 export default function OnboardingScreen() {
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
   const scrollRef = useRef(null);
   const activeIndexRef = useRef(0);
   const [activeIndex, setActiveIndex] = useState(0);
-
-  const loopData = [carouselItems[2], carouselItems[0], carouselItems[1], carouselItems[2], carouselItems[0]];
-
-  useEffect(() => {
-    activeIndexRef.current = activeIndex;
-  }, [activeIndex]);
+  const [pageWidth, setPageWidth] = useState(0);
+  const [dragging, setDragging] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => {
-      scrollRef.current?.scrollTo({ x: SCREEN_WIDTH, animated: false });
-    }, 50);
-    return () => clearTimeout(t);
-  }, []);
+    if (pageWidth) scrollRef.current?.scrollTo({ x: activeIndexRef.current * pageWidth, animated: false });
+  }, [pageWidth]);
 
-  // Auto-advance through the three slides on a repeating loop (synced with infinite scroll clones)
+  // Pause while off-screen or dragging so timed scrolling never fights a swipe.
   useEffect(() => {
-    const id = setInterval(() => {
-      const i = activeIndexRef.current;
-      if (i < 2) {
-        scrollRef.current?.scrollTo({ x: (i + 2) * SCREEN_WIDTH, animated: true });
-      } else {
-        scrollRef.current?.scrollTo({ x: 4 * SCREEN_WIDTH, animated: true });
-      }
+    if (!isFocused || dragging || !pageWidth) return;
+    const id = setTimeout(() => {
+      const next = (activeIndexRef.current + 1) % carouselItems.length;
+      scrollRef.current?.scrollTo({ x: next * pageWidth, animated: next !== 0 });
+      activeIndexRef.current = next;
+      setActiveIndex(next);
     }, AUTO_LOOP_MS);
-    return () => clearInterval(id);
-  }, []);
+    return () => clearTimeout(id);
+  }, [activeIndex, dragging, isFocused, pageWidth]);
 
   const handleScroll = (e) => {
     const x = e.nativeEvent.contentOffset.x;
-    const page = Math.round(x / SCREEN_WIDTH);
-    const realIndex = page === 0 ? 2 : page === 4 ? 0 : page - 1;
-    setActiveIndex(realIndex);
-  };
-
-  const handleMomentumScrollEnd = (e) => {
-    const x = e.nativeEvent.contentOffset.x;
-    const page = Math.round(x / SCREEN_WIDTH);
-    if (page === 0) {
-      scrollRef.current?.scrollTo({ x: SCREEN_WIDTH * 3, animated: false });
-      setActiveIndex(2);
-    } else if (page === 4) {
-      scrollRef.current?.scrollTo({ x: SCREEN_WIDTH, animated: false });
-      setActiveIndex(0);
-    }
+    if (!pageWidth) return;
+    const page = Math.max(0, Math.min(carouselItems.length - 1, Math.round(x / pageWidth)));
+    activeIndexRef.current = page;
+    setActiveIndex(page);
   };
 
   const handleGetStarted = () => navigation.replace('Signup');
@@ -132,34 +111,39 @@ export default function OnboardingScreen() {
 
   return (
     <View style={styles.container}>
+      <SafeAreaView style={styles.topSafe} edges={['top', 'left', 'right']}>
+        <TouchableOpacity style={styles.skipBtn} onPress={handleSkip} activeOpacity={0.8}>
+          <Text style={styles.skipText}>Skip</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+      <View style={styles.carouselWrap} onLayout={event => setPageWidth(event.nativeEvent.layout.width)}>
+      {pageWidth > 0 && (
       <ScrollView
         ref={scrollRef}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         onScroll={handleScroll}
-        onMomentumScrollEnd={handleMomentumScrollEnd}
+        onScrollBeginDrag={() => setDragging(true)}
+        onScrollEndDrag={() => setDragging(false)}
+        onMomentumScrollEnd={handleScroll}
+        contentInsetAdjustmentBehavior="never"
+        automaticallyAdjustContentInsets={false}
         scrollEventThrottle={16}
         contentContainerStyle={styles.carousel}
         bounces={false}
         decelerationRate="fast"
-        style={styles.carouselWrap}
+        style={styles.slideScroll}
       >
-        {loopData.map((item, index) => (
-          <View key={`${item.id}-${index}`} style={[styles.slideContainer, { width: SCREEN_WIDTH }]}>
+        {carouselItems.map(item => (
+          <View key={item.id} style={[styles.slideContainer, { width: pageWidth }]}>
             <CarouselSlide item={item} />
           </View>
         ))}
       </ScrollView>
-
-      <View style={styles.overlay} pointerEvents="box-none">
-        <SafeAreaView style={styles.topSafe} edges={['top']}>
-          <TouchableOpacity style={styles.skipBtn} onPress={handleSkip} activeOpacity={0.8}>
-            <Text style={styles.skipText}>Skip</Text>
-          </TouchableOpacity>
-        </SafeAreaView>
-
-        <View style={styles.footer}>
+      )}
+      </View>
+        <SafeAreaView style={styles.footer} edges={['bottom', 'left', 'right']}>
           <View style={styles.dots}>
             {carouselItems.map((_, i) => (
               <View
@@ -179,8 +163,7 @@ export default function OnboardingScreen() {
             onPress={handleGetStarted}
             style={styles.getStartedBtn}
           />
-        </View>
-      </View>
+        </SafeAreaView>
     </View>
   );
 }
@@ -191,14 +174,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
   },
   carouselWrap: {
-    ...StyleSheet.absoluteFillObject,
+    flex: 1,
+    minHeight: 0,
+    overflow: 'hidden',
   },
   carousel: {
-    height: SCREEN_HEIGHT,
+    alignItems: 'stretch',
   },
   slideContainer: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
+    height: '100%',
   },
   slide: {
     flex: 1,
@@ -215,10 +199,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.45)',
   },
   content: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'flex-end',
     paddingHorizontal: 24,
-    paddingBottom: 180,
+    paddingVertical: 24,
+  },
+  slideScroll: {
+    flex: 1,
   },
   iconWrap: {
     width: 56,
@@ -262,13 +249,11 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     color: 'rgba(255,255,255,0.85)',
   },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'space-between',
-  },
   topSafe: {
     alignSelf: 'stretch',
     alignItems: 'flex-end',
+    flexShrink: 0,
+    paddingBottom: 12,
   },
   skipBtn: {
     marginRight: 24,
@@ -296,7 +281,9 @@ const styles = StyleSheet.create({
   },
   footer: {
     paddingHorizontal: 24,
-    paddingBottom: Platform.OS === 'ios' ? 44 : 28,
+    paddingTop: 20,
+    paddingBottom: 16,
+    flexShrink: 0,
   },
   dots: {
     flexDirection: 'row',

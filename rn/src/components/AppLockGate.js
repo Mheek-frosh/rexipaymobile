@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth as useClerkAuth, useUser } from '@clerk/clerk-expo';
 import * as Haptics from 'expo-haptics';
@@ -9,7 +10,7 @@ import {
   ActivityIndicator,
   Animated,
   AppState,
-  SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -83,7 +84,7 @@ function AppLockScreen({
 
   const horizontalPadding = 40;
   const pinGap = 12;
-  const pinSize = 60;
+  const pinSize = Math.min(60, (width - horizontalPadding * 2 - 24 - pinGap * 3) / 4);
   const pinHeight = 65;
   const keyHeight = compact ? 65 : 75;
 
@@ -105,159 +106,161 @@ function AppLockScreen({
         { backgroundColor: colors.background, paddingHorizontal: horizontalPadding },
       ]}
     >
-      <View style={styles.header}>
-        <View
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.lockContent} showsVerticalScrollIndicator={false} contentInsetAdjustmentBehavior="never">
+        <View style={styles.header}>
+          <View
+            style={[
+              styles.avatar,
+              {
+                backgroundColor: colors.surfaceVariant,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.avatarInitial,
+                { color: colors.textPrimary },
+              ]}
+            >
+              {initials}
+            </Text>
+          </View>
+          <Text
+            style={[styles.welcome, { color: colors.textPrimary }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.78}
+          >
+            Welcome Back {firstName}
+          </Text>
+          <Text
+            style={[
+              styles.instruction,
+              { color: colors.textSecondary },
+            ]}
+          >
+            Enter your 4-Digit PIN
+          </Text>
+        </View>
+
+        <Animated.View
           style={[
-            styles.avatar,
+            styles.pinArea,
             {
-              backgroundColor: colors.surfaceVariant,
+              transform: [{ translateX: shakeValue }],
             },
           ]}
         >
+          <View style={[styles.pinRow, { gap: pinGap }]}>
+            {[0, 1, 2, 3].map((index) => (
+              <View
+                key={index}
+                style={[
+                  styles.pinBox,
+                  {
+                    width: pinSize,
+                    height: pinHeight,
+                    borderColor: error ? colors.error : colors.border,
+                    backgroundColor: colors.cardBackground,
+                  },
+                ]}
+              >
+                {index < pin.length ? (
+                  <View
+                    style={[
+                      styles.pinDot,
+                      { backgroundColor: error ? colors.error : colors.textPrimary },
+                    ]}
+                  />
+                ) : null}
+              </View>
+            ))}
+          </View>
           <Text
             style={[
-              styles.avatarInitial,
-              { color: colors.textPrimary },
+              styles.errorText,
+              { color: error ? colors.error : 'transparent' },
             ]}
           >
-            {initials}
+            {error || 'Passcode'}
           </Text>
+        </Animated.View>
+
+        <View style={styles.keypad}>
+          {KEYPAD_KEYS.map((key) => {
+            const isBiometric = key === 'biometric';
+            const isBackspace = key === 'backspace';
+            const disabled = verifying;
+
+            return (
+              <TouchableOpacity
+                key={key}
+                style={[
+                  styles.key,
+                  { height: keyHeight },
+                  disabled && styles.keyDisabled,
+                ]}
+                activeOpacity={0.65}
+                disabled={disabled}
+                onPress={() => onKeyPress(key)}
+                accessibilityRole="button"
+                accessibilityLabel={
+                  isBiometric
+                    ? 'Unlock with biometrics'
+                    : isBackspace
+                      ? 'Delete digit'
+                      : `Digit ${key}`
+                }
+              >
+                {isBiometric ? (
+                  <FaceIdIcon color={colors.textPrimary} size={32} />
+                ) : isBackspace ? (
+                  <MaterialIcons
+                    name="chevron-left"
+                    size={36}
+                    color={colors.error}
+                  />
+                ) : (
+                  <Text
+                    style={[
+                      styles.keyText,
+                      { color: colors.textPrimary },
+                    ]}
+                  >
+                    {key}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            );
+          })}
         </View>
-        <Text
-          style={[styles.welcome, { color: colors.textPrimary }]}
-          numberOfLines={1}
-          adjustsFontSizeToFit
-          minimumFontScale={0.78}
-        >
-          Welcome Back {firstName}
-        </Text>
-        <Text
-          style={[
-            styles.instruction,
-            { color: colors.textSecondary },
-          ]}
-        >
-          Enter your 4-Digit PIN
-        </Text>
-      </View>
 
-      <Animated.View
-        style={[
-          styles.pinArea,
-          {
-            transform: [{ translateX: shakeValue }],
-          },
-        ]}
-      >
-        <View style={[styles.pinRow, { gap: pinGap }]}>
-          {[0, 1, 2, 3].map((index) => (
-            <View
-              key={index}
-              style={[
-                styles.pinBox,
-                {
-                  width: pinSize,
-                  height: pinHeight,
-                  borderColor: error ? colors.error : colors.border,
-                  backgroundColor: colors.cardBackground,
-                },
-              ]}
-            >
-              {index < pin.length ? (
-                <View
-                  style={[
-                    styles.pinDot,
-                    { backgroundColor: error ? colors.error : colors.textPrimary },
-                  ]}
-                />
-              ) : null}
-            </View>
-          ))}
-        </View>
-        <Text
-          style={[
-            styles.errorText,
-            { color: error ? colors.error : 'transparent' },
-          ]}
-        >
-          {error || 'Passcode'}
-        </Text>
-      </Animated.View>
-
-      <View style={styles.keypad}>
-        {KEYPAD_KEYS.map((key) => {
-          const isBiometric = key === 'biometric';
-          const isBackspace = key === 'backspace';
-          const disabled = verifying;
-
-          return (
-            <TouchableOpacity
-              key={key}
-              style={[
-                styles.key,
-                { height: keyHeight },
-                disabled && styles.keyDisabled,
-              ]}
-              activeOpacity={0.65}
-              disabled={disabled}
-              onPress={() => onKeyPress(key)}
-              accessibilityRole="button"
-              accessibilityLabel={
-                isBiometric
-                  ? 'Unlock with biometrics'
-                  : isBackspace
-                    ? 'Delete digit'
-                    : `Digit ${key}`
-              }
-            >
-              {isBiometric ? (
-                <FaceIdIcon color={colors.textPrimary} size={32} />
-              ) : isBackspace ? (
-                <MaterialIcons
-                  name="chevron-left"
-                  size={36}
-                  color={colors.error}
-                />
-              ) : (
-                <Text
-                  style={[
-                    styles.keyText,
-                    { color: colors.textPrimary },
-                  ]}
-                >
-                  {key}
-                </Text>
-              )}
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-
-      <View style={styles.logoutRow}>
-        <Text
-          style={[
-            styles.logoutPrompt,
-            { color: colors.textSecondary },
-          ]}
-        >
-          Not your account?
-        </Text>
-        <TouchableOpacity
-          onPress={onLogout}
-          activeOpacity={0.65}
-          accessibilityRole="button"
-          accessibilityLabel="Log out"
-        >
+        <View style={styles.logoutRow}>
           <Text
             style={[
-              styles.logoutLink,
-              { color: colors.primary },
+              styles.logoutPrompt,
+              { color: colors.textSecondary },
             ]}
           >
-            Log out
+            Not your account?
           </Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            onPress={onLogout}
+            activeOpacity={0.65}
+            accessibilityRole="button"
+            accessibilityLabel="Log out"
+          >
+            <Text
+              style={[
+                styles.logoutLink,
+                { color: colors.primary },
+              ]}
+            >
+              Log out
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -578,7 +581,6 @@ export default function AppLockGate({ children }) {
 
   return (
     <View style={contentStyle}>
-      {children}
       {locked && lockEnabled ? (
         <AppLockScreen
           displayName={displayName}
@@ -591,7 +593,7 @@ export default function AppLockGate({ children }) {
           onKeyPress={handleKeyPress}
           onLogout={handleLogout}
         />
-      ) : null}
+      ) : children}
     </View>
   );
 }
@@ -606,9 +608,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   lockScreen: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 1000,
-    elevation: 1000,
+    flex: 1,
+  },
+  lockContent: {
+    flexGrow: 1,
+    paddingBottom: 24,
   },
   header: {
     alignItems: 'flex-start',
@@ -662,7 +666,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     width: '100%',
-    height: 20,
+    minHeight: 20,
     fontSize: 14,
     fontWeight: '500',
     marginTop: 12,
@@ -675,6 +679,8 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     marginTop: 'auto',
+    paddingTop: 24,
+    flexShrink: 0,
   },
   key: {
     width: '30%',
@@ -690,6 +696,7 @@ const styles = StyleSheet.create({
   },
   logoutRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
