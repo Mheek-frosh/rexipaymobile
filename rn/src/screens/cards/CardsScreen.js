@@ -77,11 +77,11 @@ export default function CardsScreen() {
               Create your virtual card to start spending securely online.
             </Text>
             <TouchableOpacity
-              style={[styles.createCardButton, { backgroundColor: colors.primary }]}
+              style={[styles.createCardButton, { backgroundColor: colors.primary, borderRadius: colors.buttonRadius }]}
               onPress={() => navigation.navigate('ChooseCard')}
               activeOpacity={0.86}
             >
-              <Text style={styles.createCardButtonText}>Create Virtual Card</Text>
+              <Text style={[styles.createCardButtonText, { color: colors.onPrimary }]}>Create Virtual Card</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -99,7 +99,7 @@ export default function CardsScreen() {
             <Text
               style={[
                 styles.tabText,
-                { color: selectedTab === 0 ? '#FFF' : colors.primary },
+                { color: selectedTab === 0 ? colors.onPrimary : colors.primary },
               ]}
             >
               Details
@@ -116,7 +116,7 @@ export default function CardsScreen() {
             <Text
               style={[
                 styles.tabText,
-                { color: selectedTab === 1 ? '#FFF' : colors.primary },
+                { color: selectedTab === 1 ? colors.onPrimary : colors.primary },
               ]}
             >
               Transactions
@@ -130,7 +130,7 @@ export default function CardsScreen() {
           <>
             {/* Virtual Card */}
             <View style={styles.cardContainer}>
-              <View style={[styles.virtualCard, { backgroundColor: '#172FC7' }]}>
+              <View style={[styles.virtualCard, { backgroundColor: colors.heroBackground }]}>
                 <View style={styles.cardTop}>
                   <Text style={styles.cardDebit}>Debit.</Text>
                   <Text style={styles.cardBrand}>Rexipay</Text>
@@ -169,7 +169,7 @@ export default function CardsScreen() {
                   style={[styles.editBtn, { backgroundColor: colors.primary }]}
                   onPress={() => navigation.navigate('ChangeLimit')}
                 >
-                  <Text style={styles.editBtnText}>Edit</Text>
+                  <Text style={[styles.editBtnText, { color: colors.onPrimary }]}>Edit</Text>
                 </TouchableOpacity>
               </View>
               <View style={[styles.limitDivider, { backgroundColor: colors.border }]} />

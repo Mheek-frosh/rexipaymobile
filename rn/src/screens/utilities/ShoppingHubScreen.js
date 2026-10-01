@@ -15,7 +15,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
 import AppBackButton from '../../components/AppBackButton';
-import { COLORS } from '../../theme/theme';
 import { fetchShoppingStores, getDefaultShoppingStores } from '../../services/appContentService';
 
 const SIDE = 16;
@@ -57,12 +56,12 @@ export default function ShoppingHubScreen() {
       const data = await fetchShoppingStores();
       if (!mounted) return;
       const list = Array.isArray(data) && data.length > 0 ? data : getDefaultShoppingStores();
-      setStores(list.map((s) => normalizeStore(s, COLORS.primary)));
+      setStores(list.map((s) => normalizeStore(s, colors.primary)));
     })();
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [colors.primary]);
 
   const openStore = useCallback(async (item) => {
     if (!item.url) {

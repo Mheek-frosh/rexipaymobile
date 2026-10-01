@@ -171,7 +171,7 @@ export default function ProfileScreen() {
               />
             </View>
             <Text style={[styles.menuTitle, { color: colors.textPrimary }]}>
-              {isDark ? 'Light' : 'Dark'}
+              {isDark ? 'Light mode' : 'Dark mode'}
             </Text>
             <Switch
               value={isDark}
@@ -181,7 +181,9 @@ export default function ProfileScreen() {
             />
           </TouchableOpacity>
 
-          {MENU_ITEMS.map((item, i) => (
+          {MENU_ITEMS.map((item, i) => {
+            const brandIcon = item.iconColor === '#172FC7';
+            return (
             <TouchableOpacity
               key={i}
               style={[styles.menuItem, { borderBottomColor: colors.border }]}
@@ -191,7 +193,9 @@ export default function ProfileScreen() {
                 style={[
                   styles.menuIconBg,
                   {
-                    backgroundColor: isDark
+                    backgroundColor: brandIcon
+                      ? colors.primaryLight
+                      : isDark
                       ? `${item.iconBg || '#666'}33`
                       : item.iconBg || '#E0E0E0',
                   },
@@ -200,7 +204,7 @@ export default function ProfileScreen() {
                 <MaterialIcons
                   name={item.icon}
                   size={20}
-                  color={item.iconColor || colors.textSecondary}
+                  color={brandIcon ? colors.primary : (item.iconColor || colors.textSecondary)}
                 />
               </View>
               <Text style={[styles.menuTitle, { color: colors.textPrimary }]}>{item.title}</Text>
@@ -208,7 +212,8 @@ export default function ProfileScreen() {
                 <MaterialIcons name="chevron-right" size={24} color={colors.textSecondary} />
               )}
             </TouchableOpacity>
-          ))}
+            );
+          })}
         </View>
       </ScrollView>
 

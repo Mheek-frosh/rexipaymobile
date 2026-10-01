@@ -69,7 +69,7 @@ export default function ReferralEarnScreen() {
       </SafeAreaView>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={[styles.hero, { backgroundColor: colors.primary }]}>
+        <View style={[styles.hero, { backgroundColor: colors.heroBackground }]}>
           <MaterialIcons name="card-giftcard" size={40} color="rgba(255,255,255,0.95)" />
           <Text style={styles.heroTitle}>Invite friends, earn rewards</Text>
           <Text style={styles.heroSub}>
@@ -91,12 +91,12 @@ export default function ReferralEarnScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.shareBtn, { backgroundColor: colors.primary }]}
+          style={[styles.shareBtn, { backgroundColor: colors.primary, borderRadius: colors.buttonRadius }]}
           onPress={shareInvite}
           activeOpacity={0.9}
         >
-          <MaterialIcons name="share" size={20} color="#FFF" />
-          <Text style={styles.shareBtnText}>Share invite link</Text>
+          <MaterialIcons name="share" size={20} color={colors.onPrimary} />
+          <Text style={[styles.shareBtnText, { color: colors.onPrimary }]}>Share invite link</Text>
         </TouchableOpacity>
 
         <View style={styles.statsRow}>

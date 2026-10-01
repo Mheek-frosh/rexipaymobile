@@ -21,7 +21,6 @@ export default function DraggableQuickActions({
   setQuickActions,
   isEditing,
   setIsEditing,
-  isDark,
   colors,
   navigation,
 }) {
@@ -97,27 +96,27 @@ export default function DraggableQuickActions({
         <TouchableOpacity
           style={[
             styles.editBtn,
-            isEditing && { backgroundColor: '#172FC7', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+            isEditing && { backgroundColor: colors.primary, paddingHorizontal: 10, paddingVertical: 4, borderRadius: colors.buttonRadius },
           ]}
           onPress={() => {
             setIsEditing(!isEditing);
             setDraggingIndex(null);
           }}
         >
-          <Text style={[styles.editText, isEditing && { color: '#FFF' }]}>
+          <Text style={[styles.editText, { color: isEditing ? colors.onPrimary : colors.primary }]}>
             {isEditing ? 'Done' : 'Edit'}
           </Text>
           <MaterialIcons
             name={isEditing ? 'check' : 'edit'}
             size={13}
-            color={isEditing ? '#FFF' : '#172FC7'}
+            color={isEditing ? colors.onPrimary : colors.primary}
           />
         </TouchableOpacity>
       </View>
 
       {isEditing && (
         <View style={styles.reorderHintBar}>
-          <MaterialIcons name="touch-app" size={14} color="#172FC7" />
+          <MaterialIcons name="touch-app" size={14} color={colors.primary} />
           <Text style={[styles.reorderHintText, { color: colors.textSecondary }]}>
             Drag any icon left or right to reorder slots
           </Text>
@@ -127,8 +126,8 @@ export default function DraggableQuickActions({
       <View
         style={[
           styles.quickActionsRow,
-          { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' },
-          isEditing && { borderWidth: 1.5, borderColor: '#172FC766' },
+          { backgroundColor: colors.cardBackground },
+          isEditing && { borderWidth: 1.5, borderColor: colors.primary },
         ]}
       >
         {quickActions.map((action, index) => {
@@ -166,8 +165,8 @@ export default function DraggableQuickActions({
                     { backgroundColor: colors.primaryLight },
                     isDragging && {
                       borderWidth: 2.5,
-                      borderColor: '#172FC7',
-                      shadowColor: '#172FC7',
+                      borderColor: colors.primary,
+                      shadowColor: colors.primary,
                       shadowOffset: { width: 0, height: 4 },
                       shadowOpacity: 0.35,
                       shadowRadius: 8,
@@ -204,7 +203,6 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   editText: {
-    color: '#172FC7',
     fontSize: 12,
     fontWeight: '600',
   },

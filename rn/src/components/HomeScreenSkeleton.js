@@ -68,9 +68,9 @@ export default function HomeScreenSkeleton() {
     };
   }, [shimmerProgress]);
 
-  const baseColor = isDark ? '#242832' : '#E9ECF2';
+  const baseColor = colors.surfaceVariant;
   const highlightColor = isDark ? 'rgba(255,255,255,0.09)' : 'rgba(255,255,255,0.72)';
-  const cardColor = isDark ? '#181B22' : '#FFFFFF';
+  const cardColor = colors.cardBackground;
   const shimmerTranslate = shimmerProgress.interpolate({
     inputRange: [0, 1],
     outputRange: [-110, CONTENT_WIDTH + 110],

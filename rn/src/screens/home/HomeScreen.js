@@ -36,7 +36,7 @@ const { width } = Dimensions.get('window');
 const SIDE = 20;
 const INITIAL_SKELETON_DURATION = 4000;
 export default function HomeScreen() {
-  const { colors, isDark } = useTheme();
+  const { colors, isDark, palette } = useTheme();
   const { userName } = useAuth();
   const { notifications } = useNotifications();
   const { ngnBalance } = useWallet();
@@ -212,7 +212,7 @@ export default function HomeScreen() {
         {/* PULL TO REFRESH IOS SPINNER (#172FC7) */}
         {refreshing && (
           <View style={styles.pullRefreshBox}>
-            <IosSpinner size={34} color="#172FC7" />
+            <IosSpinner size={34} color={colors.primary} />
             <Text style={[styles.pullRefreshText, { color: colors.textSecondary }]}>Updating dashboard...</Text>
           </View>
         )}
@@ -221,7 +221,7 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <TouchableOpacity onPress={() => navigation.navigate('AccountDetails')}>
-              <View style={[styles.avatarContainer, { backgroundColor: isDark ? '#2C2F3A' : '#E5E7EB' }]}>
+              <View style={[styles.avatarContainer, { backgroundColor: colors.surfaceVariant }]}>
                 <Text style={[styles.avatarInitial, { color: colors.textPrimary }]}>{initials}</Text>
               </View>
             </TouchableOpacity>
@@ -235,24 +235,19 @@ export default function HomeScreen() {
           </View>
           <TouchableOpacity
             onPress={() => navigation.navigate('Notifications')}
-            style={[styles.notifBtn, { backgroundColor: isDark ? '#1F222B' : '#EEF0FF' }]}
+            style={[styles.notifBtn, { backgroundColor: colors.primaryLight }]}
           >
             <MaterialIcons name="notifications-none" size={22} color={colors.textPrimary} />
             {unreadNotificationCount > 0 && (
-              <View style={styles.notifBadge} />
+              <View style={[styles.notifBadge, { backgroundColor: colors.accent }]} />
             )}
           </TouchableOpacity>
         </View>
 
-        {/* WALLET IMAGE CARD — wallet.png is the card itself */}
-        <ImageBackground
-          source={require('../../../assets/images/wallet.png')}
-          style={styles.cardContainer}
-          imageStyle={styles.cardImageStyle}
-          resizeMode="cover"
-        >
-          {/* Overlay to ensure text is legible */}
-          <View style={styles.cardOverlay}>
+        {/* Wallet card: blue keeps the photo, bamboo uses the forest-green hero */}
+        {palette === 'bamboo' ? (
+        <View style={[styles.cardContainer, { backgroundColor: colors.heroBackground, shadowColor: colors.primary }]}>
+          <View style={[styles.cardOverlay, { backgroundColor: 'transparent' }]}>
             {/* Top row: currency selector & Switch mode button */}
             <View style={styles.cardTopRow}>
               {homeView === 0 ? (
@@ -308,43 +303,159 @@ export default function HomeScreen() {
               {homeView === 0 ? (
                 <>
                   <TouchableOpacity
-                    style={styles.cardPill}
+                    style={[
+                      styles.cardPill,
+                      palette === 'bamboo' && {
+                        backgroundColor: colors.pillBackground,
+                        borderColor: colors.pillBackground,
+                        borderRadius: 999,
+                      },
+                    ]}
                     onPress={() => navigation.navigate('AddMoney')}
                   >
-                    <View style={styles.pillIconBox}>
-                      <MaterialIcons name="add" size={14} color="#172FC7" />
+                    <View style={[styles.pillIconBox, palette === 'bamboo' && styles.pillIconBoxBamboo]}>
+                      <MaterialIcons name="add" size={14} color={palette === 'bamboo' ? colors.pillText : colors.primary} />
                     </View>
-                    <Text style={styles.pillText}>Add Money</Text>
+                    <Text style={[styles.pillText, palette === 'bamboo' && { color: colors.pillText }]}>Add Money</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={styles.cardPill}
+                    style={[
+                      styles.cardPill,
+                      palette === 'bamboo' && {
+                        backgroundColor: colors.pillBackground,
+                        borderColor: colors.pillBackground,
+                        borderRadius: 999,
+                      },
+                    ]}
                     onPress={() => navigation.navigate('AccountDetails')}
                   >
+                    <View style={[styles.pillIconBox, palette === 'bamboo' && styles.pillIconBoxBamboo]}>
+                      <MaterialIcons name="credit-card" size={14} color={palette === 'bamboo' ? colors.pillText : colors.primary} />
+                    </View>
+                    <Text style={[styles.pillText, palette === 'bamboo' && { color: colors.pillText }]}>Account Details</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <>
+                  <TouchableOpacity
+                    style={[
+                      styles.cardPill,
+                      palette === 'bamboo' && {
+                        backgroundColor: colors.pillBackground,
+                        borderColor: colors.pillBackground,
+                        borderRadius: 999,
+                      },
+                    ]}
+                    onPress={() => navigation.navigate('CryptoReceive')}
+                  >
+                    <View style={[styles.pillIconBox, palette === 'bamboo' && styles.pillIconBoxBamboo]}>
+                      <MaterialIcons name="arrow-downward" size={14} color={palette === 'bamboo' ? colors.pillText : colors.primary} />
+                    </View>
+                    <Text style={[styles.pillText, palette === 'bamboo' && { color: colors.pillText }]}>Receive Crypto</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.cardPill,
+                      palette === 'bamboo' && {
+                        backgroundColor: colors.pillBackground,
+                        borderColor: colors.pillBackground,
+                        borderRadius: 999,
+                      },
+                    ]}
+                    onPress={() => navigation.navigate('CryptoMarket')}
+                  >
+                    <View style={[styles.pillIconBox, palette === 'bamboo' && styles.pillIconBoxBamboo]}>
+                      <MaterialIcons name="trending-up" size={14} color={palette === 'bamboo' ? colors.pillText : colors.primary} />
+                    </View>
+                    <Text style={[styles.pillText, palette === 'bamboo' && { color: colors.pillText }]}>Crypto Market</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+            </View>
+          </View>
+        </View>
+        ) : (
+        <ImageBackground
+          source={require('../../../assets/images/wallet.png')}
+          style={styles.cardContainer}
+          imageStyle={styles.cardImageStyle}
+          resizeMode="cover"
+        >
+          <View style={styles.cardOverlay}>
+            <View style={styles.cardTopRow}>
+              {homeView === 0 ? (
+                <TouchableOpacity
+                  style={styles.currencySelector}
+                  onPress={() => setShowAccountSheet(true)}
+                >
+                  <Text style={styles.flagText}>{currentAccount.flag}</Text>
+                  <Text style={styles.currencyText}>{currentAccount.code} Wallet</Text>
+                  <MaterialIcons name="keyboard-arrow-down" size={16} color="#FFF" />
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.currencySelector}>
+                  <Text style={styles.flagText}>🪙</Text>
+                  <Text style={styles.currencyText}>Crypto Wallet</Text>
+                </View>
+              )}
+              <TouchableOpacity
+                style={styles.switchModeBtn}
+                onPress={handleSwitchMode}
+                activeOpacity={0.8}
+                disabled={isSwitching}
+              >
+                <MaterialIcons name="sync" size={14} color="#FFF" />
+                <Text style={styles.switchModeText}>Switch</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.balanceContainer}>
+              <View style={styles.balanceRow}>
+                <Text style={styles.balanceLabel}>
+                  {homeView === 0 ? 'Available Balance' : 'Crypto Portfolio Value'}
+                </Text>
+                <TouchableOpacity onPress={() => setBalanceHidden(!balanceHidden)}>
+                  <MaterialIcons
+                    name={balanceHidden ? 'visibility-off' : 'visibility'}
+                    size={16}
+                    color="rgba(255,255,255,0.75)"
+                  />
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.balanceAmount}>
+                {balanceHidden
+                  ? (homeView === 0 ? '₦••••••••' : '$••••••••')
+                  : (homeView === 0 ? currentAccount.balance : '$12,450.80')}
+              </Text>
+            </View>
+            <View style={styles.cardActions}>
+              {homeView === 0 ? (
+                <>
+                  <TouchableOpacity style={styles.cardPill} onPress={() => navigation.navigate('AddMoney')}>
                     <View style={styles.pillIconBox}>
-                      <MaterialIcons name="credit-card" size={14} color="#172FC7" />
+                      <MaterialIcons name="add" size={14} color={colors.primary} />
+                    </View>
+                    <Text style={styles.pillText}>Add Money</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.cardPill} onPress={() => navigation.navigate('AccountDetails')}>
+                    <View style={styles.pillIconBox}>
+                      <MaterialIcons name="credit-card" size={14} color={colors.primary} />
                     </View>
                     <Text style={styles.pillText}>Account Details</Text>
                   </TouchableOpacity>
                 </>
               ) : (
                 <>
-                  <TouchableOpacity
-                    style={styles.cardPill}
-                    onPress={() => navigation.navigate('CryptoReceive')}
-                  >
+                  <TouchableOpacity style={styles.cardPill} onPress={() => navigation.navigate('CryptoReceive')}>
                     <View style={styles.pillIconBox}>
-                      <MaterialIcons name="arrow-downward" size={14} color="#172FC7" />
+                      <MaterialIcons name="arrow-downward" size={14} color={colors.primary} />
                     </View>
                     <Text style={styles.pillText}>Receive Crypto</Text>
                   </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.cardPill}
-                    onPress={() => navigation.navigate('CryptoMarket')}
-                  >
+                  <TouchableOpacity style={styles.cardPill} onPress={() => navigation.navigate('CryptoMarket')}>
                     <View style={styles.pillIconBox}>
-                      <MaterialIcons name="trending-up" size={14} color="#172FC7" />
+                      <MaterialIcons name="trending-up" size={14} color={colors.primary} />
                     </View>
                     <Text style={styles.pillText}>Crypto Market</Text>
                   </TouchableOpacity>
@@ -353,12 +464,13 @@ export default function HomeScreen() {
             </View>
           </View>
         </ImageBackground>
+        )}
 
         {/* DYNAMIC CONTENT AREA WITH MOTION ANIMATION & #172FC7 IOS SPINNER LOADER */}
         {isSwitching ? (
           <View style={styles.switchingLoaderBox}>
-            <View style={[styles.spinnerCard, { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' }]}>
-              <IosSpinner size={42} color="#172FC7" />
+            <View style={[styles.spinnerCard, { backgroundColor: colors.cardBackground }]}>
+              <IosSpinner size={42} color={colors.primary} />
               <Text style={[styles.switchingText, { color: colors.textPrimary }]}>
                 {switchingTo === 'crypto' ? 'Switching to Crypto Wallet...' : 'Switching to Bank Wallet...'}
               </Text>
@@ -383,15 +495,15 @@ export default function HomeScreen() {
                 <View style={styles.sectionHeader}>
                   <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Pay & Services</Text>
                   <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('AllServices')}>
-                    <Text style={styles.seeAllText}>See all</Text>
-                    <MaterialIcons name="chevron-right" size={18} color="#172FC7" />
+                    <Text style={[styles.seeAllText, { color: colors.primary }]}>See all</Text>
+                    <MaterialIcons name="chevron-right" size={18} color={colors.primary} />
                   </TouchableOpacity>
                 </View>
 
                 <View style={styles.servicesGrid}>
                   {HOME_QUICK_SERVICES.map((item, index) => (
                     <TouchableOpacity key={index} style={styles.serviceItem} onPress={() => handleQuickService(item)}>
-                      <View style={[styles.serviceCard, { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' }]}>
+                      <View style={[styles.serviceCard, { backgroundColor: colors.cardBackground }]}>
                         <View style={[styles.serviceIconBox, { backgroundColor: colors.primaryLight }]}>
                           <MaterialIcons name={item.icon} size={24} color={colors.primary} />
                         </View>
@@ -405,8 +517,8 @@ export default function HomeScreen() {
                 <View style={styles.sectionHeader}>
                   <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Recent Transactions</Text>
                   <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('Transactions')}>
-                    <Text style={styles.seeAllText}>See all</Text>
-                    <MaterialIcons name="chevron-right" size={18} color="#172FC7" />
+                    <Text style={[styles.seeAllText, { color: colors.primary }]}>See all</Text>
+                    <MaterialIcons name="chevron-right" size={18} color={colors.primary} />
                   </TouchableOpacity>
                 </View>
 
@@ -418,8 +530,8 @@ export default function HomeScreen() {
                       onPress={() => navigation.navigate('TransactionDetail', { transaction: tx })}
                       activeOpacity={0.75}
                     >
-                      <View style={[styles.txIconBox, { backgroundColor: tx.type === 'received' || tx.type === 'deposit' ? (isDark ? '#172FC733' : '#EEF0FF') : (isDark ? '#F59E0B33' : '#FFF7ED') }]}>
-                        <MaterialIcons name={tx.type === 'received' || tx.type === 'deposit' ? "arrow-downward" : "flash-on"} size={24} color={tx.type === 'received' || tx.type === 'deposit' ? "#172FC7" : "#F59E0B"} />
+                      <View style={[styles.txIconBox, { backgroundColor: tx.type === 'received' || tx.type === 'deposit' ? colors.primaryLight : (isDark ? '#F59E0B33' : '#FFF7ED') }]}>
+                        <MaterialIcons name={tx.type === 'received' || tx.type === 'deposit' ? "arrow-downward" : "flash-on"} size={24} color={tx.type === 'received' || tx.type === 'deposit' ? colors.primary : "#F59E0B"} />
                       </View>
                       <View style={styles.txDetails}>
                         <Text style={[styles.txTitle, { color: colors.textPrimary }]}>{tx.displayName || tx.name}</Text>
@@ -441,12 +553,12 @@ export default function HomeScreen() {
                 <View style={styles.sectionHeader}>
                   <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>My Assets</Text>
                   <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('CryptoMarket')}>
-                    <Text style={styles.seeAllText}>See all</Text>
-                    <MaterialIcons name="chevron-right" size={18} color="#172FC7" />
+                    <Text style={[styles.seeAllText, { color: colors.primary }]}>See all</Text>
+                    <MaterialIcons name="chevron-right" size={18} color={colors.primary} />
                   </TouchableOpacity>
                 </View>
 
-                <View style={[styles.cryptoAssetsCard, { backgroundColor: isDark ? '#1F222B' : '#FFFFFF' }]}>
+                <View style={[styles.cryptoAssetsCard, { backgroundColor: colors.cardBackground }]}>
                   {cryptoAssetsList.map((coin, i) => (
                     <React.Fragment key={coin.id}>
                       <TouchableOpacity
@@ -468,7 +580,7 @@ export default function HomeScreen() {
                         <MaterialIcons name="chevron-right" size={20} color={colors.textSecondary} />
                       </TouchableOpacity>
                       {i < cryptoAssetsList.length - 1 && (
-                        <View style={[styles.assetDivider, { backgroundColor: isDark ? '#374151' : '#F3F4F6' }]} />
+                        <View style={[styles.assetDivider, { backgroundColor: colors.border }]} />
                       )}
                     </React.Fragment>
                   ))}
@@ -681,6 +793,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 5,
+  },
+  pillIconBoxBamboo: {
+    backgroundColor: 'transparent',
+    width: 14,
+    marginRight: 4,
   },
   pillText: {
     color: '#FFF',

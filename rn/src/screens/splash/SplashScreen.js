@@ -7,7 +7,7 @@ const { width } = Dimensions.get('window');
 const logoWidth = Math.min(width * 0.6, 260);
 
 export default function SplashScreen({ onFinish }) {
-  const { isDark } = useTheme();
+  const { colors, isDark } = useTheme();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const logoScale = useRef(new Animated.Value(0.6)).current;
@@ -47,7 +47,7 @@ export default function SplashScreen({ onFinish }) {
     <SafeAreaView
       style={[
         styles.container,
-        { backgroundColor: isDark ? '#0D0D0D' : '#FFFFFF' },
+        { backgroundColor: colors.background },
       ]}
     >
       <Animated.View

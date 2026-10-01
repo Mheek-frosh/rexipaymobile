@@ -103,7 +103,7 @@ function AnimatedTabButton({
 }
 
 const CustomTabBar = ({ state, navigation }) => {
-  const { colors: themeColors, isDark } = useTheme();
+  const { colors: themeColors, isDark, palette } = useTheme();
   const insets = useSafeAreaInsets();
   const [tabBarWidth, setTabBarWidth] = useState(0);
   const [liquidMotion, setLiquidMotion] = useState({ index: state.index, key: 0 });
@@ -116,9 +116,9 @@ const CustomTabBar = ({ state, navigation }) => {
   const glassTint = isIOS
     ? (isDark ? 'systemUltraThinMaterialDark' : 'systemUltraThinMaterialLight')
     : (isDark ? 'systemChromeMaterialDark' : 'systemChromeMaterialLight');
-  const activeBgColor = isDark
-    ? 'rgba(91, 120, 255, 0.24)'
-    : 'rgba(23, 47, 199, 0.1)';
+  const activeBgColor = palette === 'blue'
+    ? (isDark ? 'rgba(91, 120, 255, 0.24)' : 'rgba(23, 47, 199, 0.1)')
+    : themeColors.primaryLight;
   const tabCount = state.routes.length;
   const tabWidth = tabBarWidth > 0 ? (tabBarWidth - 8) / tabCount : 0;
 
@@ -216,7 +216,7 @@ const CustomTabBar = ({ state, navigation }) => {
         styles.tabBarContainer,
         {
           bottom: Math.max(insets.bottom - 7, 5),
-          shadowColor: isDark ? '#000000' : '#172FC7',
+          shadowColor: palette === 'bamboo' ? themeColors.primary : (isDark ? '#000000' : '#172FC7'),
           shadowOpacity: isDark ? 0.3 : 0.11,
         },
       ]}
@@ -230,7 +230,9 @@ const CustomTabBar = ({ state, navigation }) => {
         style={[
           styles.tabBar,
           {
-            backgroundColor: isIOS
+            backgroundColor: palette === 'bamboo'
+              ? (isDark ? 'rgba(7, 25, 16, 0.82)' : 'rgba(243, 246, 240, 0.78)')
+              : isIOS
               ? (isDark ? 'rgba(13, 16, 24, 0.28)' : 'rgba(255, 255, 255, 0.2)')
               : (isDark ? 'rgba(12, 15, 22, 0.72)' : 'rgba(255, 255, 255, 0.68)'),
           },
@@ -283,7 +285,9 @@ const CustomTabBar = ({ state, navigation }) => {
             }
           };
 
-          const activeColor = isDark ? '#5B78FF' : themeColors.primary;
+          const activeColor = palette === 'blue'
+            ? (isDark ? '#5B78FF' : themeColors.primary)
+            : themeColors.primary;
           const inactiveColor = themeColors.textSecondary;
           const color = isFocused ? activeColor : inactiveColor;
           let IconComponent;

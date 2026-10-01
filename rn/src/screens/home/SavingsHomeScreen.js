@@ -47,7 +47,7 @@ export default function SavingsHomeScreen() {
       </SafeAreaView>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={[styles.hero, { backgroundColor: colors.primary }]}>
+        <View style={[styles.hero, { backgroundColor: colors.heroBackground }]}>
           <Text style={styles.heroLabel}>Total saved</Text>
           <Text style={styles.heroAmount}>{totalSaved}</Text>
           <View style={styles.heroPills}>
@@ -83,12 +83,12 @@ export default function SavingsHomeScreen() {
         ))}
 
         <TouchableOpacity
-          style={[styles.primaryBtn, { backgroundColor: colors.primary }]}
+          style={[styles.primaryBtn, { backgroundColor: colors.primary, borderRadius: colors.buttonRadius }]}
           onPress={() => navigation.navigate('SavingsSetup')}
           activeOpacity={0.9}
         >
-          <MaterialIcons name="add-circle-outline" size={22} color="#FFF" />
-          <Text style={styles.primaryBtnText}>Create new savings goal</Text>
+          <MaterialIcons name="add-circle-outline" size={22} color={colors.onPrimary} />
+          <Text style={[styles.primaryBtnText, { color: colors.onPrimary }]}>Create new savings goal</Text>
         </TouchableOpacity>
 
         <View style={[styles.tipCard, { backgroundColor: colors.surfaceVariant }]}>
