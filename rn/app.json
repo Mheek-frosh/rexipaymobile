@@ -68,17 +68,17 @@
         }
       ]
     ],
-    "extra": {
-      "eas": {
-        "projectId": "2dac65e9-9b14-4f01-9221-65fa0733fd94"
-      }
-    },
-    "owner": "mikeusidamen",
+    "owner": "michaelusd",
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/2dac65e9-9b14-4f01-9221-65fa0733fd94"
+      "url": "https://u.expo.dev/72e19737-bfa1-4cea-a4fe-21a8eac19a8c"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "72e19737-bfa1-4cea-a4fe-21a8eac19a8c"
+      }
     }
   }
 }
