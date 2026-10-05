@@ -4,7 +4,7 @@
  */
 
 import NetInfo from '@react-native-community/netinfo';
-import { API_BASE_URL } from '../config/apiConfig';
+import { API_BASE_URL, apiRequestSignal } from '../config/apiConfig';
 import { getWalletState, syncFromServer, markTransactionsSynced } from './offlineWalletService';
 import { simulateServerSync, simulateServerReconcile } from './offlineBackendSimulationService';
 
@@ -45,6 +45,7 @@ export async function syncPendingTransactions() {
     const res = await fetch(`${API_BASE_URL}/api/offline/sync`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: apiRequestSignal(),
       body: JSON.stringify({ transactions: all }),
     });
     const data = await res.json();
@@ -73,7 +74,9 @@ export async function syncPendingTransactions() {
 
 export async function fetchAndReconcileWallet(userId) {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/wallet/reconcile?userId=${encodeURIComponent(userId)}`);
+    const res = await fetch(`${API_BASE_URL}/api/wallet/reconcile?userId=${encodeURIComponent(userId)}`, {
+      signal: apiRequestSignal(),
+    });
     const data = await res.json();
     if (res.ok && data.success && data.balance) {
       await syncFromServer(data.balance, true);

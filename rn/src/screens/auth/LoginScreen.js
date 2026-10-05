@@ -49,7 +49,10 @@ export default function LoginScreen() {
   }, [contact, password, isEmailMode]);
 
   const handleLogin = async () => {
-    if (!isLoaded) return;
+    if (!isLoaded) {
+      Alert.alert('Still connecting', 'RexiPay is still reaching the sign-in service. Check your connection and try again.');
+      return;
+    }
     if (!canLogin) {
       Alert.alert(
         'Unable to log in',

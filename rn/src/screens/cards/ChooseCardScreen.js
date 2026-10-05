@@ -69,9 +69,9 @@ function CardBackground() {
     <Svg width={cw} height={ch} viewBox={`0 0 ${cw} ${ch}`}>
       <Defs>
         <LinearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <Stop offset="0%" stopColor="#2242E0" />
-          <Stop offset="55%" stopColor="#172FC7" />
-          <Stop offset="100%" stopColor="#0F1E8A" />
+          <Stop offset="0%" stopColor="#3A3A3A" />
+          <Stop offset="55%" stopColor="#1A1A1A" />
+          <Stop offset="100%" stopColor="#101010" />
         </LinearGradient>
         <RadialGradient id="shineGrad" cx="76%" cy="38%" r="52%" fx="76%" fy="38%">
           <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.20" />
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
   cardSection: {
     alignItems: 'center',
     marginBottom: 28,
-    shadowColor: '#172FC7',
+    shadowColor: '#C6F54E',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.32,
     shadowRadius: 20,

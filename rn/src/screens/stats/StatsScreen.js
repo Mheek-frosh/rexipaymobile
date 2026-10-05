@@ -74,8 +74,8 @@ const CHART_DATA_BY_RANGE = {
 const CATEGORY_LEGEND = [
   {
     label: 'Transfers',
-    color: '#173BDA',
-    endColor: '#102ABF',
+    color: '#C6F54E',
+    endColor: '#8FB82A',
     percent: 42,
     labelRadius: 91,
   },

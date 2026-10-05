@@ -65,25 +65,37 @@ const BAMBOO_LIGHT = {
 };
 
 const BAMBOO_DARK = {
-  primary: '#D6F25A',
-  primaryLight: 'rgba(214, 242, 90, 0.16)',
-  accent: '#D6F25A',
-  onPrimary: '#071910',
-  background: '#071910',
-  cardBackground: '#0F2C22',
-  navBackground: '#0C261E',
-  surfaceVariant: '#17362B',
+  primary: '#C6F54E',
+  primaryLight: 'rgba(198, 245, 78, 0.16)',
+  accent: '#C6F54E',
+  onPrimary: '#101010',
+  background: '#0C0C0C',
+  cardBackground: '#171717',
+  navBackground: '#141414',
+  surfaceVariant: '#242424',
   textPrimary: '#FFFFFF',
-  textSecondary: '#A7BDB2',
-  border: '#1E4336',
+  textSecondary: '#8D8D93',
+  border: '#2A2A2A',
   error: '#FF6B6B',
-  success: '#3DDC97',
-  heroBackground: '#0B241C',
+  success: '#C6F54E',
+  heroBackground: '#171717',
   heroText: '#FFFFFF',
-  heroMuted: 'rgba(255,255,255,0.75)',
-  pillBackground: '#D6F25A',
-  pillText: '#071910',
+  heroMuted: 'rgba(255,255,255,0.7)',
+  pillBackground: '#C6F54E',
+  pillText: '#101010',
   buttonRadius: 999,
+};
+
+export const LIME_UI = {
+  background: '#0C0C0C',
+  card: '#171717',
+  cardBorder: '#2A2A2A',
+  lime: '#C6F54E',
+  onLime: '#101010',
+  text: '#FFFFFF',
+  muted: '#8D8D93',
+  bubble: '#242424',
+  nav: '#141414',
 };
 
 export const COLORS = BLUE_LIGHT;
@@ -94,7 +106,6 @@ export const PALETTES = {
   bamboo: { id: 'bamboo', label: 'Bamboo', light: BAMBOO_LIGHT, dark: BAMBOO_DARK },
 };
 
-export function getPaletteColors(palette, isDark) {
-  const entry = PALETTES[palette] || PALETTES.bamboo;
-  return isDark ? entry.dark : entry.light;
+export function getPaletteColors() {
+  return BAMBOO_DARK;
 }

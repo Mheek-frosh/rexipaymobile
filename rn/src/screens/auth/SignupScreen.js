@@ -50,7 +50,11 @@ export default function SignupScreen() {
   }, [name, password, contact, isEmailMode]);
 
   const handleSignUp = async () => {
-    if (!isLoaded || !canSubmit) return;
+    if (!canSubmit) return;
+    if (!isLoaded) {
+      Alert.alert('Still connecting', 'RexiPay is still reaching the sign-up service. Check your connection and try again.');
+      return;
+    }
     
     setLoading(true);
     try {

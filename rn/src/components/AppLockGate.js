@@ -7,7 +7,6 @@ import * as SecureStore from 'expo-secure-store';
 import SHA256 from 'crypto-js/sha256';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   Animated,
   AppState,
   ScrollView,
@@ -19,6 +18,7 @@ import {
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { useAuth } from '../context/AuthContext';
+import IosSpinner from './IosSpinner';
 import { useTheme } from '../theme/ThemeContext';
 
 const PASSCODE_NAMESPACE = 'rexipay-app-lock-v1';
@@ -306,6 +306,11 @@ export default function AppLockGate({ children }) {
     'User';
 
   useEffect(() => {
+    const timeout = setTimeout(() => setSessionChecked(true), 8000);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  useEffect(() => {
     if (!isClerkLoaded || checkedInitialSessionRef.current) return;
     checkedInitialSessionRef.current = true;
 
@@ -574,7 +579,7 @@ export default function AppLockGate({ children }) {
   if (gateLoading) {
     return (
       <View style={[styles.loading, { backgroundColor: colors.background }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        <IosSpinner size={84} />
       </View>
     );
   }

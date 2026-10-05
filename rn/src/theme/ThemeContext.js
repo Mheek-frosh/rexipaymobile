@@ -43,8 +43,8 @@ export const ThemeProvider = ({ children }) => {
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ palette: nextPalette, mode })).catch(() => {});
   }, []);
 
-  const isDark = themeOverride === null ? systemScheme === 'dark' : themeOverride === 'dark';
-  const colors = getPaletteColors(palette, isDark);
+  const colors = getPaletteColors();
+  const isDark = true;
 
   const setPalette = useCallback((next) => {
     setPaletteState(next);

@@ -1,10 +1,11 @@
-import { API_BASE_URL } from '../config/apiConfig';
+import { API_BASE_URL, apiRequestSignal } from '../config/apiConfig';
 
 export const sendOtp = async (phone, countryCode = '+234') => {
   try {
     const res = await fetch(`${API_BASE_URL}/api/auth/send-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: apiRequestSignal(),
       body: JSON.stringify({ phone, countryCode }),
     });
     const data = await res.json();
@@ -23,6 +24,7 @@ export const verifyOtp = async (phone, code, countryCode = '+234', name) => {
     const res = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: apiRequestSignal(),
       body: JSON.stringify({ phone, code, countryCode, name }),
     });
     const data = await res.json();
@@ -53,6 +55,7 @@ export const getResendStatus = async (phone, countryCode = '+234') => {
     const res = await fetch(`${API_BASE_URL}/api/auth/resend-status`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: apiRequestSignal(),
       body: JSON.stringify({ phone, countryCode }),
     });
     const data = await res.json();
@@ -71,6 +74,7 @@ export const sendPinResetOtp = async (phone, countryCode = '+234') => {
     const res = await fetch(`${API_BASE_URL}/api/auth/pin-reset/send-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: apiRequestSignal(),
       body: JSON.stringify({ phone, countryCode }),
     });
     const data = await res.json().catch(() => ({}));
@@ -89,6 +93,7 @@ export const verifyPinResetAndSetPin = async (phone, otp, newPin, countryCode = 
     const res = await fetch(`${API_BASE_URL}/api/auth/pin-reset/verify-and-set`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: apiRequestSignal(),
       body: JSON.stringify({ phone, code: otp, newPin, countryCode }),
     });
     const data = await res.json().catch(() => ({}));
@@ -109,6 +114,7 @@ export const sendPasswordResetOtp = async (phone, countryCode = '+234') => {
     const res = await fetch(`${API_BASE_URL}/api/auth/password-reset/send-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: apiRequestSignal(),
       body: JSON.stringify({ phone, countryCode }),
     });
     const data = await res.json().catch(() => ({}));
@@ -127,6 +133,7 @@ export const verifyPasswordResetAndSetPassword = async (phone, otp, newPassword,
     const res = await fetch(`${API_BASE_URL}/api/auth/password-reset/verify-and-set`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: apiRequestSignal(),
       body: JSON.stringify({ phone, code: otp, newPassword, countryCode }),
     });
     const data = await res.json().catch(() => ({}));

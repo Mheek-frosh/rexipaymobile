@@ -5,7 +5,7 @@
     "version": "1.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "icon": "./assets/images/app-icon.png",
+    "icon": "./assets/images/new.png",
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -20,8 +20,8 @@
     "android": {
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
-        "backgroundColor": "#172FC7",
-        "foregroundImage": "./assets/images/app-icon-foreground.png"
+        "backgroundColor": "#000000",
+        "foregroundImage": "./assets/images/new.png"
       },
       "package": "com.rexipay.app",
       "permissions": [
@@ -34,7 +34,7 @@
       ]
     },
     "web": {
-      "favicon": "./assets/images/png.png"
+      "favicon": "./assets/images/new.png"
     },
     "plugins": [
       "@react-native-community/datetimepicker",
@@ -57,12 +57,12 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/light-logo-splash.png",
+          "image": "./assets/images/new.png",
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#000000",
           "dark": {
-            "image": "./assets/images/dark-logo-splash.png",
-            "backgroundColor": "#0D0D0D"
+            "image": "./assets/images/new.png",
+            "backgroundColor": "#000000"
           },
           "imageWidth": 200
         }

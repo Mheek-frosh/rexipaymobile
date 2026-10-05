@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
-import { ClerkProvider, ClerkLoaded } from '@clerk/clerk-expo';
+import { ClerkProvider } from '@clerk/clerk-expo';
 import * as SecureStore from 'expo-secure-store';
 import { AuthProvider } from './src/context/AuthContext';
 import { NotificationProvider } from './src/context/NotificationContext';
@@ -56,7 +56,7 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider initialMetrics={initialWindowMetrics} style={{ flex: 1 }}>
         <ThemeProvider>
-          <StatusBar style="auto" />
+          <StatusBar style="light" />
           <AppContent />
         </ThemeProvider>
       </SafeAreaProvider>
@@ -113,28 +113,26 @@ function AppContent() {
 
   return (
     <ClerkProvider tokenCache={tokenCache} publishableKey={CLERK_PUBLISHABLE_KEY}>
-      <ClerkLoaded>
-        <AuthProvider>
-          <WalletProvider>
-            <AppLockGate>
-              <NotificationProvider>
-                <View style={{ flex: 1 }}>
-                  <NavigationContainer
-                    ref={navigationRef}
-                    onStateChange={handleNavigationStateChange}
-                  >
-                    <StatusBar style="auto" />
-                    <RootNavigator />
-                  </NavigationContainer>
-                  {showRouteSkeleton && (
-                    <ScreenTransitionSkeleton routeName={routeSkeletonName} />
-                  )}
-                </View>
-              </NotificationProvider>
-            </AppLockGate>
-          </WalletProvider>
-        </AuthProvider>
-      </ClerkLoaded>
+      <AuthProvider>
+        <WalletProvider>
+          <AppLockGate>
+            <NotificationProvider>
+              <View style={{ flex: 1 }}>
+                <NavigationContainer
+                  ref={navigationRef}
+                  onStateChange={handleNavigationStateChange}
+                >
+                  <StatusBar style="light" />
+                  <RootNavigator />
+                </NavigationContainer>
+                {showRouteSkeleton && (
+                  <ScreenTransitionSkeleton routeName={routeSkeletonName} />
+                )}
+              </View>
+            </NotificationProvider>
+          </AppLockGate>
+        </WalletProvider>
+      </AuthProvider>
     </ClerkProvider>
   );
 }

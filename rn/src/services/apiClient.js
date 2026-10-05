@@ -1,6 +1,6 @@
-import { API_BASE_URL } from '../config/apiConfig';
+import { API_BASE_URL, API_REQUEST_TIMEOUT_MS, apiRequestSignal } from '../config/apiConfig';
 
-const DEFAULT_TIMEOUT = 12000;
+const DEFAULT_TIMEOUT = API_REQUEST_TIMEOUT_MS;
 
 const withTimeout = async (promise, ms = DEFAULT_TIMEOUT) => {
   let timer;
@@ -29,6 +29,7 @@ export const apiGet = async (path) => {
       fetch(url, {
         method: 'GET',
         headers: { Accept: 'application/json' },
+        signal: apiRequestSignal(),
       })
     );
     const data = await safeJson(res);
@@ -48,6 +49,7 @@ export const apiPost = async (path, body = {}) => {
       fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        signal: apiRequestSignal(),
         body: JSON.stringify(body),
       })
     );

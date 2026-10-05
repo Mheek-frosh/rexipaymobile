@@ -20,19 +20,13 @@ import { LogoutBottomSheet } from '../../components/BottomSheet';
 import Toast from '../../components/Toast';
 
 const MENU_ITEMS = [
-  { icon: 'account-balance', iconBg: '#FFD166', iconColor: null, title: 'Cards', route: 'AddCard' },
-  { icon: 'badge', iconBg: '#EEF0FF', iconColor: '#172FC7', title: 'Account details', route: 'AccountDetails' },
-  { icon: 'notifications', iconBg: '#FFF3E0', iconColor: '#FB8C00', title: 'Notifications', route: 'Notifications' },
-  { icon: 'headset-mic', iconBg: '#E8F5E9', iconColor: '#4CAF50', title: 'Support', route: 'Support' },
-  { icon: 'settings', iconBg: '#EEF0FF', iconColor: '#172FC7', title: 'Settings', route: 'Settings' },
-  {
-    icon: 'storage',
-    iconBg: '#E8F5E9',
-    iconColor: '#4CAF50',
-    title: 'Data & Privacy',
-    route: 'DataPrivacy',
-  },
-  { icon: 'logout', iconBg: '#FFEBEE', iconColor: '#E53935', title: 'Logout', route: 'logout' },
+  { icon: 'account-balance', title: 'Cards', route: 'AddCard' },
+  { icon: 'badge', title: 'Account details', route: 'AccountDetails' },
+  { icon: 'notifications', title: 'Notifications', route: 'Notifications' },
+  { icon: 'headset-mic', title: 'Support', route: 'Support' },
+  { icon: 'settings', title: 'Settings', route: 'Settings' },
+  { icon: 'storage', title: 'Data & Privacy', route: 'DataPrivacy' },
+  { icon: 'logout', iconColor: '#FF6B6B', title: 'Logout', route: 'logout' },
 ];
 
 export default function ProfileScreen() {
@@ -182,7 +176,6 @@ export default function ProfileScreen() {
           </TouchableOpacity>
 
           {MENU_ITEMS.map((item, i) => {
-            const brandIcon = item.iconColor === '#172FC7';
             return (
             <TouchableOpacity
               key={i}
@@ -192,19 +185,13 @@ export default function ProfileScreen() {
               <View
                 style={[
                   styles.menuIconBg,
-                  {
-                    backgroundColor: brandIcon
-                      ? colors.primaryLight
-                      : isDark
-                      ? `${item.iconBg || '#666'}33`
-                      : item.iconBg || '#E0E0E0',
-                  },
+                  { backgroundColor: colors.surfaceVariant },
                 ]}
               >
                 <MaterialIcons
                   name={item.icon}
                   size={20}
-                  color={brandIcon ? colors.primary : (item.iconColor || colors.textSecondary)}
+                  color={item.iconColor || colors.primary}
                 />
               </View>
               <Text style={[styles.menuTitle, { color: colors.textPrimary }]}>{item.title}</Text>

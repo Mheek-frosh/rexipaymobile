@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '../config/apiConfig';
+import { API_BASE_URL, apiRequestSignal } from '../config/apiConfig';
 import { NIGERIAN_BANKS } from '../data/nigerianBanks';
 
 export const resolveAccount = async (accountNumber, bankCode) => {
@@ -7,6 +7,7 @@ export const resolveAccount = async (accountNumber, bankCode) => {
     const res = await fetch(`${API_BASE_URL}/api/bank/resolve-account`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: apiRequestSignal(),
       body: JSON.stringify({
         account_number: cleanAccount,
         account_bank: String(bankCode),

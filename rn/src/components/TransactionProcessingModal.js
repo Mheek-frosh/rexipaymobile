@@ -41,7 +41,7 @@ export default function TransactionProcessingModal({
 
         <View style={styles.content}>
           <Image
-            source={require('../../assets/rexiloading.gif')}
+            source={require('../../assets/rexipay-r-loading.gif')}
             style={styles.image}
             resizeMode="contain"
             accessibilityIgnoresInvertColors

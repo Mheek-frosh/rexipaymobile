@@ -1,17 +1,14 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  View,
-  Text,
-  Image,
-  ImageBackground,
-  TouchableOpacity,
-  ScrollView,
-  FlatList,
-  StyleSheet,
-  StatusBar,
-  Dimensions,
   Animated,
+  Dimensions,
   RefreshControl,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,1064 +16,704 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
 import { formatNairaBalance, useWallet } from '../../context/WalletContext';
-import { useTheme } from '../../theme/ThemeContext';
 import { AccountSwitcherSheet } from '../../components/BottomSheet';
-import DraggableQuickActions from '../../components/DraggableQuickActions';
-import IosSpinner from '../../components/IosSpinner';
-import HomeScreenSkeleton from '../../components/HomeScreenSkeleton';
-import { HOME_QUICK_SERVICES } from '../../data/homeServices';
+import { LIME_UI } from '../../theme/theme';
 
-const CURRENCY_ACCOUNTS = [
-  { id: 'ngn', name: 'Naira', code: 'NGN', flag: '🇳🇬', balance: null, symbol: '₦' },
-  { id: 'usd', name: 'US Dollar', code: 'USD', flag: '🇺🇸', balance: '$1500.00', symbol: '$' },
-  { id: 'gbp', name: 'British Pound', code: 'GBP', flag: '🇬🇧', balance: '£1000.00', symbol: '£' },
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+const PROMO_CARDS = [
+  {
+    id: 'send',
+    title: 'Send Money',
+    subtitle: 'Fast, secure, anywhere',
+    icon: 'near-me',
+    route: 'Transfer',
+  },
+  {
+    id: 'refer',
+    title: 'Refer & Earn',
+    subtitle: 'Invite friends and get rewarded',
+    icon: 'card-giftcard',
+    route: 'ReferralEarn',
+  },
+  {
+    id: 'cash',
+    title: 'Crypto to Cash',
+    subtitle: 'Convert crypto into naira',
+    icon: 'currency-exchange',
+    route: 'CryptoSell',
+  },
 ];
 
-const { width } = Dimensions.get('window');
-const SIDE = 20;
-const INITIAL_SKELETON_DURATION = 4000;
+function PromoCard({ item, onPress }) {
+  return (
+    <TouchableOpacity style={styles.sendButton} activeOpacity={0.88} onPress={onPress}>
+      <View style={styles.sendIcon}>
+        <MaterialIcons name={item.icon} size={18} color={LIME_UI.text} />
+      </View>
+      <View style={styles.sendCopy}>
+        <Text style={styles.sendTitle}>{item.title}</Text>
+        <Text style={styles.sendSubtitle}>{item.subtitle}</Text>
+      </View>
+      <View style={styles.sendArrow}>
+        <MaterialIcons name="arrow-forward" size={18} color={LIME_UI.onLime} />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+function PromoCarousel({ onOpen }) {
+  const [index, setIndex] = useState(0);
+  const shift = useRef(new Animated.Value(0)).current;
+  const indexRef = useRef(0);
+  const travel = SCREEN_WIDTH - 40;
+
+  useEffect(() => {
+    let active = true;
+    const timer = setInterval(() => {
+      Animated.timing(shift, {
+        toValue: 1,
+        duration: 480,
+        useNativeDriver: true,
+      }).start(({ finished }) => {
+        if (!active || !finished) return;
+        indexRef.current = (indexRef.current + 1) % PROMO_CARDS.length;
+        setIndex(indexRef.current);
+        shift.setValue(0);
+      });
+    }, 3200);
+    return () => {
+      active = false;
+      clearInterval(timer);
+      shift.stopAnimation();
+    };
+  }, [shift]);
+
+  const nextIndex = (index + 1) % PROMO_CARDS.length;
+  const currentX = shift.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -travel],
+  });
+  const incomingX = shift.interpolate({
+    inputRange: [0, 1],
+    outputRange: [travel, 0],
+  });
+
+  return (
+    <View style={styles.promoViewport}>
+      <Animated.View style={{ transform: [{ translateX: currentX }] }}>
+        <PromoCard
+          item={PROMO_CARDS[index]}
+          onPress={() => onOpen(PROMO_CARDS[index].route)}
+        />
+      </Animated.View>
+      <Animated.View style={[styles.promoIncoming, { transform: [{ translateX: incomingX }] }]}>
+        <PromoCard
+          item={PROMO_CARDS[nextIndex]}
+          onPress={() => onOpen(PROMO_CARDS[nextIndex].route)}
+        />
+      </Animated.View>
+    </View>
+  );
+}
+
+const QUICK_ACTIONS = [
+  { id: 'airtime', label: 'Buy Airtime', icon: 'smartphone', route: 'Airtime' },
+  { id: 'bills', label: 'Pay Bills', icon: 'description', route: 'AllServices' },
+  { id: 'transfer', label: 'Transfer', icon: 'swap-horiz', route: 'Transfer' },
+  { id: 'crypto', label: 'Buy Crypto', icon: 'currency-bitcoin', route: 'CryptoMarket' },
+  { id: 'more', label: 'More', icon: 'apps', route: 'AllServices' },
+];
+
+function greetingForNow() {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning,';
+  if (hour < 17) return 'Good afternoon,';
+  return 'Good evening,';
+}
+
 export default function HomeScreen() {
-  const { colors, isDark, palette } = useTheme();
   const { userName } = useAuth();
   const { notifications } = useNotifications();
   const { ngnBalance } = useWallet();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
-  const [selectedAccount, setSelectedAccount] = useState('ngn');
   const [showAccountSheet, setShowAccountSheet] = useState(false);
-  const [isEditingQuickActions, setIsEditingQuickActions] = useState(false);
   const [balanceHidden, setBalanceHidden] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [rewardIndex, setRewardIndex] = useState(0);
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const rewardCarouselRef = useRef(null);
+  const [selectedAccount, setSelectedAccount] = useState('ngn');
+  const [homeView, setHomeView] = useState(0);
 
-  const REWARD_SLIDES = [
-    { id: '1', image: require('../../../assets/images/rewards.png') },
-    { id: '2', image: require('../../../assets/images/refer.png') },
-    { id: '3', image: require('../../../assets/images/savings.png') },
-  ];
-
-  useEffect(() => {
-    const startupTimer = setTimeout(() => {
-      setIsInitialLoading(false);
-    }, INITIAL_SKELETON_DURATION);
-
-    return () => clearTimeout(startupTimer);
-  }, []);
-
-  useEffect(() => {
-    if (REWARD_SLIDES.length <= 1) return;
-    const timer = setInterval(() => {
-      setRewardIndex((prev) => {
-        const next = (prev + 1) % REWARD_SLIDES.length;
-        rewardCarouselRef.current?.scrollToIndex({ index: next, animated: true });
-        return next;
-      });
-    }, 3000);
-    return () => clearInterval(timer);
-  }, []);
+  const firstName = (userName || 'Alex').split(' ')[0];
+  const nameParts = String(userName || 'Alex').trim().split(/\s+/).filter(Boolean);
+  const initials = nameParts.slice(0, 2).map((part) => part.charAt(0)).join('').toUpperCase() || 'A';
+  const unreadNotificationCount = notifications.filter((item) => !item.read).length;
+  const accounts = useMemo(() => ([
+    { id: 'ngn', name: 'Naira', code: 'NGN', flag: '🇳🇬', balance: formatNairaBalance(ngnBalance), symbol: '₦' },
+    { id: 'usd', name: 'US Dollar', code: 'USD', flag: '🇺🇸', balance: '$1,500.00', symbol: '$' },
+    { id: 'gbp', name: 'British Pound', code: 'GBP', flag: '🇬🇧', balance: '£1,000.00', symbol: '£' },
+  ]), [ngnBalance]);
+  const currentAccount = accounts.find((account) => account.id === selectedAccount) || accounts[0];
+  const balanceLabel = balanceHidden
+    ? (homeView === 0 ? `${currentAccount.symbol}••••••` : '$••••••')
+    : homeView === 0
+      ? (currentAccount.id === 'ngn' ? formatNairaBalance(ngnBalance) : currentAccount.balance)
+      : '$12,450.80';
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1200);
+    setTimeout(() => setRefreshing(false), 900);
   }, []);
 
-  // 0: Bank view, 1: Crypto view
-  const [homeView, setHomeView] = useState(0);
-  const [isSwitching, setIsSwitching] = useState(false);
-  const [switchingTo, setSwitchingTo] = useState(null);
-  const contentFadeAnim = useRef(new Animated.Value(1)).current;
-
-  const handleSwitchMode = () => {
-    const target = homeView === 0 ? 'crypto' : 'bank';
-    setSwitchingTo(target);
-    setIsSwitching(true);
-    Animated.timing(contentFadeAnim, {
-      toValue: 0,
-      duration: 160,
-      useNativeDriver: true,
-    }).start(() => {
-      setHomeView((prev) => (prev === 0 ? 1 : 0));
-      setTimeout(() => {
-        setIsSwitching(false);
-        setSwitchingTo(null);
-        Animated.timing(contentFadeAnim, {
-          toValue: 1,
-          duration: 220,
-          useNativeDriver: true,
-        }).start();
-      }, 350);
-    });
-  };
-
-  const [bankQuickActions, setBankQuickActions] = useState([
-    { id: 'send', label: 'Send', icon: 'arrow-upward', color: '#172FC7', bg: '#EEF0FF', route: 'Transfer' },
-    { id: 'receive', label: 'Receive', icon: 'arrow-downward', color: '#10B981', bg: '#ECFDF5', route: 'BankReceive' },
-    { id: 'convert', label: 'Convert', icon: 'currency-exchange', color: '#F59E0B', bg: '#FFF7ED', route: 'BankConvert' },
-    { id: 'scan', label: 'Scan', icon: 'qr-code-scanner', color: '#8B5CF6', bg: '#F5F3FF', route: 'ScanToPay' },
-  ]);
-
-  const [cryptoQuickActions, setCryptoQuickActions] = useState([
-    { id: 'send_crypto', label: 'Send', icon: 'arrow-upward', color: '#172FC7', bg: '#EEF0FF', route: 'SendCrypto' },
-    { id: 'receive_crypto', label: 'Receive', icon: 'arrow-downward', color: '#10B981', bg: '#ECFDF5', route: 'CryptoReceive' },
-    { id: 'sell_crypto', label: 'Sell', icon: 'sell', color: '#F59E0B', bg: '#FFF7ED', route: 'CryptoSell' },
-    { id: 'market', label: 'Market', icon: 'trending-up', color: '#8B5CF6', bg: '#F5F3FF', route: 'CryptoMarket' },
-  ]);
-
-  const quickActions = homeView === 0 ? bankQuickActions : cryptoQuickActions;
-  const setQuickActions = homeView === 0 ? setBankQuickActions : setCryptoQuickActions;
-
-  const firstName = (userName || 'User').split(' ')[0];
-  const nameParts = String(userName || 'User')
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
-  const initials = nameParts
-    .slice(0, 2)
-    .map((part) => part.charAt(0))
-    .join('')
-    .toUpperCase() || 'MU';
-
-  const currencyAccounts = CURRENCY_ACCOUNTS.map((account) =>
-    account.id === 'ngn'
-      ? { ...account, balance: formatNairaBalance(ngnBalance) }
-      : account
-  );
-  const currentAccount =
-    currencyAccounts.find((account) => account.id === selectedAccount) || currencyAccounts[0];
-
-  const unreadNotificationCount = notifications.filter((n) => !n.read).length;
-
-  const handleQuickService = (item) => {
-    if (item.route) {
-      navigation.navigate(item.route);
-      return;
-    }
-    navigation.navigate('AllServices');
-  };
-
-  const mockTransactions = [
+  const transactions = [
     {
-      id: '2',
+      id: 'rx-1',
       name: 'John Doe',
       displayName: 'Received from John Doe',
+      subtitle: 'Today, 8:45 AM',
+      amountDisplay: '+ ₦ 50,000',
+      positive: true,
+      icon: 'south',
       type: 'received',
       amount: '50,000.00',
-      amountDisplay: '+ ₦50,000.00',
-      date: 'Yesterday',
-      time: '10:15 AM',
-      dateTime: 'Yesterday | 10:15 AM',
-      statusDisplay: 'Success',
+      date: 'Today',
+      time: '8:45 AM',
       status: 'Completed',
-      category: 'Transfer',
-      txRef: 'RXP982341823',
-      ref: 'RXP982341823',
       bank: 'Access Bank',
       account: '0987654321',
+      ref: 'RXP982341823',
+    },
+    {
+      id: 'rx-2',
+      name: 'Bright Tech',
+      displayName: 'Sent to Bright Tech',
+      subtitle: 'Yesterday, 4:32 PM',
+      amountDisplay: '- ₦ 20,000',
+      positive: false,
+      icon: 'north',
+      type: 'sent',
+      amount: '20,000.00',
+      date: 'Yesterday',
+      time: '4:32 PM',
+      status: 'Completed',
+      bank: 'GTBank',
+      account: '0123456789',
+      ref: 'RXP982341824',
+    },
+    {
+      id: 'rx-3',
+      name: 'Bitcoin',
+      displayName: 'Crypto Purchase (BTC)',
+      subtitle: 'Sept 28, 2025, 1:12 PM',
+      amountDisplay: '- ₦ 150,000',
+      positive: false,
+      icon: 'currency-bitcoin',
+      type: 'sent',
+      amount: '150,000.00',
+      date: 'Sept 28, 2025',
+      time: '1:12 PM',
+      status: 'Completed',
+      bank: 'RexiPay',
+      account: 'Crypto',
+      ref: 'RXP982341825',
+    },
+    {
+      id: 'rx-4',
+      name: 'Airtime',
+      displayName: 'Airtime Purchase',
+      subtitle: 'Sept 27, 2025, 7:09 PM',
+      amountDisplay: '- ₦ 5,000',
+      positive: false,
+      icon: 'smartphone',
+      type: 'sent',
+      amount: '5,000.00',
+      date: 'Sept 27, 2025',
+      time: '7:09 PM',
+      status: 'Completed',
+      bank: 'MTN',
+      account: 'Airtime',
+      ref: 'RXP982341826',
     },
   ];
 
-  const cryptoAssetsList = [
-    { id: 'bitcoin', name: 'Bitcoin', symbol: 'btc', priceDisplay: '$94,520.00', changeDisplay: '+2.45%', positive: true, image: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png' },
-    { id: 'ethereum', name: 'Ethereum', symbol: 'eth', priceDisplay: '$3,340.50', changeDisplay: '+1.80%', positive: true, image: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png' },
-    { id: 'tether', name: 'Tether', symbol: 'usdt', priceDisplay: '$1.00', changeDisplay: '0.00%', positive: true, image: 'https://assets.coingecko.com/coins/images/325/large/Tether.png' },
-    { id: 'solana', name: 'Solana', symbol: 'sol', priceDisplay: '$185.20', changeDisplay: '-0.95%', positive: false, image: 'https://assets.coingecko.com/coins/images/4128/large/solana.png' },
-  ];
-
-  if (isInitialLoading) {
-    return <HomeScreenSkeleton />;
-  }
-
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
+    <View style={styles.screen}>
+      <StatusBar barStyle="light-content" />
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingTop: Math.max(insets.top, 10), paddingBottom: Math.max(insets.bottom, 100) },
-        ]}
+        contentContainerStyle={{
+          paddingTop: Math.max(insets.top, 12) + 8,
+          paddingBottom: Math.max(insets.bottom, 24) + 108,
+          paddingHorizontal: 20,
+        }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="transparent"
-            colors={['transparent']}
+            tintColor={LIME_UI.lime}
+            colors={[LIME_UI.lime]}
           />
         }
       >
-        {/* PULL TO REFRESH IOS SPINNER (#172FC7) */}
-        {refreshing && (
-          <View style={styles.pullRefreshBox}>
-            <IosSpinner size={34} color={colors.primary} />
-            <Text style={[styles.pullRefreshText, { color: colors.textSecondary }]}>Updating dashboard...</Text>
-          </View>
-        )}
-
-        {/* HEADER */}
         <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <TouchableOpacity onPress={() => navigation.navigate('AccountDetails')}>
-              <View style={[styles.avatarContainer, { backgroundColor: colors.surfaceVariant }]}>
-                <Text style={[styles.avatarInitial, { color: colors.textPrimary }]}>{initials}</Text>
-              </View>
+          <View style={styles.headerCopy}>
+            <Text style={styles.greeting}>{greetingForNow()}</Text>
+            <Text style={styles.name}>{firstName}</Text>
+          </View>
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('AccountDetails')}
+              style={styles.avatar}
+              accessibilityLabel="Account details"
+            >
+              <Text style={styles.avatarText}>{initials}</Text>
             </TouchableOpacity>
-            <View style={styles.greetingContainer}>
-              <Text style={[styles.greetingText, { color: colors.textSecondary }]}>Good morning,</Text>
-              <View style={styles.nameRow}>
-                <Text style={[styles.nameText, { color: colors.textPrimary }]}>{firstName}</Text>
-                <Text style={styles.waveEmoji}>👋</Text>
-              </View>
-            </View>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Notifications')}
+              style={styles.bell}
+              accessibilityLabel="Notifications"
+            >
+              <MaterialIcons name="notifications-none" size={22} color={LIME_UI.text} />
+              {unreadNotificationCount > 0 ? <View style={styles.bellDot} /> : null}
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Notifications')}
-            style={[styles.notifBtn, { backgroundColor: colors.primaryLight }]}
-          >
-            <MaterialIcons name="notifications-none" size={22} color={colors.textPrimary} />
-            {unreadNotificationCount > 0 && (
-              <View style={[styles.notifBadge, { backgroundColor: colors.accent }]} />
+        </View>
+
+        <View style={styles.balanceCard}>
+          <View style={styles.cardTopRow}>
+            {homeView === 0 ? (
+              <TouchableOpacity
+                style={styles.walletChip}
+                onPress={() => setShowAccountSheet(true)}
+                accessibilityLabel={`${currentAccount.code} wallet`}
+              >
+                <Text style={styles.walletFlag}>{currentAccount.flag}</Text>
+                <Text style={styles.walletChipText}>{currentAccount.code} Wallet</Text>
+                <MaterialIcons name="keyboard-arrow-down" size={18} color={LIME_UI.text} />
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.walletChip}>
+                <Text style={styles.walletFlag}>🪙</Text>
+                <Text style={styles.walletChipText}>Crypto Wallet</Text>
+              </View>
             )}
-          </TouchableOpacity>
-        </View>
-
-        {/* Wallet card: blue keeps the photo, bamboo uses the forest-green hero */}
-        {palette === 'bamboo' ? (
-        <View style={[styles.cardContainer, { backgroundColor: colors.heroBackground, shadowColor: colors.primary }]}>
-          <View style={[styles.cardOverlay, { backgroundColor: 'transparent' }]}>
-            {/* Top row: currency selector & Switch mode button */}
-            <View style={styles.cardTopRow}>
-              {homeView === 0 ? (
-                <TouchableOpacity
-                  style={styles.currencySelector}
-                  onPress={() => setShowAccountSheet(true)}
-                >
-                  <Text style={styles.flagText}>{currentAccount.flag}</Text>
-                  <Text style={styles.currencyText}>{currentAccount.code} Wallet</Text>
-                  <MaterialIcons name="keyboard-arrow-down" size={16} color="#FFF" />
-                </TouchableOpacity>
-              ) : (
-                <View style={styles.currencySelector}>
-                  <Text style={styles.flagText}>🪙</Text>
-                  <Text style={styles.currencyText}>Crypto Wallet</Text>
-                </View>
-              )}
-
-              <TouchableOpacity
-                style={styles.switchModeBtn}
-                onPress={handleSwitchMode}
-                activeOpacity={0.8}
-                disabled={isSwitching}
-              >
-                <MaterialIcons name="sync" size={14} color="#FFF" />
-                <Text style={styles.switchModeText}>Switch</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Balance */}
-            <View style={styles.balanceContainer}>
-              <View style={styles.balanceRow}>
-                <Text style={styles.balanceLabel}>
-                  {homeView === 0 ? 'Available Balance' : 'Crypto Portfolio Value'}
-                </Text>
-                <TouchableOpacity onPress={() => setBalanceHidden(!balanceHidden)}>
-                  <MaterialIcons
-                    name={balanceHidden ? 'visibility-off' : 'visibility'}
-                    size={16}
-                    color="rgba(255,255,255,0.75)"
-                  />
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.balanceAmount}>
-                {balanceHidden
-                  ? (homeView === 0 ? '₦••••••••' : '$••••••••')
-                  : (homeView === 0 ? currentAccount.balance : '$12,450.80')}
-              </Text>
-            </View>
-
-            {/* Action pills */}
-            <View style={styles.cardActions}>
-              {homeView === 0 ? (
-                <>
-                  <TouchableOpacity
-                    style={[
-                      styles.cardPill,
-                      palette === 'bamboo' && {
-                        backgroundColor: colors.pillBackground,
-                        borderColor: colors.pillBackground,
-                        borderRadius: 999,
-                      },
-                    ]}
-                    onPress={() => navigation.navigate('AddMoney')}
-                  >
-                    <View style={[styles.pillIconBox, palette === 'bamboo' && styles.pillIconBoxBamboo]}>
-                      <MaterialIcons name="add" size={14} color={palette === 'bamboo' ? colors.pillText : colors.primary} />
-                    </View>
-                    <Text style={[styles.pillText, palette === 'bamboo' && { color: colors.pillText }]}>Add Money</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={[
-                      styles.cardPill,
-                      palette === 'bamboo' && {
-                        backgroundColor: colors.pillBackground,
-                        borderColor: colors.pillBackground,
-                        borderRadius: 999,
-                      },
-                    ]}
-                    onPress={() => navigation.navigate('AccountDetails')}
-                  >
-                    <View style={[styles.pillIconBox, palette === 'bamboo' && styles.pillIconBoxBamboo]}>
-                      <MaterialIcons name="credit-card" size={14} color={palette === 'bamboo' ? colors.pillText : colors.primary} />
-                    </View>
-                    <Text style={[styles.pillText, palette === 'bamboo' && { color: colors.pillText }]}>Account Details</Text>
-                  </TouchableOpacity>
-                </>
-              ) : (
-                <>
-                  <TouchableOpacity
-                    style={[
-                      styles.cardPill,
-                      palette === 'bamboo' && {
-                        backgroundColor: colors.pillBackground,
-                        borderColor: colors.pillBackground,
-                        borderRadius: 999,
-                      },
-                    ]}
-                    onPress={() => navigation.navigate('CryptoReceive')}
-                  >
-                    <View style={[styles.pillIconBox, palette === 'bamboo' && styles.pillIconBoxBamboo]}>
-                      <MaterialIcons name="arrow-downward" size={14} color={palette === 'bamboo' ? colors.pillText : colors.primary} />
-                    </View>
-                    <Text style={[styles.pillText, palette === 'bamboo' && { color: colors.pillText }]}>Receive Crypto</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={[
-                      styles.cardPill,
-                      palette === 'bamboo' && {
-                        backgroundColor: colors.pillBackground,
-                        borderColor: colors.pillBackground,
-                        borderRadius: 999,
-                      },
-                    ]}
-                    onPress={() => navigation.navigate('CryptoMarket')}
-                  >
-                    <View style={[styles.pillIconBox, palette === 'bamboo' && styles.pillIconBoxBamboo]}>
-                      <MaterialIcons name="trending-up" size={14} color={palette === 'bamboo' ? colors.pillText : colors.primary} />
-                    </View>
-                    <Text style={[styles.pillText, palette === 'bamboo' && { color: colors.pillText }]}>Crypto Market</Text>
-                  </TouchableOpacity>
-                </>
-              )}
-            </View>
+            <TouchableOpacity
+              style={styles.switchBtn}
+              onPress={() => setHomeView((view) => (view === 0 ? 1 : 0))}
+              accessibilityLabel="Switch wallet"
+            >
+              <MaterialIcons name="sync" size={16} color={LIME_UI.text} />
+              <Text style={styles.switchText}>Switch</Text>
+            </TouchableOpacity>
           </View>
-        </View>
-        ) : (
-        <ImageBackground
-          source={require('../../../assets/images/wallet.png')}
-          style={styles.cardContainer}
-          imageStyle={styles.cardImageStyle}
-          resizeMode="cover"
-        >
-          <View style={styles.cardOverlay}>
-            <View style={styles.cardTopRow}>
-              {homeView === 0 ? (
-                <TouchableOpacity
-                  style={styles.currencySelector}
-                  onPress={() => setShowAccountSheet(true)}
-                >
-                  <Text style={styles.flagText}>{currentAccount.flag}</Text>
-                  <Text style={styles.currencyText}>{currentAccount.code} Wallet</Text>
-                  <MaterialIcons name="keyboard-arrow-down" size={16} color="#FFF" />
-                </TouchableOpacity>
-              ) : (
-                <View style={styles.currencySelector}>
-                  <Text style={styles.flagText}>🪙</Text>
-                  <Text style={styles.currencyText}>Crypto Wallet</Text>
-                </View>
-              )}
-              <TouchableOpacity
-                style={styles.switchModeBtn}
-                onPress={handleSwitchMode}
-                activeOpacity={0.8}
-                disabled={isSwitching}
-              >
-                <MaterialIcons name="sync" size={14} color="#FFF" />
-                <Text style={styles.switchModeText}>Switch</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.balanceContainer}>
-              <View style={styles.balanceRow}>
-                <Text style={styles.balanceLabel}>
-                  {homeView === 0 ? 'Available Balance' : 'Crypto Portfolio Value'}
-                </Text>
-                <TouchableOpacity onPress={() => setBalanceHidden(!balanceHidden)}>
-                  <MaterialIcons
-                    name={balanceHidden ? 'visibility-off' : 'visibility'}
-                    size={16}
-                    color="rgba(255,255,255,0.75)"
-                  />
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.balanceAmount}>
-                {balanceHidden
-                  ? (homeView === 0 ? '₦••••••••' : '$••••••••')
-                  : (homeView === 0 ? currentAccount.balance : '$12,450.80')}
-              </Text>
-            </View>
-            <View style={styles.cardActions}>
-              {homeView === 0 ? (
-                <>
-                  <TouchableOpacity style={styles.cardPill} onPress={() => navigation.navigate('AddMoney')}>
-                    <View style={styles.pillIconBox}>
-                      <MaterialIcons name="add" size={14} color={colors.primary} />
-                    </View>
-                    <Text style={styles.pillText}>Add Money</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.cardPill} onPress={() => navigation.navigate('AccountDetails')}>
-                    <View style={styles.pillIconBox}>
-                      <MaterialIcons name="credit-card" size={14} color={colors.primary} />
-                    </View>
-                    <Text style={styles.pillText}>Account Details</Text>
-                  </TouchableOpacity>
-                </>
-              ) : (
-                <>
-                  <TouchableOpacity style={styles.cardPill} onPress={() => navigation.navigate('CryptoReceive')}>
-                    <View style={styles.pillIconBox}>
-                      <MaterialIcons name="arrow-downward" size={14} color={colors.primary} />
-                    </View>
-                    <Text style={styles.pillText}>Receive Crypto</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.cardPill} onPress={() => navigation.navigate('CryptoMarket')}>
-                    <View style={styles.pillIconBox}>
-                      <MaterialIcons name="trending-up" size={14} color={colors.primary} />
-                    </View>
-                    <Text style={styles.pillText}>Crypto Market</Text>
-                  </TouchableOpacity>
-                </>
-              )}
-            </View>
-          </View>
-        </ImageBackground>
-        )}
 
-        {/* DYNAMIC CONTENT AREA WITH MOTION ANIMATION & #172FC7 IOS SPINNER LOADER */}
-        {isSwitching ? (
-          <View style={styles.switchingLoaderBox}>
-            <View style={[styles.spinnerCard, { backgroundColor: colors.cardBackground }]}>
-              <IosSpinner size={42} color={colors.primary} />
-              <Text style={[styles.switchingText, { color: colors.textPrimary }]}>
-                {switchingTo === 'crypto' ? 'Switching to Crypto Wallet...' : 'Switching to Bank Wallet...'}
-              </Text>
-            </View>
+          <View style={styles.balanceLabelRow}>
+            <Text style={styles.balanceLabel}>Available Balance</Text>
+            <TouchableOpacity
+              onPress={() => setBalanceHidden((hidden) => !hidden)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              accessibilityLabel={balanceHidden ? 'Show balance' : 'Hide balance'}
+            >
+              <MaterialIcons
+                name={balanceHidden ? 'visibility-off' : 'visibility'}
+                size={18}
+                color="rgba(255,255,255,0.72)"
+              />
+            </TouchableOpacity>
           </View>
-        ) : (
-          <Animated.View style={{ opacity: contentFadeAnim }}>
-            {/* QUICK ACTIONS ROW (Press & Hold Drag-to-Reorder) */}
-            <DraggableQuickActions
-              quickActions={quickActions}
-              setQuickActions={setQuickActions}
-              isEditing={isEditingQuickActions}
-              setIsEditing={setIsEditingQuickActions}
-              isDark={isDark}
-              colors={colors}
-              navigation={navigation}
-            />
+          <Text style={styles.balanceAmount}>{balanceLabel}</Text>
 
+          <View style={styles.cardActions}>
             {homeView === 0 ? (
               <>
-                {/* PAY & SERVICES */}
-                <View style={styles.sectionHeader}>
-                  <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Pay & Services</Text>
-                  <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('AllServices')}>
-                    <Text style={[styles.seeAllText, { color: colors.primary }]}>See all</Text>
-                    <MaterialIcons name="chevron-right" size={18} color={colors.primary} />
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.servicesGrid}>
-                  {HOME_QUICK_SERVICES.map((item, index) => (
-                    <TouchableOpacity key={index} style={styles.serviceItem} onPress={() => handleQuickService(item)}>
-                      <View style={[styles.serviceCard, { backgroundColor: colors.cardBackground }]}>
-                        <View style={[styles.serviceIconBox, { backgroundColor: colors.primaryLight }]}>
-                          <MaterialIcons name={item.icon} size={24} color={colors.primary} />
-                        </View>
-                        <Text style={[styles.serviceText, { color: colors.textPrimary }]} numberOfLines={1}>{item.label}</Text>
-                      </View>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-
-                {/* RECENT TRANSACTIONS */}
-                <View style={styles.sectionHeader}>
-                  <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Recent Transactions</Text>
-                  <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('Transactions')}>
-                    <Text style={[styles.seeAllText, { color: colors.primary }]}>See all</Text>
-                    <MaterialIcons name="chevron-right" size={18} color={colors.primary} />
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.transactionsList}>
-                  {mockTransactions.map((tx) => (
-                    <TouchableOpacity
-                      key={tx.id}
-                      style={styles.txItem}
-                      onPress={() => navigation.navigate('TransactionDetail', { transaction: tx })}
-                      activeOpacity={0.75}
-                    >
-                      <View style={[styles.txIconBox, { backgroundColor: tx.type === 'received' || tx.type === 'deposit' ? colors.primaryLight : (isDark ? '#F59E0B33' : '#FFF7ED') }]}>
-                        <MaterialIcons name={tx.type === 'received' || tx.type === 'deposit' ? "arrow-downward" : "flash-on"} size={24} color={tx.type === 'received' || tx.type === 'deposit' ? colors.primary : "#F59E0B"} />
-                      </View>
-                      <View style={styles.txDetails}>
-                        <Text style={[styles.txTitle, { color: colors.textPrimary }]}>{tx.displayName || tx.name}</Text>
-                        <Text style={[styles.txTime, { color: colors.textSecondary }]}>{tx.dateTime || tx.date}</Text>
-                      </View>
-                      <View style={styles.txAmountCol}>
-                        <Text style={[styles.txAmount, { color: tx.type === 'received' || tx.type === 'deposit' ? '#10B981' : colors.textPrimary }]}>{tx.amountDisplay}</Text>
-                        <View style={[styles.txStatusPill, { backgroundColor: isDark ? '#10B98133' : '#ECFDF5' }]}>
-                          <Text style={styles.txStatusText}>Successful</Text>
-                        </View>
-                      </View>
-                    </TouchableOpacity>
-                  ))}
-                </View>
+                <TouchableOpacity
+                  style={styles.cardPill}
+                  onPress={() => navigation.navigate('AddMoney')}
+                >
+                  <MaterialIcons name="add" size={18} color={LIME_UI.onLime} />
+                  <Text style={styles.cardPillText}>Add Money</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.cardPill}
+                  onPress={() => navigation.navigate('AccountDetails')}
+                >
+                  <MaterialIcons name="credit-card" size={16} color={LIME_UI.onLime} />
+                  <Text style={styles.cardPillText}>Account Details</Text>
+                </TouchableOpacity>
               </>
             ) : (
               <>
-                {/* MY ASSETS (Crypto View) */}
-                <View style={styles.sectionHeader}>
-                  <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>My Assets</Text>
-                  <TouchableOpacity style={styles.seeAllBtn} onPress={() => navigation.navigate('CryptoMarket')}>
-                    <Text style={[styles.seeAllText, { color: colors.primary }]}>See all</Text>
-                    <MaterialIcons name="chevron-right" size={18} color={colors.primary} />
-                  </TouchableOpacity>
-                </View>
-
-                <View style={[styles.cryptoAssetsCard, { backgroundColor: colors.cardBackground }]}>
-                  {cryptoAssetsList.map((coin, i) => (
-                    <React.Fragment key={coin.id}>
-                      <TouchableOpacity
-                        style={styles.cryptoRow}
-                        onPress={() => navigation.navigate('CryptoAssetDetail', { coinId: coin.id })}
-                        activeOpacity={0.75}
-                      >
-                        <Image source={{ uri: coin.image }} style={styles.coinIcon} />
-                        <View style={styles.coinInfo}>
-                          <Text style={[styles.coinName, { color: colors.textPrimary }]}>{coin.name}</Text>
-                          <Text style={[styles.coinSymbol, { color: colors.textSecondary }]}>{coin.symbol.toUpperCase()}</Text>
-                        </View>
-                        <View style={styles.coinPriceCol}>
-                          <Text style={[styles.coinPrice, { color: colors.textPrimary }]}>{coin.priceDisplay}</Text>
-                          <Text style={[styles.coinChange, { color: coin.positive ? '#10B981' : '#EF4444' }]}>
-                            {coin.changeDisplay}
-                          </Text>
-                        </View>
-                        <MaterialIcons name="chevron-right" size={20} color={colors.textSecondary} />
-                      </TouchableOpacity>
-                      {i < cryptoAssetsList.length - 1 && (
-                        <View style={[styles.assetDivider, { backgroundColor: colors.border }]} />
-                      )}
-                    </React.Fragment>
-                  ))}
-                </View>
+                <TouchableOpacity
+                  style={styles.cardPill}
+                  onPress={() => navigation.navigate('CryptoReceive')}
+                >
+                  <MaterialIcons name="arrow-downward" size={16} color={LIME_UI.onLime} />
+                  <Text style={styles.cardPillText}>Receive Crypto</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.cardPill}
+                  onPress={() => navigation.navigate('CryptoMarket')}
+                >
+                  <MaterialIcons name="trending-up" size={16} color={LIME_UI.onLime} />
+                  <Text style={styles.cardPillText}>Crypto Market</Text>
+                </TouchableOpacity>
               </>
             )}
-          </Animated.View>
-        )}
-
-        {/* REWARDS CAROUSEL — Bank view only */}
-        {homeView === 0 && (
-          <View style={styles.rewardCarouselContainer}>
-            <FlatList
-              ref={rewardCarouselRef}
-              data={REWARD_SLIDES}
-              keyExtractor={(item) => item.id}
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              scrollEventThrottle={16}
-              onMomentumScrollEnd={(e) => {
-                const newIndex = Math.round(
-                  e.nativeEvent.contentOffset.x / (width - 40)
-                );
-                setRewardIndex(newIndex);
-              }}
-              renderItem={({ item }) => (
-                <Image
-                  source={item.image}
-                  style={styles.rewardSlideImage}
-                  resizeMode="cover"
-                />
-              )}
-            />
           </View>
-        )}
+        </View>
 
+        <PromoCarousel onOpen={(route) => navigation.navigate(route)} />
+
+        <View style={styles.actionsRow}>
+          {QUICK_ACTIONS.map((action) => (
+            <TouchableOpacity
+              key={action.id}
+              style={styles.actionItem}
+              onPress={() => navigation.navigate(action.route)}
+              accessibilityLabel={action.label}
+            >
+              <View style={styles.actionBubble}>
+                <MaterialIcons name={action.icon} size={22} color={LIME_UI.lime} />
+              </View>
+              <Text style={styles.actionLabel} numberOfLines={2}>{action.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View style={styles.txCard}>
+          <View style={styles.txHeader}>
+            <Text style={styles.txTitle}>Recent Transactions</Text>
+            <TouchableOpacity
+              style={styles.seeAll}
+              onPress={() => navigation.navigate('Transactions')}
+            >
+              <Text style={styles.seeAllText}>See all</Text>
+              <MaterialIcons name="chevron-right" size={18} color={LIME_UI.lime} />
+            </TouchableOpacity>
+          </View>
+          {transactions.map((tx) => (
+            <TouchableOpacity
+              key={tx.id}
+              style={styles.txRow}
+              activeOpacity={0.75}
+              onPress={() => navigation.navigate('TransactionDetail', { transaction: tx })}
+            >
+              <View style={styles.txIcon}>
+                <MaterialIcons name={tx.icon} size={18} color={LIME_UI.onLime} />
+              </View>
+              <View style={styles.txCopy}>
+                <Text style={styles.txName} numberOfLines={1}>{tx.displayName}</Text>
+                <Text style={styles.txMeta}>{tx.subtitle}</Text>
+              </View>
+              <Text style={[styles.txAmount, tx.positive ? styles.txAmountIn : styles.txAmountOut]}>
+                {tx.amountDisplay}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </ScrollView>
 
       <AccountSwitcherSheet
         visible={showAccountSheet}
         onClose={() => setShowAccountSheet(false)}
         selectedAccount={selectedAccount}
-        onSelect={(acc) => setSelectedAccount(acc.id)}
-        accounts={currencyAccounts}
+        onSelect={(account) => setSelectedAccount(account.id)}
+        accounts={accounts}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  scrollContent: {
-    paddingHorizontal: SIDE,
+  screen: {
+    flex: 1,
+    backgroundColor: LIME_UI.background,
   },
   header: {
     flexDirection: 'row',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 22,
   },
-  headerLeft: {
+  headerCopy: {
+    flex: 1,
+    paddingRight: 12,
+  },
+  greeting: {
+    color: LIME_UI.muted,
+    fontSize: 16,
+    marginBottom: 2,
+  },
+  name: {
+    color: LIME_UI.text,
+    fontSize: 34,
+    fontWeight: '700',
+    letterSpacing: -0.6,
+  },
+  headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
+    marginTop: 6,
   },
-  avatarContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#2A2A2A',
+    borderWidth: 2,
+    borderColor: LIME_UI.lime,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 10,
   },
-  avatarInitial: {
-    fontSize: 15,
+  avatarText: {
+    color: LIME_UI.text,
     fontWeight: '700',
-  },
-  greetingContainer: {
-    justifyContent: 'center',
-  },
-  greetingText: {
-    fontSize: 11,
-    marginBottom: 1,
-  },
-  nameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  nameText: {
     fontSize: 15,
-    fontWeight: '700',
   },
-  waveEmoji: {
-    fontSize: 13,
-    marginLeft: 3,
-  },
-  notifBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+  bell: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: LIME_UI.bubble,
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
   },
-  notifBadge: {
+  bellDot: {
     position: 'absolute',
     top: 10,
-    right: 12,
+    right: 11,
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#172FC7',
+    backgroundColor: LIME_UI.lime,
   },
-  cardContainer: {
-    borderRadius: 20,
-    overflow: 'hidden',
-    marginBottom: 16,
-    shadowColor: '#172FC7',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.30,
-    shadowRadius: 14,
-    elevation: 8,
-  },
-  cardImageStyle: {
-    borderRadius: 20,
-  },
-  cardOverlay: {
-    backgroundColor: 'rgba(15, 40, 120, 0.45)',
-    borderRadius: 20,
-    padding: 16,
-    paddingBottom: 18,
+  balanceCard: {
+    backgroundColor: LIME_UI.card,
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: LIME_UI.cardBorder,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 16,
   },
   cardTopRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    justifyContent: 'space-between',
+    marginBottom: 22,
   },
-  switchModeBtn: {
+  walletChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    gap: 8,
+    backgroundColor: '#202020',
+    borderWidth: 1,
+    borderColor: '#303030',
+    borderRadius: 999,
     paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.35)',
+    paddingVertical: 10,
   },
-  switchModeText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  currencySelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  flagText: {
+  walletFlag: {
     fontSize: 16,
-    marginRight: 6,
   },
-  currencyText: {
-    color: '#FFF',
-    fontSize: 13,
-    fontWeight: '600',
-    marginRight: 4,
-  },
-  balanceContainer: {
-    marginBottom: 16,
-  },
-  balanceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 2,
-  },
-  balanceLabel: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: 12,
-    marginRight: 6,
-  },
-  balanceAmount: {
-    color: '#FFF',
-    fontSize: 26,
-    fontWeight: 'bold',
-  },
-  cardActions: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  cardPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
-  },
-  pillIconBox: {
-    width: 16,
-    height: 16,
-    borderRadius: 5,
-    backgroundColor: '#FFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 5,
-  },
-  pillIconBoxBamboo: {
-    backgroundColor: 'transparent',
-    width: 14,
-    marginRight: 4,
-  },
-  pillText: {
-    color: '#FFF',
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  sectionTitle: {
+  walletChipText: {
+    color: LIME_UI.text,
     fontSize: 15,
     fontWeight: '700',
   },
-  editBtn: {
+  switchBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 6,
+    borderRadius: 999,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.55)',
+    paddingHorizontal: 14,
+    paddingVertical: 9,
   },
-  editText: {
-    color: '#172FC7',
-    fontSize: 14,
+  switchText: {
+    color: LIME_UI.text,
+    fontSize: 15,
     fontWeight: '600',
-    marginRight: 4,
   },
-  seeAllBtn: {
+  balanceLabelRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
   },
-  seeAllText: {
-    color: '#172FC7',
-    fontSize: 14,
-    fontWeight: '600',
+  balanceLabel: {
+    color: 'rgba(255,255,255,0.78)',
+    fontSize: 15,
   },
-  quickActionsRow: {
+  balanceAmount: {
+    color: LIME_UI.text,
+    fontSize: 36,
+    fontWeight: '700',
+    letterSpacing: -0.8,
+    marginTop: 8,
+  },
+  cardActions: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-    padding: 12,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 2,
+    gap: 10,
+    marginTop: 22,
   },
-  reorderHintBar: {
+  cardPill: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
+    backgroundColor: LIME_UI.lime,
+    borderRadius: 999,
+    minHeight: 48,
+    paddingHorizontal: 12,
+  },
+  cardPillText: {
+    color: LIME_UI.onLime,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  promoViewport: {
+    marginTop: 16,
+    overflow: 'hidden',
+  },
+  promoIncoming: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+  },
+  sendButton: {
+    backgroundColor: LIME_UI.lime,
+    borderRadius: 999,
+    minHeight: 74,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  sendIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: LIME_UI.onLime,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sendCopy: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  sendTitle: {
+    color: LIME_UI.onLime,
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  sendSubtitle: {
+    color: 'rgba(16,16,16,0.62)',
+    fontSize: 13,
+    marginTop: 1,
+  },
+  sendArrow: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(16,16,16,0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 22,
+    marginBottom: 22,
+  },
+  actionItem: {
+    width: '18%',
+    alignItems: 'center',
+  },
+  actionBubble: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: LIME_UI.bubble,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 8,
   },
-  reorderHintText: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  actionBtnContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  inlineArrowRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 6,
-    gap: 4,
-  },
-  miniArrowBtn: {
-    paddingHorizontal: 4,
-    paddingVertical: 2,
-    borderRadius: 8,
-    backgroundColor: 'rgba(23, 47, 199, 0.12)',
-  },
-  actionBtn: {
-    alignItems: 'center',
-  },
-  actionIconBox: {
-    width: 46,
-    height: 46,
-    borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 6,
-  },
-  actionBtnText: {
+  actionLabel: {
+    color: LIME_UI.muted,
     fontSize: 11,
-    fontWeight: '600',
-  },
-  servicesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  serviceItem: {
-    width: '23.5%',
-    marginBottom: 10,
-  },
-  serviceCard: {
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 4,
-    borderRadius: 14,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  serviceIconBox: {
-    alignItems: 'center',
-    borderRadius: 14,
-    height: 42,
-    justifyContent: 'center',
-    width: 42,
-  },
-  serviceText: {
-    fontSize: 9.5,
-    fontWeight: '600',
-    marginTop: 4,
     textAlign: 'center',
+    lineHeight: 14,
   },
-  transactionsList: {
-    marginBottom: 12,
+  txCard: {
+    backgroundColor: LIME_UI.card,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: LIME_UI.cardBorder,
+    paddingHorizontal: 14,
+    paddingTop: 16,
+    paddingBottom: 6,
   },
-  txItem: {
+  txHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 14,
+    justifyContent: 'space-between',
+    marginBottom: 8,
   },
-  txIconBox: {
+  txTitle: {
+    color: LIME_UI.text,
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  seeAll: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  seeAllText: {
+    color: LIME_UI.lime,
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  txRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  txIcon: {
     width: 42,
     height: 42,
     borderRadius: 21,
+    backgroundColor: LIME_UI.lime,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 10,
   },
-  txDetails: {
+  txCopy: {
     flex: 1,
+    marginLeft: 12,
+    marginRight: 8,
   },
-  txTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    marginBottom: 2,
+  txName: {
+    color: LIME_UI.text,
+    fontSize: 15,
+    fontWeight: '600',
   },
-  txTime: {
-    fontSize: 11,
-  },
-  txAmountCol: {
-    alignItems: 'flex-end',
+  txMeta: {
+    color: LIME_UI.muted,
+    fontSize: 12,
+    marginTop: 2,
   },
   txAmount: {
-    fontSize: 13,
-    fontWeight: '700',
-    marginBottom: 4,
-  },
-  txStatusPill: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  txStatusText: {
-    color: '#10B981',
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  cryptoAssetsCard: {
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 2,
-  },
-  cryptoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-  },
-  coinIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 12,
-  },
-  coinInfo: {
-    flex: 1,
-  },
-  coinName: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  coinSymbol: {
-    fontSize: 12,
-    marginTop: 2,
-  },
-  coinPriceCol: {
-    alignItems: 'flex-end',
-    marginRight: 6,
-  },
-  coinPrice: {
-    fontSize: 15,
-    fontWeight: '700',
-  },
-  coinChange: {
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  assetDivider: {
-    height: 1,
-    marginLeft: 52,
-  },
-  switchingLoaderBox: {
-    paddingVertical: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  spinnerCard: {
-    paddingHorizontal: 28,
-    paddingVertical: 24,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 16,
-    elevation: 3,
-  },
-  switchingText: {
-    marginTop: 14,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
   },
-  pullRefreshBox: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    marginBottom: 8,
+  txAmountIn: {
+    color: LIME_UI.lime,
   },
-  pullRefreshText: {
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 6,
-  },
-  rewardCarouselContainer: {
-    marginHorizontal: 0,
-    marginTop: 0,
-    marginBottom: 14,
-  },
-  rewardSlideImage: {
-    width: width - 40,
-    height: 110,
-    borderRadius: 14,
-    overflow: 'hidden',
-  },
-  rewardDots: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 8,
-    gap: 5,
-  },
-  rewardDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-  },
-  rewardDotActive: {
-    width: 16,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: '#172FC7',
+  txAmountOut: {
+    color: '#D0D0D0',
   },
 });

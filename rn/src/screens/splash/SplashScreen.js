@@ -1,79 +1,92 @@
-import React, { useEffect, useRef } from 'react';
-import { StyleSheet, Animated, Dimensions } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Dimensions, Image, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '../../theme/ThemeContext';
 
 const { width } = Dimensions.get('window');
-const logoWidth = Math.min(width * 0.6, 260);
+const iconSize = Math.min(width * 0.42, 180);
+const wordmarkWidth = Math.min(width * 0.72, 320);
 
 export default function SplashScreen({ onFinish }) {
-  const { colors, isDark } = useTheme();
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0.8)).current;
-  const logoScale = useRef(new Animated.Value(0.6)).current;
+  const [showWordmark, setShowWordmark] = useState(false);
+  const iconOpacity = useRef(new Animated.Value(0)).current;
+  const iconScale = useRef(new Animated.Value(0.86)).current;
+  const wordmarkOpacity = useRef(new Animated.Value(0)).current;
+  const wordmarkX = useRef(new Animated.Value(28)).current;
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim, {
+      Animated.timing(iconOpacity, {
         toValue: 1,
-        duration: 800,
+        duration: 420,
         useNativeDriver: true,
       }),
-      Animated.spring(scaleAnim, {
+      Animated.spring(iconScale, {
         toValue: 1,
         useNativeDriver: true,
-        tension: 55,
-        friction: 9,
-      }),
-    ]).start();
-
-    Animated.sequence([
-      Animated.delay(300),
-      Animated.spring(logoScale, {
-        toValue: 1,
-        useNativeDriver: true,
-        tension: 80,
+        tension: 70,
         friction: 8,
       }),
     ]).start();
 
-    const t = setTimeout(() => {
+    const revealWordmark = setTimeout(() => {
+      setShowWordmark(true);
+      Animated.parallel([
+        Animated.timing(iconOpacity, {
+          toValue: 0,
+          duration: 280,
+          useNativeDriver: true,
+        }),
+        Animated.timing(wordmarkOpacity, {
+          toValue: 1,
+          duration: 420,
+          useNativeDriver: true,
+        }),
+        Animated.timing(wordmarkX, {
+          toValue: 0,
+          duration: 420,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, 1100);
+
+    const finish = setTimeout(() => {
       if (onFinish) onFinish();
-    }, 3200);
-    return () => clearTimeout(t);
-  }, []);
+    }, 2600);
+
+    return () => {
+      clearTimeout(revealWordmark);
+      clearTimeout(finish);
+    };
+  }, [iconOpacity, iconScale, onFinish, wordmarkOpacity, wordmarkX]);
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        { backgroundColor: colors.background },
-      ]}
-    >
+    <SafeAreaView style={styles.container}>
       <Animated.View
         style={[
-          styles.content,
-          {
-            opacity: fadeAnim,
-            transform: [{ scale: scaleAnim }],
-          },
+          styles.layer,
+          { opacity: iconOpacity, transform: [{ scale: iconScale }] },
         ]}
       >
-        <Animated.Image
-          source={
-            isDark
-              ? require('../../../assets/images/dark-logo-splash.png')
-              : require('../../../assets/images/light-logo-splash.png')
-          }
-          style={[
-            styles.logoImage,
-            {
-              transform: [{ scale: logoScale }],
-            },
-          ]}
+        <Image
+          source={require('../../../assets/images/new.png')}
+          style={styles.icon}
           resizeMode="contain"
         />
       </Animated.View>
+      {showWordmark ? (
+        <Animated.View
+          style={[
+            styles.layer,
+            { opacity: wordmarkOpacity, transform: [{ translateX: wordmarkX }] },
+          ]}
+        >
+          <Image
+            source={require('../../../assets/images/newb.png')}
+            style={styles.wordmark}
+            resizeMode="contain"
+          />
+        </Animated.View>
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -81,15 +94,21 @@ export default function SplashScreen({ onFinish }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: 32,
   },
-  content: {
+  layer: {
+    position: 'absolute',
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  logoImage: {
-    width: logoWidth,
-    height: logoWidth * (922 / 2048),
+  icon: {
+    width: iconSize,
+    height: iconSize,
+  },
+  wordmark: {
+    width: wordmarkWidth,
+    height: wordmarkWidth * 0.42,
   },
 });
