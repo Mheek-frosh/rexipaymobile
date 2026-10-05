@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
-  Switch,
   Image,
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
@@ -30,7 +29,7 @@ const MENU_ITEMS = [
 ];
 
 export default function ProfileScreen() {
-  const { colors, isDark, toggleTheme } = useTheme();
+  const { colors, themeMode, setThemeMode } = useTheme();
   const { userName, userPhone, logout } = useAuth();
   const { signOut } = useClerkAuth();
   const navigation = useNavigation();
@@ -111,7 +110,7 @@ export default function ProfileScreen() {
               )}
             </View>
             <View style={[styles.avatarEditBadge, { backgroundColor: colors.primary }]}>
-              <MaterialIcons name="edit" size={14} color="#FFF" />
+              <MaterialIcons name="edit" size={14} color={colors.onPrimary} />
             </View>
           </TouchableOpacity>
           <View style={styles.userInfo}>
@@ -144,36 +143,39 @@ export default function ProfileScreen() {
         {/* Menu List */}
         <View style={[styles.menuCard, { backgroundColor: colors.cardBackground }]}>
           {/* Dark Mode Toggle */}
-          <TouchableOpacity
-            style={[styles.menuItem, { borderBottomColor: colors.border }]}
-            onPress={toggleTheme}
-          >
-            <View
-              style={[
-                styles.menuIconBg,
-                {
-                  backgroundColor: isDark
-                    ? `${colors.surfaceVariant}`
-                    : '#F5F5F5',
-                },
-              ]}
-            >
-              <MaterialIcons
-                name={isDark ? 'light-mode' : 'dark-mode'}
-                size={20}
-                color={colors.textPrimary}
-              />
+          <View style={[styles.menuItem, { borderBottomColor: colors.border }]}>
+            <View style={[styles.menuIconBg, { backgroundColor: colors.surfaceVariant }]}>
+              <MaterialIcons name="brightness-6" size={20} color={colors.textPrimary} />
             </View>
-            <Text style={[styles.menuTitle, { color: colors.textPrimary }]}>
-              {isDark ? 'Light mode' : 'Dark mode'}
-            </Text>
-            <Switch
-              value={isDark}
-              onValueChange={toggleTheme}
-              trackColor={{ false: '#E0E0E0', true: colors.primary }}
-              thumbColor="#FFF"
-            />
-          </TouchableOpacity>
+            <View style={styles.appearanceCopy}>
+              <Text style={[styles.menuTitle, { color: colors.textPrimary, flex: 0 }]}>Appearance</Text>
+              <Text style={[styles.appearanceHint, { color: colors.textSecondary }]}>
+                {themeMode === 'system' ? 'Matches your phone' : themeMode === 'dark' ? 'Dark' : 'Light'}
+              </Text>
+            </View>
+            <View style={[styles.modeRow, { backgroundColor: colors.surfaceVariant }]}>
+              {[
+                { id: 'system', label: 'Phone' },
+                { id: 'light', label: 'Light' },
+                { id: 'dark', label: 'Dark' },
+              ].map((option) => {
+                const selected = themeMode === option.id;
+                return (
+                  <TouchableOpacity
+                    key={option.id}
+                    style={[styles.modeChip, selected && { backgroundColor: colors.primary }]}
+                    onPress={() => setThemeMode(option.id)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                  >
+                    <Text style={[styles.modeChipText, { color: selected ? colors.onPrimary : colors.textSecondary }]}>
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
 
           {MENU_ITEMS.map((item, i) => {
             return (
@@ -304,4 +306,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   menuTitle: { flex: 1, fontSize: 15, fontWeight: '600' },
+  appearanceCopy: { flex: 1 },
+  appearanceHint: { fontSize: 12, marginTop: 2 },
+  modeRow: { flexDirection: 'row', borderRadius: 999, padding: 3 },
+  modeChip: { borderRadius: 999, paddingHorizontal: 8, paddingVertical: 6 },
+  modeChipText: { fontSize: 11, fontWeight: '700' },
 });

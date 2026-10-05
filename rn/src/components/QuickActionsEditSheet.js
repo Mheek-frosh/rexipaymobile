@@ -120,7 +120,7 @@ export default function QuickActionsEditSheet({
                     </View>
                     <View style={styles.itemTextCol}>
                       <Text style={[styles.itemLabel, { color: colors.textPrimary }]}>{item.label}</Text>
-                      <Text style={styles.posBadge}>Slot {index + 1}</Text>
+                      <Text style={[styles.posBadge, { color: colors.accentText }]}>Slot {index + 1}</Text>
                     </View>
                   </View>
 
@@ -151,14 +151,14 @@ export default function QuickActionsEditSheet({
                           style={[
                             styles.slotBtn,
                             { backgroundColor: isDark ? '#1F222B' : '#FFFFFF', borderColor: isDark ? '#374151' : '#E5E7EB' },
-                            index === pos && { backgroundColor: '#172FC7', borderColor: '#172FC7' },
+                            index === pos && { backgroundColor: colors.primary, borderColor: colors.primary },
                           ]}
                           onPress={() => setPosition(index, pos)}
                         >
                           <Text
                             style={[
                               styles.slotBtnText,
-                              { color: index === pos ? '#FFF' : colors.textSecondary },
+                              { color: index === pos ? colors.onPrimary : colors.textSecondary },
                             ]}
                           >
                             {pos + 1}
@@ -171,8 +171,12 @@ export default function QuickActionsEditSheet({
               ))}
             </View>
 
-            <TouchableOpacity style={styles.saveBtn} onPress={handleSave} activeOpacity={0.85}>
-              <Text style={styles.saveBtnText}>Save Arrangement</Text>
+            <TouchableOpacity
+              style={[styles.saveBtn, { backgroundColor: colors.primary, shadowColor: colors.primary }]}
+              onPress={handleSave}
+              activeOpacity={0.85}
+            >
+              <Text style={[styles.saveBtnText, { color: colors.onPrimary }]}>Save Arrangement</Text>
             </TouchableOpacity>
           </Animated.View>
         </TouchableOpacity>
@@ -255,7 +259,7 @@ const styles = StyleSheet.create({
   },
   posBadge: {
     fontSize: 11,
-    color: '#172FC7',
+    color: '#C6F54E',
     fontWeight: '600',
     marginTop: 2,
   },

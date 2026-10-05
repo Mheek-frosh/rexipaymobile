@@ -1,7 +1,6 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { ActivityIndicator, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
-import IosSpinner from './IosSpinner';
 
 export default function PrimaryButton({ text, onPress, disabled, loading, style, spinnerColor }) {
   const { colors } = useTheme();
@@ -20,7 +19,7 @@ export default function PrimaryButton({ text, onPress, disabled, loading, style,
       activeOpacity={0.8}
     >
       {loading ? (
-        <IosSpinner size={22} color={spinnerColor || colors.onPrimary} />
+        <ActivityIndicator size="small" color={spinnerColor || colors.onPrimary} />
       ) : (
         <Text style={[styles.text, { color: colors.onPrimary }]}>{text}</Text>
       )}
@@ -30,10 +29,10 @@ export default function PrimaryButton({ text, onPress, disabled, loading, style,
 
 const styles = StyleSheet.create({
   btn: {
-    paddingVertical: 16,
+    paddingVertical: 14,
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  text: { color: '#FFF', fontSize: 16, fontWeight: '600' },
+  text: { color: '#FFF', fontSize: 15, fontWeight: '600' },
 });

@@ -17,7 +17,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
 import { formatNairaBalance, useWallet } from '../../context/WalletContext';
 import { AccountSwitcherSheet } from '../../components/BottomSheet';
-import { LIME_UI } from '../../theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
+import { LIME_DARK, LIME_LIGHT } from '../../theme/theme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -45,28 +46,28 @@ const PROMO_CARDS = [
   },
 ];
 
-function PromoCard({ item, onPress }) {
+function PromoCard({ item, onPress, styles }) {
   return (
     <TouchableOpacity style={styles.sendButton} activeOpacity={0.88} onPress={onPress}>
       <View style={styles.sendIcon}>
-        <MaterialIcons name={item.icon} size={18} color={LIME_UI.text} />
+        <MaterialIcons name={item.icon} size={18} color={LIME_DARK.text} />
       </View>
       <View style={styles.sendCopy}>
         <Text style={styles.sendTitle}>{item.title}</Text>
         <Text style={styles.sendSubtitle}>{item.subtitle}</Text>
       </View>
       <View style={styles.sendArrow}>
-        <MaterialIcons name="arrow-forward" size={18} color={LIME_UI.onLime} />
+        <MaterialIcons name="arrow-forward" size={18} color={LIME_DARK.onLime} />
       </View>
     </TouchableOpacity>
   );
 }
 
-function PromoCarousel({ onOpen }) {
+function PromoCarousel({ onOpen, styles }) {
   const [index, setIndex] = useState(0);
   const shift = useRef(new Animated.Value(0)).current;
   const indexRef = useRef(0);
-  const travel = SCREEN_WIDTH - 40;
+  const travel = SCREEN_WIDTH - 32;
 
   useEffect(() => {
     let active = true;
@@ -104,12 +105,14 @@ function PromoCarousel({ onOpen }) {
       <Animated.View style={{ transform: [{ translateX: currentX }] }}>
         <PromoCard
           item={PROMO_CARDS[index]}
+          styles={styles}
           onPress={() => onOpen(PROMO_CARDS[index].route)}
         />
       </Animated.View>
       <Animated.View style={[styles.promoIncoming, { transform: [{ translateX: incomingX }] }]}>
         <PromoCard
           item={PROMO_CARDS[nextIndex]}
+          styles={styles}
           onPress={() => onOpen(PROMO_CARDS[nextIndex].route)}
         />
       </Animated.View>
@@ -133,6 +136,9 @@ function greetingForNow() {
 }
 
 export default function HomeScreen() {
+  const { isDark } = useTheme();
+  const ui = isDark ? LIME_DARK : LIME_LIGHT;
+  const styles = useMemo(() => createStyles(ui), [ui]);
   const { userName } = useAuth();
   const { notifications } = useNotifications();
   const { ngnBalance } = useWallet();
@@ -239,20 +245,20 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.screen}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
-          paddingTop: Math.max(insets.top, 12) + 8,
-          paddingBottom: Math.max(insets.bottom, 24) + 108,
-          paddingHorizontal: 20,
+          paddingTop: Math.max(insets.top, 8) + 4,
+          paddingBottom: Math.max(insets.bottom, 16) + 88,
+          paddingHorizontal: 16,
         }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={LIME_UI.lime}
-            colors={[LIME_UI.lime]}
+            tintColor={ui.lime}
+            colors={[ui.lime]}
           />
         }
       >
@@ -274,7 +280,7 @@ export default function HomeScreen() {
               style={styles.bell}
               accessibilityLabel="Notifications"
             >
-              <MaterialIcons name="notifications-none" size={22} color={LIME_UI.text} />
+              <MaterialIcons name="notifications-none" size={18} color={ui.text} />
               {unreadNotificationCount > 0 ? <View style={styles.bellDot} /> : null}
             </TouchableOpacity>
           </View>
@@ -290,7 +296,7 @@ export default function HomeScreen() {
               >
                 <Text style={styles.walletFlag}>{currentAccount.flag}</Text>
                 <Text style={styles.walletChipText}>{currentAccount.code} Wallet</Text>
-                <MaterialIcons name="keyboard-arrow-down" size={18} color={LIME_UI.text} />
+                <MaterialIcons name="keyboard-arrow-down" size={18} color={LIME_DARK.text} />
               </TouchableOpacity>
             ) : (
               <View style={styles.walletChip}>
@@ -303,7 +309,7 @@ export default function HomeScreen() {
               onPress={() => setHomeView((view) => (view === 0 ? 1 : 0))}
               accessibilityLabel="Switch wallet"
             >
-              <MaterialIcons name="sync" size={16} color={LIME_UI.text} />
+              <MaterialIcons name="sync" size={16} color={LIME_DARK.text} />
               <Text style={styles.switchText}>Switch</Text>
             </TouchableOpacity>
           </View>
@@ -331,14 +337,14 @@ export default function HomeScreen() {
                   style={styles.cardPill}
                   onPress={() => navigation.navigate('AddMoney')}
                 >
-                  <MaterialIcons name="add" size={18} color={LIME_UI.onLime} />
+                  <MaterialIcons name="add" size={18} color={ui.onLime} />
                   <Text style={styles.cardPillText}>Add Money</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.cardPill}
                   onPress={() => navigation.navigate('AccountDetails')}
                 >
-                  <MaterialIcons name="credit-card" size={16} color={LIME_UI.onLime} />
+                  <MaterialIcons name="credit-card" size={16} color={ui.onLime} />
                   <Text style={styles.cardPillText}>Account Details</Text>
                 </TouchableOpacity>
               </>
@@ -348,14 +354,14 @@ export default function HomeScreen() {
                   style={styles.cardPill}
                   onPress={() => navigation.navigate('CryptoReceive')}
                 >
-                  <MaterialIcons name="arrow-downward" size={16} color={LIME_UI.onLime} />
+                  <MaterialIcons name="arrow-downward" size={16} color={ui.onLime} />
                   <Text style={styles.cardPillText}>Receive Crypto</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.cardPill}
                   onPress={() => navigation.navigate('CryptoMarket')}
                 >
-                  <MaterialIcons name="trending-up" size={16} color={LIME_UI.onLime} />
+                  <MaterialIcons name="trending-up" size={16} color={ui.onLime} />
                   <Text style={styles.cardPillText}>Crypto Market</Text>
                 </TouchableOpacity>
               </>
@@ -363,7 +369,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <PromoCarousel onOpen={(route) => navigation.navigate(route)} />
+        <PromoCarousel styles={styles} onOpen={(route) => navigation.navigate(route)} />
 
         <View style={styles.actionsRow}>
           {QUICK_ACTIONS.map((action) => (
@@ -374,7 +380,7 @@ export default function HomeScreen() {
               accessibilityLabel={action.label}
             >
               <View style={styles.actionBubble}>
-                <MaterialIcons name={action.icon} size={22} color={LIME_UI.lime} />
+                <MaterialIcons name={action.icon} size={20} color={ui.accentText} />
               </View>
               <Text style={styles.actionLabel} numberOfLines={2}>{action.label}</Text>
             </TouchableOpacity>
@@ -389,7 +395,7 @@ export default function HomeScreen() {
               onPress={() => navigation.navigate('Transactions')}
             >
               <Text style={styles.seeAllText}>See all</Text>
-              <MaterialIcons name="chevron-right" size={18} color={LIME_UI.lime} />
+              <MaterialIcons name="chevron-right" size={18} color={ui.accentText} />
             </TouchableOpacity>
           </View>
           {transactions.map((tx) => (
@@ -400,7 +406,7 @@ export default function HomeScreen() {
               onPress={() => navigation.navigate('TransactionDetail', { transaction: tx })}
             >
               <View style={styles.txIcon}>
-                <MaterialIcons name={tx.icon} size={18} color={LIME_UI.onLime} />
+                <MaterialIcons name={tx.icon} size={18} color={ui.onLime} />
               </View>
               <View style={styles.txCopy}>
                 <Text style={styles.txName} numberOfLines={1}>{tx.displayName}</Text>
@@ -425,29 +431,30 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function createStyles(ui) {
+  return StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: LIME_UI.background,
+    backgroundColor: ui.background,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
-    marginBottom: 22,
+    marginBottom: 14,
   },
   headerCopy: {
     flex: 1,
     paddingRight: 12,
   },
   greeting: {
-    color: LIME_UI.muted,
-    fontSize: 16,
-    marginBottom: 2,
+    color: ui.muted,
+    fontSize: 13,
+    marginBottom: 1,
   },
   name: {
-    color: LIME_UI.text,
-    fontSize: 34,
+    color: ui.text,
+    fontSize: 26,
     fontWeight: '700',
     letterSpacing: -0.6,
   },
@@ -458,25 +465,25 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: '#2A2A2A',
     borderWidth: 2,
-    borderColor: LIME_UI.lime,
+    borderColor: ui.lime,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: {
-    color: LIME_UI.text,
+    color: LIME_DARK.text,
     fontWeight: '700',
-    fontSize: 15,
+    fontSize: 13,
   },
   bell: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: LIME_UI.bubble,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: ui.bubble,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -487,22 +494,22 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: LIME_UI.lime,
+    backgroundColor: ui.lime,
   },
   balanceCard: {
-    backgroundColor: LIME_UI.card,
-    borderRadius: 28,
+    backgroundColor: LIME_DARK.card,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: LIME_UI.cardBorder,
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 16,
+    borderColor: LIME_DARK.cardBorder,
+    paddingHorizontal: 14,
+    paddingTop: 12,
+    paddingBottom: 12,
   },
   cardTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 22,
+    marginBottom: 14,
   },
   walletChip: {
     flexDirection: 'row',
@@ -512,15 +519,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#303030',
     borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
   },
   walletFlag: {
     fontSize: 16,
   },
   walletChipText: {
-    color: LIME_UI.text,
-    fontSize: 15,
+    color: LIME_DARK.text,
+    fontSize: 13,
     fontWeight: '700',
   },
   switchBtn: {
@@ -530,12 +537,12 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1.5,
     borderColor: 'rgba(255,255,255,0.55)',
-    paddingHorizontal: 14,
-    paddingVertical: 9,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
   },
   switchText: {
-    color: LIME_UI.text,
-    fontSize: 15,
+    color: LIME_DARK.text,
+    fontSize: 13,
     fontWeight: '600',
   },
   balanceLabelRow: {
@@ -545,11 +552,11 @@ const styles = StyleSheet.create({
   },
   balanceLabel: {
     color: 'rgba(255,255,255,0.78)',
-    fontSize: 15,
+    fontSize: 13,
   },
   balanceAmount: {
-    color: LIME_UI.text,
-    fontSize: 36,
+    color: LIME_DARK.text,
+    fontSize: 28,
     fontWeight: '700',
     letterSpacing: -0.8,
     marginTop: 8,
@@ -557,7 +564,7 @@ const styles = StyleSheet.create({
   cardActions: {
     flexDirection: 'row',
     gap: 10,
-    marginTop: 22,
+    marginTop: 14,
   },
   cardPill: {
     flex: 1,
@@ -565,18 +572,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    backgroundColor: LIME_UI.lime,
+    backgroundColor: ui.lime,
     borderRadius: 999,
-    minHeight: 48,
+    minHeight: 40,
     paddingHorizontal: 12,
   },
   cardPillText: {
-    color: LIME_UI.onLime,
-    fontSize: 14,
+    color: ui.onLime,
+    fontSize: 13,
     fontWeight: '700',
   },
   promoViewport: {
-    marginTop: 16,
+    marginTop: 12,
     overflow: 'hidden',
   },
   promoIncoming: {
@@ -586,19 +593,19 @@ const styles = StyleSheet.create({
     top: 0,
   },
   sendButton: {
-    backgroundColor: LIME_UI.lime,
+    backgroundColor: ui.lime,
     borderRadius: 999,
-    minHeight: 74,
+    minHeight: 58,
     paddingHorizontal: 10,
     paddingVertical: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
   sendIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: LIME_UI.onLime,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: ui.onLime,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -607,8 +614,8 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   sendTitle: {
-    color: LIME_UI.onLime,
-    fontSize: 18,
+    color: ui.onLime,
+    fontSize: 15,
     fontWeight: '700',
   },
   sendSubtitle: {
@@ -617,9 +624,9 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
   sendArrow: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: 'rgba(16,16,16,0.08)',
     alignItems: 'center',
     justifyContent: 'center',
@@ -627,33 +634,33 @@ const styles = StyleSheet.create({
   actionsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 22,
-    marginBottom: 22,
+    marginTop: 16,
+    marginBottom: 16,
   },
   actionItem: {
     width: '18%',
     alignItems: 'center',
   },
   actionBubble: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: LIME_UI.bubble,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: ui.bubble,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
   },
   actionLabel: {
-    color: LIME_UI.muted,
+    color: ui.muted,
     fontSize: 11,
     textAlign: 'center',
     lineHeight: 14,
   },
   txCard: {
-    backgroundColor: LIME_UI.card,
+    backgroundColor: ui.card,
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: LIME_UI.cardBorder,
+    borderColor: ui.cardBorder,
     paddingHorizontal: 14,
     paddingTop: 16,
     paddingBottom: 6,
@@ -665,8 +672,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   txTitle: {
-    color: LIME_UI.text,
-    fontSize: 18,
+    color: ui.text,
+    fontSize: 16,
     fontWeight: '700',
   },
   seeAll: {
@@ -674,20 +681,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   seeAllText: {
-    color: LIME_UI.lime,
+    color: ui.accentText,
     fontWeight: '600',
     fontSize: 14,
   },
   txRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   txIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: LIME_UI.lime,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: ui.lime,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -697,12 +704,12 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   txName: {
-    color: LIME_UI.text,
-    fontSize: 15,
+    color: ui.text,
+    fontSize: 14,
     fontWeight: '600',
   },
   txMeta: {
-    color: LIME_UI.muted,
+    color: ui.muted,
     fontSize: 12,
     marginTop: 2,
   },
@@ -711,9 +718,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   txAmountIn: {
-    color: LIME_UI.lime,
+    color: ui.accentText,
   },
   txAmountOut: {
-    color: '#D0D0D0',
+    color: ui.amountOut,
   },
 });
+}

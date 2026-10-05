@@ -185,5 +185,5 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
   },
-  addBtnText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
+  addBtnText: { color: '#101010', fontSize: 16, fontWeight: '600' },
 });

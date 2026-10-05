@@ -125,5 +125,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
   },
-  sendBtnText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
+  sendBtnText: { color: '#101010', fontSize: 16, fontWeight: '600' },
 });

@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  buyBtnText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
+  buyBtnText: { color: '#101010', fontSize: 16, fontWeight: '600' },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -508,5 +508,5 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
   },
-  summaryConfirmText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
+  summaryConfirmText: { color: '#101010', fontSize: 16, fontWeight: '600' },
 });

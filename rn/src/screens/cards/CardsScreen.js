@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 20,
   },
-  editBtnText: { color: '#FFF', fontSize: 14, fontWeight: '600' },
+  editBtnText: { color: '#101010', fontSize: 14, fontWeight: '600' },
   limitDivider: { height: 1, marginTop: 20 },
   limitRow: {
     flexDirection: 'row',

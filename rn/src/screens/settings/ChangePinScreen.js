@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  primaryBtnText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
+  primaryBtnText: { color: '#101010', fontSize: 16, fontWeight: '600' },
   helper: { fontSize: 13, lineHeight: 20, marginTop: 16 },
   helperStrong: { fontWeight: '600' },
 });

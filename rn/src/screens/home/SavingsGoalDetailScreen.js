@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
   },
-  ctaText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
+  ctaText: { color: '#101010', fontSize: 16, fontWeight: '700' },
   freqRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 4 },
   freqChip: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 8 },
   freqChipText: { fontSize: 12, fontWeight: '600' },

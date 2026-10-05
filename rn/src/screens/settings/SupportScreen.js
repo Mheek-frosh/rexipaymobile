@@ -259,7 +259,7 @@ export default function SupportScreen() {
             onPress={() => handleSend()}
             activeOpacity={0.85}
           >
-            <MaterialIcons name="send" size={18} color="#FFF" />
+            <MaterialIcons name="send" size={18} color="#101010" />
           </TouchableOpacity>
         </View>
       </View>

@@ -153,23 +153,23 @@ export default function CryptoAssetDetailScreen() {
               onPress={() => navigation.navigate('SendCrypto')}
               activeOpacity={0.9}
             >
-              <MaterialIcons name="north-east" size={20} color="#FFF" />
-              <Text style={styles.actionBtnText}>Send</Text>
+              <MaterialIcons name="north-east" size={20} color={colors.onPrimary} />
+              <Text style={[styles.actionBtnText, { color: colors.onPrimary }]}>Send</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.actionBtn, { backgroundColor: '#172FC7' }]}
+              style={[styles.actionBtn, { backgroundColor: colors.textPrimary }]}
               onPress={() => navigation.navigate('CryptoReceive')}
               activeOpacity={0.9}
             >
-              <MaterialIcons name="south-west" size={20} color="#FFF" />
-              <Text style={styles.actionBtnText}>Receive</Text>
+              <MaterialIcons name="south-west" size={20} color={colors.background} />
+              <Text style={[styles.actionBtnText, { color: colors.background }]}>Receive</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.actionBtn, { backgroundColor: '#FF9800' }]}
               onPress={() => navigation.navigate('CryptoSell')}
               activeOpacity={0.9}
             >
-              <MaterialIcons name="sell" size={20} color="#FFF" />
+              <MaterialIcons name="sell" size={20} color="#101010" />
               <Text style={styles.actionBtnText}>Sell</Text>
             </TouchableOpacity>
           </View>
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 },
   muted: { marginTop: 12, fontSize: 14, textAlign: 'center' },
   retry: { marginTop: 16, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 16 },
-  retryText: { color: '#FFF', fontWeight: '700' },
+  retryText: { color: '#101010', fontWeight: '700' },
   content: { paddingHorizontal: 20, paddingBottom: 32 },
   heroRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 8 },
   heroIcon: { width: 56, height: 56, borderRadius: 28 },
@@ -234,5 +234,5 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 16,
   },
-  actionBtnText: { color: '#FFF', fontWeight: '700', fontSize: 14 },
+  actionBtnText: { color: '#101010', fontWeight: '700', fontSize: 14 },
 });

@@ -162,14 +162,14 @@ function CardOptionRow({ icon, title, subtitle, onPress, colors }) {
       activeOpacity={0.78}
     >
       <View style={[styles.optionIconBox, { backgroundColor: colors.primaryLight }]}>
-        <MaterialIcons name={icon} size={24} color={colors.primary} />
+        <MaterialIcons name={icon} size={24} color={colors.accentText} />
       </View>
       <View style={styles.optionText}>
         <Text style={[styles.optionTitle, { color: colors.textPrimary }]}>{title}</Text>
         <Text style={[styles.optionSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
       </View>
       <View style={[styles.arrowBtn, { backgroundColor: colors.primary }]}>
-        <MaterialIcons name="arrow-forward" size={20} color="#FFF" />
+        <MaterialIcons name="arrow-forward" size={20} color={colors.onPrimary} />
       </View>
     </TouchableOpacity>
   );

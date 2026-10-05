@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
   },
   disabledButton: { opacity: 0.45 },
   confirmButtonText: {
-    color: '#FFFFFF',
+    color: '#101010',
     fontSize: 16,
     fontWeight: '700',
   },

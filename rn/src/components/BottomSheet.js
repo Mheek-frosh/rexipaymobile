@@ -251,5 +251,5 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
   },
-  logoutConfirmText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
+  logoutConfirmText: { color: '#101010', fontSize: 16, fontWeight: '600' },
 });

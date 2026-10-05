@@ -145,5 +145,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  saveBtnText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
+  saveBtnText: { color: '#101010', fontSize: 16, fontWeight: '600' },
 });

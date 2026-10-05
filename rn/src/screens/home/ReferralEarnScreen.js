@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginTop: 14,
   },
-  shareBtnText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
+  shareBtnText: { color: '#101010', fontSize: 16, fontWeight: '700' },
   statsRow: { flexDirection: 'row', gap: 12, marginTop: 22 },
   statBox: {
     flex: 1,

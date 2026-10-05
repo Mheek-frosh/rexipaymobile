@@ -8,7 +8,6 @@ import {
   StyleSheet,
   TextInput,
   Modal,
-  ActivityIndicator,
   Alert,
   Animated,
   Platform,
@@ -324,7 +323,7 @@ export default function OfflinePayScreen() {
                 style={[styles.actionBtn, { backgroundColor: colors.primary }]}
                 onPress={handleStartPay}
               >
-                <MaterialIcons name="qr-code-scanner" size={24} color="#FFF" />
+                <MaterialIcons name="qr-code-scanner" size={24} color="#101010" />
                 <Text style={styles.actionBtnText}>Scan to Pay</Text>
               </TouchableOpacity>
 
@@ -666,7 +665,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginTop: 12,
   },
-  actionBtnText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
+  actionBtnText: { color: '#101010', fontSize: 16, fontWeight: '600' },
   cameraWrap: { height: 260, borderRadius: 16, overflow: 'hidden', marginTop: 16 },
   camera: { flex: 1 },
   inputRow: {
@@ -715,7 +714,7 @@ const styles = StyleSheet.create({
   },
   cancelText: { fontSize: 16 },
   confirmBtn: { flex: 1, padding: 16, borderRadius: 16, alignItems: 'center' },
-  confirmText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
+  confirmText: { color: '#101010', fontSize: 16, fontWeight: '600' },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',

@@ -191,6 +191,6 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 40 },
   errText: { textAlign: 'center', marginTop: 12, fontSize: 14, lineHeight: 20 },
   retry: { marginTop: 20, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 16 },
-  retryText: { color: '#FFF', fontWeight: '700', fontSize: 15 },
+  retryText: { color: '#101010', fontWeight: '700', fontSize: 15 },
   empty: { textAlign: 'center', paddingVertical: 24, fontSize: 14 },
 });

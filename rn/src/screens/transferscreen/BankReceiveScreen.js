@@ -93,7 +93,7 @@ export default function BankReceiveScreen() {
             style={[styles.shareBtn, { backgroundColor: colors.primary }]}
             onPress={handleShare}
           >
-            <MaterialIcons name="share" size={20} color="#FFF" />
+            <MaterialIcons name="share" size={20} color="#101010" />
             <Text style={styles.shareText}>Share Details</Text>
           </TouchableOpacity>
         </View>
@@ -163,5 +163,5 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     width: '100%',
   },
-  shareText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
+  shareText: { color: '#101010', fontSize: 16, fontWeight: '600' },
 });

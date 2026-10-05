@@ -62,7 +62,7 @@ export default function AccountDetailsScreen() {
               </Text>
             </View>
             <TouchableOpacity style={[styles.editBadge, { backgroundColor: colors.primary }]}>
-              <MaterialIcons name="edit" size={14} color="#FFF" />
+              <MaterialIcons name="edit" size={14} color="#101010" />
             </TouchableOpacity>
           </View>
           <Text style={[styles.name, { color: colors.textPrimary }]}>{userName || 'User'}</Text>

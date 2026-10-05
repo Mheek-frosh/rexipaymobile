@@ -86,7 +86,7 @@ const BAMBOO_DARK = {
   buttonRadius: 999,
 };
 
-export const LIME_UI = {
+export const LIME_DARK = {
   background: '#0C0C0C',
   card: '#171717',
   cardBorder: '#2A2A2A',
@@ -96,7 +96,56 @@ export const LIME_UI = {
   muted: '#8D8D93',
   bubble: '#242424',
   nav: '#141414',
+  chip: '#202020',
+  chipBorder: '#303030',
+  switchBorder: 'rgba(255,255,255,0.55)',
+  accentText: '#C6F54E',
+  amountOut: '#D0D0D0',
 };
+
+export const LIME_LIGHT = {
+  background: '#F4F5F7',
+  card: '#FFFFFF',
+  cardBorder: '#E4E4E7',
+  lime: '#C6F54E',
+  onLime: '#101010',
+  text: '#111111',
+  muted: '#6B7280',
+  bubble: '#EEF0F3',
+  nav: '#FFFFFF',
+  chip: '#F3F4F6',
+  chipBorder: '#E4E4E7',
+  switchBorder: 'rgba(17,17,17,0.18)',
+  accentText: '#3F6212',
+  amountOut: '#374151',
+};
+
+export const LIME_UI = LIME_DARK;
+
+function toThemeColors(ui) {
+  return {
+    primary: ui.lime,
+    primaryLight: 'rgba(198, 245, 78, 0.22)',
+    accent: ui.lime,
+    onPrimary: ui.onLime,
+    background: ui.background,
+    cardBackground: ui.card,
+    navBackground: ui.nav,
+    surfaceVariant: ui.bubble,
+    textPrimary: ui.text,
+    textSecondary: ui.muted,
+    border: ui.cardBorder,
+    error: '#E53935',
+    success: '#1F8A4C',
+    heroBackground: LIME_DARK.card,
+    heroText: LIME_DARK.text,
+    heroMuted: 'rgba(255,255,255,0.78)',
+    pillBackground: ui.lime,
+    pillText: ui.onLime,
+    accentText: ui.accentText,
+    buttonRadius: 999,
+  };
+}
 
 export const COLORS = BLUE_LIGHT;
 export const DARK_COLORS = BLUE_DARK;
@@ -106,6 +155,6 @@ export const PALETTES = {
   bamboo: { id: 'bamboo', label: 'Bamboo', light: BAMBOO_LIGHT, dark: BAMBOO_DARK },
 };
 
-export function getPaletteColors() {
-  return BAMBOO_DARK;
+export function getPaletteColors(_palette, isDark) {
+  return toThemeColors(isDark ? LIME_DARK : LIME_LIGHT);
 }

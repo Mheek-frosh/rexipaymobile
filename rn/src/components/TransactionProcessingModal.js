@@ -41,7 +41,7 @@ export default function TransactionProcessingModal({
 
         <View style={styles.content}>
           <Image
-            source={require('../../assets/rexipay-r-loading.gif')}
+            source={require('../../assets/rexipay-r-green-orbit-loader.gif')}
             style={styles.image}
             resizeMode="contain"
             accessibilityIgnoresInvertColors
@@ -81,8 +81,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 28,
   },
   image: {
-    width: 132,
-    height: 132,
+    width: 96,
+    height: 96,
     marginBottom: 18,
   },
   label: {

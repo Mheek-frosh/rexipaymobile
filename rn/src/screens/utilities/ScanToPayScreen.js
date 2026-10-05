@@ -1,7 +1,6 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Linking,
@@ -19,6 +18,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import AppBackButton from '../../components/AppBackButton';
 import TransactionPinBottomSheet from '../../components/TransactionPinBottomSheet';
 import TransactionProcessingModal from '../../components/TransactionProcessingModal';
+import IosSpinner from '../../components/IosSpinner';
 import { useTheme } from '../../theme/ThemeContext';
 import { formatNairaBalance, useWallet } from '../../context/WalletContext';
 
@@ -147,7 +147,7 @@ export default function ScanToPayScreen() {
     if (!permission) {
       return (
         <View style={styles.permissionCard}>
-          <ActivityIndicator color={colors.primary} size="large" />
+          <IosSpinner size={64} />
         </View>
       );
     }
@@ -202,7 +202,7 @@ export default function ScanToPayScreen() {
           <MaterialIcons
             name={torchEnabled ? 'flash-on' : 'flash-off'}
             size={23}
-            color="#FFFFFF"
+            color={torchEnabled ? '#101010' : '#FFFFFF'}
           />
         </TouchableOpacity>
       </View>
@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     marginTop: 22,
   },
-  permissionButtonText: { color: '#FFFFFF', fontSize: 15, fontWeight: '700' },
+  permissionButtonText: { color: '#101010', fontSize: 15, fontWeight: '700' },
   paymentContent: { alignItems: 'center', paddingTop: 18 },
   successIcon: {
     width: 62,
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 24,
   },
-  payButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
+  payButtonText: { color: '#101010', fontSize: 16, fontWeight: '700' },
   scanAgainButton: {
     minHeight: 46,
     paddingHorizontal: 14,

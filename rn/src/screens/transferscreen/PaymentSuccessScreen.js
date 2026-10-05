@@ -296,8 +296,8 @@ export default function PaymentSuccessScreen() {
           onPress={handleShare}
           activeOpacity={0.86}
         >
-          <MaterialIcons name="ios-share" size={25} color={colors.primary} />
-          <Text style={[styles.shareText, { color: colors.primary }]}>Share</Text>
+          <MaterialIcons name="ios-share" size={25} color={colors.accentText} />
+          <Text style={[styles.shareText, { color: colors.accentText }]}>Share</Text>
         </TouchableOpacity>
       </Animated.View>
     </View>
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   doneText: {
-    color: '#FFFFFF',
+    color: '#101010',
     fontSize: 17,
     fontWeight: '700',
   },

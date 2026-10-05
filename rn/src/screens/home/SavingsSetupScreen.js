@@ -169,5 +169,5 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
   },
-  submitBtnText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
+  submitBtnText: { color: '#101010', fontSize: 16, fontWeight: '700' },
 });

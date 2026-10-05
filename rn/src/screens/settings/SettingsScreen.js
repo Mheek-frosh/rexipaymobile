@@ -12,9 +12,9 @@ const DESIGN_OPTIONS = [
 ];
 
 const MODE_OPTIONS = [
+  { id: 'system', label: 'Phone' },
   { id: 'light', label: 'Light' },
   { id: 'dark', label: 'Dark' },
-  { id: 'system', label: 'System' },
 ];
 
 const SETTINGS_SECTIONS = [
@@ -89,7 +89,7 @@ function AppearanceCard({ colors, palette, themeMode, setPalette, setThemeMode }
 
         <Text style={[styles.itemTitle, { color: colors.textPrimary, marginTop: 18 }]}>Mode</Text>
         <Text style={[styles.itemSubtitle, { color: colors.textSecondary, marginBottom: 12 }]}>
-          Light, dark, or follow the phone
+          Phone follows your device. Light or Dark keeps that look until you change it.
         </Text>
         <View style={styles.segmentRow}>
           {MODE_OPTIONS.map((option) => {

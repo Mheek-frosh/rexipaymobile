@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -15,7 +16,6 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { useTheme } from '../../theme/ThemeContext';
 import AppBackButton from '../../components/AppBackButton';
-import IosSpinner from '../../components/IosSpinner';
 
 const SUCCESS_GREEN = '#10B981';
 
@@ -134,7 +134,7 @@ export default function TransactionDetailScreen() {
             disabled={generating}
           >
             {generating && genType === 'PNG' ? (
-              <IosSpinner size={20} color="#172FC7" />
+              <ActivityIndicator size="small" color={colors.accentText} />
             ) : (
               <>
                 <MaterialIcons name="image" size={22} color={colors.primary} />
@@ -148,7 +148,7 @@ export default function TransactionDetailScreen() {
             disabled={generating}
           >
             {generating && genType === 'PDF' ? (
-              <IosSpinner size={20} color="#172FC7" />
+              <ActivityIndicator size="small" color={colors.accentText} />
             ) : (
               <>
                 <MaterialIcons name="picture-as-pdf" size={22} color={colors.primary} />

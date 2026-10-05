@@ -174,5 +174,5 @@ const styles = StyleSheet.create({
   hint: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, padding: 12, borderRadius: 12, marginTop: 16 },
   hintText: { flex: 1, fontSize: 13, lineHeight: 18 },
   payBtn: { marginTop: 24, paddingVertical: 16, borderRadius: 16, alignItems: 'center' },
-  payBtnText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
+  payBtnText: { color: '#101010', fontSize: 16, fontWeight: '700' },
 });

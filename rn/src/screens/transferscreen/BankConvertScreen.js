@@ -186,7 +186,7 @@ export default function BankConvertScreen() {
               style={[styles.swapButton, { backgroundColor: colors.primary, borderColor: colors.cardBackground }]}
               onPress={handleSwap}
             >
-              <MaterialIcons name="swap-vert" size={24} color="#FFFFFF" />
+              <MaterialIcons name="swap-vert" size={24} color="#101010" />
             </TouchableOpacity>
             <View style={[styles.rule, { backgroundColor: colors.border }]} />
           </View>
@@ -242,8 +242,8 @@ export default function BankConvertScreen() {
           ]}
           onPress={handleConvert}
         >
-          <Text style={[styles.convertButtonText, { color: canConvert ? '#FFFFFF' : colors.textSecondary }]}>Review conversion</Text>
-          <MaterialIcons name="arrow-forward" size={20} color={canConvert ? '#FFFFFF' : colors.textSecondary} />
+          <Text style={[styles.convertButtonText, { color: canConvert ? '#101010' : colors.textSecondary }]}>Review conversion</Text>
+          <MaterialIcons name="arrow-forward" size={20} color={canConvert ? '#101010' : colors.textSecondary} />
         </TouchableOpacity>
       </View>
 
@@ -325,7 +325,7 @@ function CurrencyPicker({ visible, onClose, selected, onSelect, colors }) {
                 </View>
                 {isSelected && (
                   <View style={[styles.checkCircle, { backgroundColor: colors.primary }]}>
-                    <MaterialIcons name="check" size={16} color="#FFFFFF" />
+                    <MaterialIcons name="check" size={16} color="#101010" />
                   </View>
                 )}
               </TouchableOpacity>

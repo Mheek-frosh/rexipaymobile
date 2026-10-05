@@ -9,7 +9,6 @@ import {
   ScrollView,
   Modal,
   FlatList,
-  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -26,6 +25,7 @@ import { useAudioPlayer } from 'expo-audio';
 import { resolveAccount } from '../../services/bankService';
 import { NIGERIAN_BANKS } from '../../data/nigerianBanks';
 import TransactionProcessingModal from '../../components/TransactionProcessingModal';
+import IosSpinner from '../../components/IosSpinner';
 
 const TRANSFER_PIN_KEYS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 'biometric', 0, 'backspace'];
 
@@ -670,7 +670,7 @@ export default function TransferScreen() {
 
         {isResolving && (
           <View style={styles.resolving}>
-            <ActivityIndicator size="small" color={colors.primary} />
+            <IosSpinner size={22} />
             <Text style={[styles.resolvingText, { color: colors.textSecondary }]}>Verifying recipient...</Text>
           </View>
         )}
@@ -1103,7 +1103,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  nextBtnText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
+  nextBtnText: { color: '#101010', fontSize: 16, fontWeight: '600' },
   recentSection: {
     marginTop: 20,
     paddingHorizontal: 20,
@@ -1316,7 +1316,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
   },
-  confirmText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
+  confirmText: { color: '#101010', fontSize: 16, fontWeight: '600' },
   summaryModalWrap: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,

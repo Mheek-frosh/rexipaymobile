@@ -114,7 +114,7 @@ export default function DeleteAccountScreen() {
                 },
               ]}
             >
-              {understood && <MaterialIcons name="check" size={18} color="#FFF" />}
+              {understood && <MaterialIcons name="check" size={18} color="#101010" />}
             </View>
             <Text style={[styles.checkLabel, { color: colors.textPrimary }]}>
               I understand my account and data will be removed as described above.

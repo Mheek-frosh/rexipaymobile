@@ -42,7 +42,7 @@ export default function AddCardScreen() {
           activeOpacity={0.8}
           onPress={() => setShowSheet(true)}
         >
-          <MaterialIcons name="add" size={22} color="#FFF" />
+          <MaterialIcons name="add" size={22} color="#101010" />
           <Text style={styles.addButtonText}>Add Card</Text>
         </TouchableOpacity>
       </View>
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   addButtonText: {
-    color: '#FFF',
+    color: '#101010',
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 8,
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   sheetAddText: {
-    color: '#FFF',
+    color: '#101010',
     fontSize: 16,
     fontWeight: '600',
   },

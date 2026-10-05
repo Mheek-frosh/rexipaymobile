@@ -579,7 +579,7 @@ export default function AppLockGate({ children }) {
   if (gateLoading) {
     return (
       <View style={[styles.loading, { backgroundColor: colors.background }]}>
-        <IosSpinner size={84} />
+        <IosSpinner size={64} />
       </View>
     );
   }

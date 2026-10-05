@@ -1,9 +1,10 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useColorScheme } from 'react-native';
+import { Appearance, useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getPaletteColors } from './theme';
 
 const STORAGE_KEY = 'rexipay.appearance';
+const APPEARANCE_VERSION = 2;
 const ThemeContext = createContext(null);
 
 export const useTheme = () => {
@@ -13,9 +14,25 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }) => {
-  const systemScheme = useColorScheme();
+  const hookScheme = useColorScheme();
+  const [systemScheme, setSystemScheme] = useState(hookScheme || Appearance.getColorScheme());
   const [palette, setPaletteState] = useState('bamboo');
   const [themeOverride, setThemeOverride] = useState(null);
+
+  useEffect(() => {
+    if (hookScheme === 'light' || hookScheme === 'dark') {
+      setSystemScheme(hookScheme);
+    }
+  }, [hookScheme]);
+
+  useEffect(() => {
+    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+      if (colorScheme === 'light' || colorScheme === 'dark') {
+        setSystemScheme(colorScheme);
+      }
+    });
+    return () => subscription.remove();
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -26,9 +43,21 @@ export const ThemeProvider = ({ children }) => {
         if (saved.palette === 'blue' || saved.palette === 'bamboo') {
           setPaletteState(saved.palette);
         }
+        if (saved.version !== APPEARANCE_VERSION) {
+          setThemeOverride(null);
+          AsyncStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({
+              palette: saved.palette === 'blue' ? 'blue' : 'bamboo',
+              mode: 'system',
+              version: APPEARANCE_VERSION,
+            })
+          ).catch(() => {});
+          return;
+        }
         if (saved.mode === 'light' || saved.mode === 'dark') {
           setThemeOverride(saved.mode);
-        } else if (saved.mode === 'system') {
+        } else {
           setThemeOverride(null);
         }
       })
@@ -40,11 +69,14 @@ export const ThemeProvider = ({ children }) => {
 
   const persist = useCallback((nextPalette, nextOverride) => {
     const mode = nextOverride == null ? 'system' : nextOverride;
-    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ palette: nextPalette, mode })).catch(() => {});
+    AsyncStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ palette: nextPalette, mode, version: APPEARANCE_VERSION })
+    ).catch(() => {});
   }, []);
 
-  const colors = getPaletteColors();
-  const isDark = true;
+  const isDark = themeOverride === null ? systemScheme === 'dark' : themeOverride === 'dark';
+  const colors = useMemo(() => getPaletteColors(palette, isDark), [palette, isDark]);
 
   const setPalette = useCallback((next) => {
     setPaletteState(next);

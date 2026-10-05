@@ -1,7 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View } from 'react-native';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { Text, TextInput, View } from 'react-native';
+
+Text.defaultProps = { ...(Text.defaultProps || {}), maxFontSizeMultiplier: 1.15 };
+TextInput.defaultProps = { ...(TextInput.defaultProps || {}), maxFontSizeMultiplier: 1.15 };
 import { StatusBar } from 'expo-status-bar';
-import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { ClerkProvider } from '@clerk/clerk-expo';
@@ -9,7 +12,7 @@ import * as SecureStore from 'expo-secure-store';
 import { AuthProvider } from './src/context/AuthContext';
 import { NotificationProvider } from './src/context/NotificationContext';
 import { WalletProvider } from './src/context/WalletContext';
-import { ThemeProvider } from './src/theme/ThemeContext';
+import { ThemeProvider, useTheme } from './src/theme/ThemeContext';
 import { startNetworkMonitoring } from './src/services/offlineSyncService';
 import RootNavigator from './src/navigation/RootNavigator';
 import SplashScreen from './src/screens/splash/SplashScreen';
@@ -51,12 +54,17 @@ const tokenCache = {
   },
 };
 
+function ThemedStatusBar() {
+  const { isDark } = useTheme();
+  return <StatusBar style={isDark ? 'light' : 'dark'} />;
+}
+
 export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider initialMetrics={initialWindowMetrics} style={{ flex: 1 }}>
         <ThemeProvider>
-          <StatusBar style="light" />
+          <ThemedStatusBar />
           <AppContent />
         </ThemeProvider>
       </SafeAreaProvider>
@@ -65,6 +73,22 @@ export default function App() {
 }
 
 function AppContent() {
+  const { colors, isDark } = useTheme();
+  const navigationTheme = useMemo(() => {
+    const base = isDark ? DarkTheme : DefaultTheme;
+    return {
+      ...base,
+      colors: {
+        ...base.colors,
+        primary: colors.primary,
+        background: colors.background,
+        card: colors.cardBackground,
+        text: colors.textPrimary,
+        border: colors.border,
+        notification: colors.primary,
+      },
+    };
+  }, [colors, isDark]);
   const [splashDone, setSplashDone] = useState(false);
   const [showRouteSkeleton, setShowRouteSkeleton] = useState(false);
   const [routeSkeletonName, setRouteSkeletonName] = useState(null);
@@ -117,12 +141,13 @@ function AppContent() {
         <WalletProvider>
           <AppLockGate>
             <NotificationProvider>
-              <View style={{ flex: 1 }}>
+              <View style={{ flex: 1, backgroundColor: colors.background }}>
                 <NavigationContainer
                   ref={navigationRef}
+                  theme={navigationTheme}
                   onStateChange={handleNavigationStateChange}
                 >
-                  <StatusBar style="light" />
+                  <ThemedStatusBar />
                   <RootNavigator />
                 </NavigationContainer>
                 {showRouteSkeleton && (

@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginTop: 8,
   },
-  primaryBtnText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
+  primaryBtnText: { color: '#101010', fontSize: 16, fontWeight: '700' },
   tipCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',

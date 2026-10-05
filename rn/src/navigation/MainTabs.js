@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowSwapHorizontal, Card, Clock, Home2, Profile } from 'iconsax-react-native';
 import * as Haptics from 'expo-haptics';
-import { LIME_UI } from '../theme/theme';
+import { useTheme } from '../theme/ThemeContext';
 import HomeScreen from '../screens/home/HomeScreen';
 import ChooseCardScreen from '../screens/cards/ChooseCardScreen';
 import StatsScreen from '../screens/stats/StatsScreen';
@@ -21,6 +21,7 @@ const TAB_META = {
 
 function CustomTabBar({ state, navigation }) {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   const onTabPress = (route, index) => {
     Haptics.selectionAsync().catch(() => {});
@@ -36,11 +37,11 @@ function CustomTabBar({ state, navigation }) {
 
   return (
     <View style={[styles.wrap, { bottom: Math.max(insets.bottom, 10) }]}>
-      <View style={styles.bar}>
+      <View style={[styles.bar, { backgroundColor: colors.navBackground, borderColor: colors.border }]}>
         {state.routes.map((route, index) => {
           const meta = TAB_META[route.name];
           const focused = state.index === index;
-          const color = focused ? LIME_UI.lime : LIME_UI.muted;
+          const color = focused ? colors.accentText : colors.textSecondary;
           const TabIcon = meta.Icon;
           return (
             <React.Fragment key={route.key}>
@@ -52,7 +53,7 @@ function CustomTabBar({ state, navigation }) {
                 onPress={() => onTabPress(route, index)}
                 style={styles.tab}
               >
-                <TabIcon size={22} color={color} variant={focused ? 'Bold' : 'Linear'} />
+                <TabIcon size={20} color={color} variant={focused ? 'Bold' : 'Linear'} />
                 <Text style={[styles.label, { color, fontWeight: focused ? '700' : '500' }]}>
                   {meta.label}
                 </Text>
@@ -68,7 +69,7 @@ function CustomTabBar({ state, navigation }) {
                   }}
                   style={styles.centerButton}
                 >
-                  <ArrowSwapHorizontal size={28} color={LIME_UI.onLime} variant="Bold" />
+                  <ArrowSwapHorizontal size={22} color={colors.onPrimary} variant="Bold" />
                 </TouchableOpacity>
               ) : null}
             </React.Fragment>
@@ -96,8 +97,8 @@ export default function MainTabs() {
 const styles = StyleSheet.create({
   wrap: {
     position: 'absolute',
-    left: 16,
-    right: 16,
+    left: 12,
+    right: 12,
     zIndex: 1000,
     elevation: 12,
   },
@@ -105,13 +106,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
-    backgroundColor: LIME_UI.nav,
-    borderRadius: 28,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: '#242424',
-    paddingHorizontal: 8,
-    paddingTop: 10,
-    paddingBottom: 8,
+    paddingHorizontal: 6,
+    paddingTop: 6,
+    paddingBottom: 6,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -126,24 +125,24 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 52,
+    minHeight: 44,
     gap: 3,
   },
   label: {
     fontSize: 11,
   },
   centerButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    marginTop: -36,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    marginTop: -22,
     marginHorizontal: 4,
-    backgroundColor: LIME_UI.lime,
+    backgroundColor: '#C6F54E',
     alignItems: 'center',
     justifyContent: 'center',
     ...Platform.select({
       ios: {
-        shadowColor: LIME_UI.lime,
+        shadowColor: '#C6F54E',
         shadowOffset: { width: 0, height: 6 },
         shadowOpacity: 0.35,
         shadowRadius: 10,
