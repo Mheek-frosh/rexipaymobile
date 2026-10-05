@@ -69,9 +69,7 @@
       ]
     ],
     "owner": "michaelusd",
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "exposdk:57.0.0",
     "updates": {
       "url": "https://u.expo.dev/72e19737-bfa1-4cea-a4fe-21a8eac19a8c"
     },
