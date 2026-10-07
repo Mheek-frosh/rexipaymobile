@@ -20,7 +20,7 @@ import AppLockGate from './src/components/AppLockGate';
 import ScreenTransitionSkeleton from './src/components/ScreenTransitionSkeleton';
 
 const ROUTE_SKELETON_DURATION = 1200;
-const TAB_ROUTES_WITH_SKELETON = new Set(['Cards', 'Stats', 'More']);
+const TAB_ROUTES_WITH_SKELETON = new Set(['Home', 'Cards', 'Stats', 'More']);
 const AUTH_ENTRY_ROUTES = new Set(['Onboarding', 'Login']);
 
 const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;

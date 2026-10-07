@@ -100,7 +100,9 @@ export const LIME_DARK = {
   chipBorder: '#303030',
   switchBorder: 'rgba(255,255,255,0.55)',
   accentText: '#C6F54E',
-  amountOut: '#D0D0D0',
+  amountIn: '#3DDC84',
+  amountOut: '#FF5C5C',
+  amountPending: '#F5B942',
 };
 
 export const LIME_LIGHT = {
@@ -117,7 +119,9 @@ export const LIME_LIGHT = {
   chipBorder: '#E4E4E7',
   switchBorder: 'rgba(17,17,17,0.18)',
   accentText: '#3F6212',
-  amountOut: '#374151',
+  amountIn: '#15803D',
+  amountOut: '#DC2626',
+  amountPending: '#D97706',
 };
 
 export const LIME_UI = LIME_DARK;

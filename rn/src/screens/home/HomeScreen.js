@@ -534,7 +534,7 @@ export default function HomeScreen() {
               <MaterialIcons name="chevron-right" size={18} color={ui.accentText} />
             </TouchableOpacity>
           </View>
-          {transactions.map((tx) => (
+          {transactions.slice(0, 3).map((tx) => (
             <TouchableOpacity
               key={tx.id}
               style={styles.txRow}
@@ -548,11 +548,82 @@ export default function HomeScreen() {
                 <Text style={styles.txName} numberOfLines={1}>{tx.displayName}</Text>
                 <Text style={styles.txMeta}>{tx.subtitle}</Text>
               </View>
-              <Text style={[styles.txAmount, tx.positive ? styles.txAmountIn : styles.txAmountOut]}>
+              <Text
+                style={[
+                  styles.txAmount,
+                  tx.status === 'Pending'
+                    ? styles.txAmountPending
+                    : tx.positive
+                      ? styles.txAmountIn
+                      : styles.txAmountOut,
+                ]}
+              >
                 {tx.amountDisplay}
               </Text>
             </TouchableOpacity>
           ))}
+        </View>
+
+        <Text style={styles.sectionTitle}>Spend and earn</Text>
+        <View style={styles.earnCard}>
+          <TouchableOpacity
+            style={styles.earnRow}
+            activeOpacity={0.75}
+            onPress={() => navigation.navigate('RewardsHub')}
+          >
+            <View style={styles.earnIcon}>
+              <MaterialIcons name="payments" size={22} color={ui.accentText} />
+            </View>
+            <View style={styles.earnCopy}>
+              <Text style={styles.earnTitle}>Cashback</Text>
+              <Text style={styles.earnSubtitle}>Earn as you pay</Text>
+            </View>
+            <MaterialIcons name="chevron-right" size={22} color={ui.muted} />
+          </TouchableOpacity>
+          <View style={styles.earnDivider} />
+          <TouchableOpacity
+            style={styles.earnRow}
+            activeOpacity={0.75}
+            onPress={() => navigation.navigate('DealsHub')}
+          >
+            <View style={styles.earnIcon}>
+              <MaterialIcons name="star" size={22} color={ui.accentText} />
+            </View>
+            <View style={styles.earnCopy}>
+              <Text style={styles.earnTitle}>Offers</Text>
+              <Text style={styles.earnSubtitle}>Updated weekly</Text>
+            </View>
+            <MaterialIcons name="chevron-right" size={22} color={ui.muted} />
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.sectionTitle}>The latest</Text>
+        <View style={styles.latestRow}>
+          <TouchableOpacity
+            style={styles.latestCard}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('ReferralEarn')}
+          >
+            <View style={[styles.latestArt, { backgroundColor: ui.lime }]}>
+              <Text style={styles.latestArtMark}>MORE</Text>
+              <Text style={styles.latestArtWord}>LIFE</Text>
+            </View>
+            <Text style={styles.latestCaption} numberOfLines={2}>
+              Meet RexiPay, built to move your money faster
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.latestCard}
+            activeOpacity={0.85}
+            onPress={() => navigation.navigate('SavingsHome')}
+          >
+            <View style={[styles.latestArt, styles.latestArtDark]}>
+              <MaterialIcons name="savings" size={36} color={ui.lime} />
+            </View>
+            <Text style={styles.latestCaption} numberOfLines={2}>
+              Give your savings a head start this month
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -854,10 +925,102 @@ function createStyles(ui) {
     fontWeight: '700',
   },
   txAmountIn: {
-    color: ui.accentText,
+    color: ui.amountIn,
   },
   txAmountOut: {
     color: ui.amountOut,
+  },
+  txAmountPending: {
+    color: ui.amountPending,
+  },
+  sectionTitle: {
+    color: ui.text,
+    fontSize: 20,
+    fontWeight: '700',
+    marginTop: 22,
+    marginBottom: 12,
+  },
+  earnCard: {
+    backgroundColor: ui.card,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: ui.cardBorder,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  earnRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  earnIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: ui.bubble,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  earnCopy: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  earnTitle: {
+    color: ui.text,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  earnSubtitle: {
+    color: ui.muted,
+    fontSize: 13,
+    marginTop: 2,
+  },
+  earnDivider: {
+    height: 1,
+    backgroundColor: ui.cardBorder,
+    marginLeft: 60,
+  },
+  latestRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  latestCard: {
+    flex: 1,
+    backgroundColor: ui.card,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: ui.cardBorder,
+    overflow: 'hidden',
+    paddingBottom: 12,
+  },
+  latestArt: {
+    height: 132,
+    margin: 8,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  latestArtDark: {
+    backgroundColor: '#171717',
+  },
+  latestArtMark: {
+    color: '#101010',
+    fontSize: 22,
+    fontWeight: '800',
+    letterSpacing: -0.4,
+  },
+  latestArtWord: {
+    color: '#101010',
+    fontSize: 28,
+    fontWeight: '900',
+    letterSpacing: -0.8,
+  },
+  latestCaption: {
+    color: ui.text,
+    fontSize: 14,
+    fontWeight: '700',
+    lineHeight: 19,
+    paddingHorizontal: 12,
   },
 });
 }

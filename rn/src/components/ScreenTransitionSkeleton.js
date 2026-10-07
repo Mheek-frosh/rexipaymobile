@@ -59,9 +59,9 @@ export default function ScreenTransitionSkeleton({ routeName }) {
     };
   }, [progress]);
 
-  const baseColor = isDark ? '#242832' : '#E9ECF2';
+  const baseColor = colors.surfaceVariant;
   const highlightColor = isDark ? 'rgba(255,255,255,0.09)' : 'rgba(255,255,255,0.72)';
-  const cardColor = isDark ? '#181B22' : '#FFFFFF';
+  const cardColor = colors.cardBackground;
   const translateX = progress.interpolate({
     inputRange: [0, 1],
     outputRange: [-100, width + 100],
@@ -85,7 +85,9 @@ export default function ScreenTransitionSkeleton({ routeName }) {
       accessibilityRole="progressbar"
       accessibilityLabel="Loading screen"
     >
-      {routeName === 'Cards' ? (
+      {routeName === 'Home' ? (
+        <HomeSkeleton {...contentProps} />
+      ) : routeName === 'Cards' ? (
         <CardsSkeleton {...contentProps} />
       ) : routeName === 'Stats' ? (
         <StatsSkeleton {...contentProps} />
@@ -108,50 +110,97 @@ function CenteredHeader({ blockProps, action = false }) {
   );
 }
 
+function HomeSkeleton({ blockProps, cardColor }) {
+  return (
+    <>
+      <View style={styles.homeHeader}>
+        <View style={styles.homeHeaderCopy}>
+          <Block {...blockProps} style={styles.homeGreeting} />
+          <Block {...blockProps} style={styles.homeName} />
+        </View>
+        <Block {...blockProps} style={styles.homeAvatar} />
+        <Block {...blockProps} style={styles.homeAvatar} />
+      </View>
+      <View style={[styles.homeBalance, { backgroundColor: '#171717' }]}>
+        <View style={styles.homeBalanceTop}>
+          <Block {...blockProps} style={styles.homeChip} />
+          <Block {...blockProps} style={styles.homeSwitch} />
+        </View>
+        <Block {...blockProps} style={styles.homeBalanceLabel} />
+        <Block {...blockProps} style={styles.homeBalanceAmount} />
+        <View style={styles.homePills}>
+          <Block {...blockProps} style={styles.homePill} />
+          <Block {...blockProps} style={styles.homePill} />
+        </View>
+      </View>
+      <Block {...blockProps} style={styles.homePromo} />
+      <View style={styles.homeActions}>
+        {[0, 1, 2, 3, 4].map((item) => (
+          <View key={item} style={styles.homeAction}>
+            <Block {...blockProps} style={styles.homeActionBubble} />
+            <Block {...blockProps} style={styles.homeActionLabel} />
+          </View>
+        ))}
+      </View>
+      <View style={[styles.homeTxCard, { backgroundColor: cardColor, borderColor: blockProps.baseColor }]}>
+        <View style={styles.homeTxHead}>
+          <Block {...blockProps} style={styles.homeTxTitle} />
+          <Block {...blockProps} style={styles.homeTxSee} />
+        </View>
+        {[0, 1, 2].map((item) => (
+          <View key={item} style={styles.homeTxRow}>
+            <Block {...blockProps} style={styles.homeTxIcon} />
+            <View style={styles.homeTxCopy}>
+              <Block {...blockProps} style={styles.homeTxName} />
+              <Block {...blockProps} style={styles.homeTxMeta} />
+            </View>
+            <Block {...blockProps} style={styles.homeTxAmount} />
+          </View>
+        ))}
+      </View>
+      <Block {...blockProps} style={styles.homeSection} />
+      <View style={[styles.homeEarn, { backgroundColor: cardColor, borderColor: blockProps.baseColor }]}>
+        {[0, 1].map((item) => (
+          <View key={item} style={styles.homeEarnRow}>
+            <Block {...blockProps} style={styles.homeEarnIcon} />
+            <View style={styles.homeTxCopy}>
+              <Block {...blockProps} style={styles.homeTxName} />
+              <Block {...blockProps} style={styles.homeTxMeta} />
+            </View>
+          </View>
+        ))}
+      </View>
+    </>
+  );
+}
+
 function CardsSkeleton({ blockProps, cardColor }) {
   return (
     <>
-      <CenteredHeader blockProps={blockProps} />
-      <View
-        style={[
-          styles.cardSkeleton,
-          { backgroundColor: cardColor, borderColor: blockProps.baseColor },
-        ]}
-      >
-        <View style={styles.cardSkeletonTopRow}>
-          <Block {...blockProps} style={styles.cardSkeletonLogo} />
-          <Block {...blockProps} style={styles.cardSkeletonBadge} />
+      <Block {...blockProps} style={styles.chooseTitle} />
+      <Block {...blockProps} style={styles.chooseSubtitle} />
+      <View style={[styles.chooseCard, { backgroundColor: '#1A1A1A' }]}>
+        <View style={styles.chooseCardTop}>
+          <Block {...blockProps} style={styles.chooseLogo} />
+          <Block {...blockProps} style={styles.chooseVisa} />
         </View>
-        <Block {...blockProps} style={styles.cardSkeletonChip} />
-        <Block {...blockProps} style={styles.cardSkeletonNumber} />
-        <View style={styles.cardSkeletonMetaRow}>
-          <Block {...blockProps} style={styles.cardSkeletonName} />
-          <Block {...blockProps} style={styles.cardSkeletonExpiry} />
-        </View>
+        <Block {...blockProps} style={styles.chooseChip} />
       </View>
-      <View style={styles.sectionHeading}>
-        <Block {...blockProps} style={styles.sectionTitle} />
-        <Block {...blockProps} style={styles.sectionAction} />
-      </View>
+      <Block {...blockProps} style={styles.chooseSection} />
       {[0, 1].map((item) => (
         <View
           key={item}
-          style={[
-            styles.optionRowSkeleton,
-            { backgroundColor: cardColor, borderColor: blockProps.baseColor },
-          ]}
+          style={[styles.optionRowSkeleton, { backgroundColor: cardColor, borderColor: blockProps.baseColor }]}
         >
-          <View style={styles.optionIconSkeleton}>
-            <Block {...blockProps} style={styles.optionIconInner} />
-          </View>
+          <Block {...blockProps} style={styles.optionIconInner} />
           <View style={styles.optionTextSkeleton}>
             <Block {...blockProps} style={styles.optionTitleSkeleton} />
             <Block {...blockProps} style={styles.optionSubtitleSkeleton} />
           </View>
-          <Block {...blockProps} style={styles.optionArrowSkeleton} />
+          <Block {...blockProps} style={styles.chooseArrow} />
         </View>
       ))}
-      <View style={[styles.infoSkeleton, { backgroundColor: blockProps.baseColor }]}> 
+      <View style={[styles.infoSkeleton, { backgroundColor: blockProps.baseColor }]}>
         <Block {...blockProps} style={styles.infoIconSkeleton} />
         <View style={styles.infoTextSkeleton}>
           <Block {...blockProps} style={styles.infoLineLong} />
@@ -165,37 +214,42 @@ function CardsSkeleton({ blockProps, cardColor }) {
 function StatsSkeleton({ blockProps, cardColor }) {
   return (
     <>
-      <CenteredHeader blockProps={blockProps} />
-      <Block {...blockProps} style={styles.balanceLabel} />
-      <Block {...blockProps} style={styles.balanceAmount} />
-      <View style={styles.rangeRow}>
-        {[0, 1, 2, 3, 4].map((item) => (
-          <Block key={item} {...blockProps} style={styles.rangePill} />
+      <View style={styles.historyTop}>
+        <View>
+          <Block {...blockProps} style={styles.balanceLabel} />
+          <Block {...blockProps} style={styles.historyBalance} />
+        </View>
+        <Block {...blockProps} style={styles.historyDate} />
+      </View>
+      <View style={styles.ringWrap}>
+        <View style={[styles.ring, { borderColor: blockProps.baseColor }]} />
+        <View style={styles.ringCenter}>
+          <Block {...blockProps} style={styles.ringLabel} />
+          <Block {...blockProps} style={styles.ringAmount} />
+        </View>
+      </View>
+      <View style={[styles.historyRanges, { backgroundColor: cardColor }]}>
+        {[0, 1, 2, 3].map((item) => (
+          <Block key={item} {...blockProps} style={styles.historyRange} />
         ))}
       </View>
-      <View style={[styles.chartCard, { backgroundColor: cardColor }]}>
-        <Block {...blockProps} style={styles.chartTitle} />
-        <View style={styles.chartMeta}>
-          <Block {...blockProps} style={styles.chartMetaLeft} />
-          <Block {...blockProps} style={styles.chartMetaRight} />
+      <View style={[styles.historySheet, { backgroundColor: cardColor, borderColor: blockProps.baseColor }]}>
+        <View style={[styles.historyHandle, { backgroundColor: blockProps.baseColor }]} />
+        <View style={styles.homeTxHead}>
+          <Block {...blockProps} style={styles.homeTxTitle} />
+          <Block {...blockProps} style={styles.homeTxSee} />
         </View>
-        <View style={styles.chartBars}>
-          {[72, 112, 88, 154, 126, 176].map((height, index) => (
-            <Block key={index} {...blockProps} style={[styles.chartBar, { height }]} />
-          ))}
-        </View>
-        <View style={styles.chartLegend}>
-          {[0, 1, 2].map((item) => (
-            <Block key={item} {...blockProps} style={styles.legendItem} />
-          ))}
-        </View>
+        {[0, 1, 2].map((item) => (
+          <View key={item} style={styles.homeTxRow}>
+            <Block {...blockProps} style={styles.homeTxIcon} />
+            <View style={styles.homeTxCopy}>
+              <Block {...blockProps} style={styles.homeTxName} />
+              <Block {...blockProps} style={styles.homeTxMeta} />
+            </View>
+            <Block {...blockProps} style={styles.homeTxAmount} />
+          </View>
+        ))}
       </View>
-      <View style={styles.sectionHeadingSecondary}>
-        <Block {...blockProps} style={styles.sectionTitleShort} />
-      </View>
-      {[0, 1].map((item) => (
-        <SkeletonRow key={item} blockProps={blockProps} cardColor={cardColor} />
-      ))}
     </>
   );
 }
@@ -796,4 +850,62 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 14,
   },
+  homeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    gap: 10,
+  },
+  homeHeaderCopy: { flex: 1 },
+  homeGreeting: { width: 92, height: 12, borderRadius: 6, marginBottom: 8 },
+  homeName: { width: 148, height: 26, borderRadius: 8 },
+  homeAvatar: { width: 36, height: 36, borderRadius: 18 },
+  homeBalance: { borderRadius: 22, padding: 14, marginBottom: 12 },
+  homeBalanceTop: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
+  homeChip: { width: 132, height: 32, borderRadius: 16 },
+  homeSwitch: { width: 86, height: 32, borderRadius: 16 },
+  homeBalanceLabel: { width: 110, height: 12, borderRadius: 6, marginBottom: 10 },
+  homeBalanceAmount: { width: 180, height: 28, borderRadius: 8, marginBottom: 16 },
+  homePills: { flexDirection: 'row', gap: 10 },
+  homePill: { flex: 1, height: 40, borderRadius: 20 },
+  homePromo: { height: 58, borderRadius: 29, marginBottom: 16 },
+  homeActions: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
+  homeAction: { width: '18%', alignItems: 'center' },
+  homeActionBubble: { width: 46, height: 46, borderRadius: 23, marginBottom: 8 },
+  homeActionLabel: { width: 36, height: 8, borderRadius: 4 },
+  homeTxCard: { borderRadius: 24, borderWidth: 1, paddingHorizontal: 14, paddingTop: 14, paddingBottom: 6, marginBottom: 8 },
+  homeTxHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  homeTxTitle: { width: 150, height: 16, borderRadius: 8 },
+  homeTxSee: { width: 52, height: 12, borderRadius: 6 },
+  homeTxRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
+  homeTxIcon: { width: 36, height: 36, borderRadius: 18 },
+  homeTxCopy: { flex: 1, marginLeft: 12 },
+  homeTxName: { width: '70%', height: 12, borderRadius: 6, marginBottom: 6 },
+  homeTxMeta: { width: '46%', height: 9, borderRadius: 5 },
+  homeTxAmount: { width: 64, height: 12, borderRadius: 6 },
+  homeSection: { width: 140, height: 18, borderRadius: 8, marginTop: 16, marginBottom: 12 },
+  homeEarn: { borderRadius: 22, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 6 },
+  homeEarnRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10 },
+  homeEarnIcon: { width: 48, height: 48, borderRadius: 14 },
+  chooseTitle: { width: 210, height: 26, borderRadius: 8, marginBottom: 8 },
+  chooseSubtitle: { width: 220, height: 13, borderRadius: 7, marginBottom: 22 },
+  chooseCard: { alignSelf: 'center', width: '80%', aspectRatio: 1 / 0.6, borderRadius: 18, padding: 16, marginBottom: 24 },
+  chooseCardTop: { flexDirection: 'row', justifyContent: 'space-between' },
+  chooseLogo: { width: 110, height: 28, borderRadius: 8 },
+  chooseVisa: { width: 48, height: 16, borderRadius: 6 },
+  chooseChip: { width: 42, height: 30, borderRadius: 6, marginTop: 36 },
+  chooseSection: { width: 110, height: 11, borderRadius: 6, marginBottom: 12 },
+  chooseArrow: { width: 36, height: 36, borderRadius: 18 },
+  historyTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  historyBalance: { width: 120, height: 18, borderRadius: 8, marginTop: 8 },
+  historyDate: { width: 108, height: 34, borderRadius: 17 },
+  ringWrap: { width: 230, height: 230, alignSelf: 'center', alignItems: 'center', justifyContent: 'center', marginVertical: 8 },
+  ring: { width: 210, height: 210, borderRadius: 105, borderWidth: 26 },
+  ringCenter: { position: 'absolute', alignItems: 'center' },
+  ringLabel: { width: 108, height: 12, borderRadius: 6, marginBottom: 8 },
+  ringAmount: { width: 132, height: 26, borderRadius: 8 },
+  historyRanges: { flexDirection: 'row', borderRadius: 14, padding: 4, gap: 6, marginBottom: 16 },
+  historyRange: { flex: 1, height: 34, borderRadius: 10 },
+  historySheet: { borderRadius: 28, borderWidth: 1, paddingHorizontal: 14, paddingTop: 12, paddingBottom: 8 },
+  historyHandle: { width: 42, height: 4, borderRadius: 2, alignSelf: 'center', marginBottom: 14 },
 });

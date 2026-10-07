@@ -91,17 +91,15 @@ export default function HomeScreenSkeleton() {
         ]}
       >
         <View style={styles.header}>
-          <View style={styles.headerIdentity}>
-            <SkeletonBlock {...blockProps} style={styles.avatar} />
-            <View>
-              <SkeletonBlock {...blockProps} style={styles.greetingLine} />
-              <SkeletonBlock {...blockProps} style={styles.nameLine} />
-            </View>
+          <View style={styles.headerCopy}>
+            <SkeletonBlock {...blockProps} style={styles.greetingLine} />
+            <SkeletonBlock {...blockProps} style={styles.nameLine} />
           </View>
+          <SkeletonBlock {...blockProps} style={styles.avatar} />
           <SkeletonBlock {...blockProps} style={styles.notification} />
         </View>
 
-        <View style={[styles.walletCard, { backgroundColor: cardColor }]}>
+        <View style={[styles.walletCard, { backgroundColor: '#171717' }]}>
           <View style={styles.walletTop}>
             <SkeletonBlock {...blockProps} style={styles.walletSelector} />
             <SkeletonBlock {...blockProps} style={styles.walletSwitch} />
@@ -110,16 +108,14 @@ export default function HomeScreenSkeleton() {
           <SkeletonBlock {...blockProps} style={styles.balanceAmount} />
           <View style={styles.walletActions}>
             <SkeletonBlock {...blockProps} style={styles.walletPill} />
-            <SkeletonBlock {...blockProps} style={styles.walletPillWide} />
+            <SkeletonBlock {...blockProps} style={styles.walletPill} />
           </View>
         </View>
 
-        <View style={styles.sectionHeading}>
-          <SkeletonBlock {...blockProps} style={styles.headingLine} />
-          <SkeletonBlock {...blockProps} style={styles.headingAction} />
-        </View>
-        <View style={[styles.quickActionsCard, { backgroundColor: cardColor }]}>
-          {[0, 1, 2, 3].map((item) => (
+        <SkeletonBlock {...blockProps} style={styles.promo} />
+
+        <View style={styles.quickActionsCard}>
+          {[0, 1, 2, 3, 4].map((item) => (
             <View key={item} style={styles.quickAction}>
               <SkeletonBlock {...blockProps} style={styles.quickActionIcon} />
               <SkeletonBlock {...blockProps} style={styles.quickActionLabel} />
@@ -127,24 +123,11 @@ export default function HomeScreenSkeleton() {
           ))}
         </View>
 
-        <View style={styles.sectionHeading}>
-          <SkeletonBlock {...blockProps} style={styles.headingLineShort} />
-          <SkeletonBlock {...blockProps} style={styles.headingAction} />
-        </View>
-        <View style={styles.servicesGrid}>
-          {[0, 1, 2, 3].map((item) => (
-            <View key={item} style={[styles.serviceCard, { backgroundColor: cardColor }]}>
-              <SkeletonBlock {...blockProps} style={styles.serviceIcon} />
-              <SkeletonBlock {...blockProps} style={styles.serviceLabel} />
-            </View>
-          ))}
-        </View>
-
-        <View style={styles.sectionHeading}>
-          <SkeletonBlock {...blockProps} style={styles.headingLineLong} />
-          <SkeletonBlock {...blockProps} style={styles.headingAction} />
-        </View>
-        <View style={styles.transactionList}>
+        <View style={[styles.txCard, { backgroundColor: cardColor, borderColor: baseColor }]}>
+          <View style={styles.sectionHeading}>
+            <SkeletonBlock {...blockProps} style={styles.headingLineLong} />
+            <SkeletonBlock {...blockProps} style={styles.headingAction} />
+          </View>
           {[0, 1, 2].map((item) => (
             <View key={item} style={styles.transaction}>
               <SkeletonBlock {...blockProps} style={styles.transactionIcon} />
@@ -152,15 +135,23 @@ export default function HomeScreenSkeleton() {
                 <SkeletonBlock {...blockProps} style={styles.transactionTitle} />
                 <SkeletonBlock {...blockProps} style={styles.transactionMeta} />
               </View>
-              <View style={styles.transactionValue}>
-                <SkeletonBlock {...blockProps} style={styles.transactionAmount} />
-                <SkeletonBlock {...blockProps} style={styles.transactionStatus} />
-              </View>
+              <SkeletonBlock {...blockProps} style={styles.transactionAmount} />
             </View>
           ))}
         </View>
 
-        <SkeletonBlock {...blockProps} style={styles.rewardBanner} />
+        <SkeletonBlock {...blockProps} style={styles.headingLine} />
+        <View style={[styles.txCard, { backgroundColor: cardColor, borderColor: baseColor }]}>
+          {[0, 1].map((item) => (
+            <View key={item} style={styles.transaction}>
+              <SkeletonBlock {...blockProps} style={styles.earnIcon} />
+              <View style={styles.transactionDetails}>
+                <SkeletonBlock {...blockProps} style={styles.transactionTitle} />
+                <SkeletonBlock {...blockProps} style={styles.transactionMeta} />
+              </View>
+            </View>
+          ))}
+        </View>
       </ScrollView>
     </View>
   );
@@ -188,26 +179,23 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 12,
   },
-  headerIdentity: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+  headerCopy: { flex: 1 },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 10,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    marginLeft: 8,
   },
   greetingLine: {
-    width: 76,
-    height: 9,
-    borderRadius: 5,
-    marginBottom: 6,
+    width: 92,
+    height: 12,
+    borderRadius: 6,
+    marginBottom: 8,
   },
   nameLine: {
-    width: 112,
-    height: 14,
-    borderRadius: 7,
+    width: 150,
+    height: 24,
+    borderRadius: 8,
   },
   notification: {
     width: 38,
@@ -215,11 +203,29 @@ const styles = StyleSheet.create({
     borderRadius: 19,
   },
   walletCard: {
-    height: 174,
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 16,
+    borderRadius: 22,
+    padding: 14,
+    marginBottom: 12,
     overflow: 'hidden',
+  },
+  promo: {
+    height: 58,
+    borderRadius: 29,
+    marginBottom: 16,
+  },
+  txCard: {
+    borderRadius: 24,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    paddingBottom: 4,
+    marginBottom: 8,
+  },
+  earnIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    marginRight: 12,
   },
   walletTop: {
     flexDirection: 'row',
@@ -302,10 +308,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   quickActionIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 18,
-    marginBottom: 10,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    marginBottom: 8,
   },
   quickActionLabel: {
     width: 42,
