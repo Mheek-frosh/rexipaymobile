@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   appBarTitle: { fontSize: 18, fontWeight: '700' },
-  content: { padding: 20, paddingBottom: 40 },
+  content: { padding: 20, paddingBottom: 120 },
   userCard: {
     flexDirection: 'row',
     padding: 20,

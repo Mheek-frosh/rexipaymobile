@@ -15,7 +15,6 @@ import Svg, {
   LinearGradient,
   Path,
   Stop,
-  Text as SvgText,
 } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -23,22 +22,20 @@ import { useTheme } from '../../theme/ThemeContext';
 import { formatNairaBalance, useWallet } from '../../context/WalletContext';
 
 const PENDING_ORANGE = '#F59E0B';
-const PENDING_ORANGE_LIGHT = 'rgba(245, 158, 11, 0.15)';
 
 const TIME_RANGE_OPTIONS = [
-  { key: 'today', label: 'Today' },
-  { key: '7d', label: '7D' },
-  { key: '3m', label: '3M' },
-  { key: '6m', label: '6M' },
-  { key: 'custom', label: 'Custom' },
+  { key: 'day', label: 'Day' },
+  { key: 'week', label: 'Week' },
+  { key: 'month', label: 'Month' },
+  { key: 'year', label: 'Year' },
 ];
 
 const PERIOD_OPTIONS = ['This Week', 'This Month', 'Last 3 Months', 'This Year'];
 
 // Chart: spending per period. Today=1, 7D=7 days, 3M=3 months, 6M=6 months, Custom=6 months.
 const CHART_DATA_BY_RANGE = {
-  today: [{ label: 'Today', total: 150000 }],
-  '7d': [
+  day: [{ label: 'Today', total: 150000 }],
+  week: [
     { label: 'Mon', total: 45000 },
     { label: 'Tue', total: 62000 },
     { label: 'Wed', total: 38000 },
@@ -47,12 +44,12 @@ const CHART_DATA_BY_RANGE = {
     { label: 'Sat', total: 54000 },
     { label: 'Sun', total: 31000 },
   ],
-  '3m': [
+  month: [
     { label: 'Apr', total: 73000 },
     { label: 'May', total: 118000 },
     { label: 'Jun', total: 90500 },
   ],
-  '6m': [
+  year: [
     { label: 'Jan', total: 82000 },
     { label: 'Feb', total: 64000 },
     { label: 'Mar', total: 95500 },
@@ -70,29 +67,17 @@ const CHART_DATA_BY_RANGE = {
   ],
 };
 
-// Legend: categories with colors for infographics
+const RING_START = 198;
 const CATEGORY_LEGEND = [
-  {
-    label: 'Transfers',
-    color: '#C6F54E',
-    endColor: '#8FB82A',
-    percent: 42,
-    labelRadius: 91,
-  },
-  { label: 'Airtimes', color: '#FFB321', endColor: '#FFC94D', percent: 26 },
-  {
-    label: 'ATM card',
-    color: '#FF4148',
-    endColor: '#FF696D',
-    percent: 20,
-    labelRadius: 91,
-    labelOffsetX: -15,
-  },
-  { label: 'Others', color: '#8554DA', endColor: '#A66DF0', percent: 12 },
+  { label: 'Airtimes', color: '#3DDC6E', degrees: 42 },
+  { label: 'Others', color: '#7A3FF2', degrees: 78 },
+  { label: 'ATM card', color: '#FF4D4D', degrees: 68 },
+  { label: 'Bills', color: '#3B82F6', degrees: 24 },
+  { label: 'Transfers', color: '#F5B400', degrees: 148 },
 ];
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const DONUT_DISPLAY_SIZE = Math.min(SCREEN_WIDTH - 80, 320);
+const DONUT_DISPLAY_SIZE = Math.min(SCREEN_WIDTH - 28, 360);
 
 const RECENT_TRANSACTIONS = [
   { id: '1', name: 'Divine Chiamaka', amount: '25,000', type: 'sent', dateTime: 'Today | 2:30 PM', statusDisplay: 'Success' },
@@ -133,44 +118,30 @@ const polarPoint = (center, radius, angle) => {
   };
 };
 
-const createDonutSlice = (startAngle, endAngle) => {
+const createRingArc = (startAngle, endAngle) => {
   const center = 150;
-  const outerRadius = 124;
-  const innerRadius = 72;
-  const gap = 1.4;
+  const radius = 104;
+  const gap = 16;
   const start = startAngle + gap / 2;
   const end = endAngle - gap / 2;
-  const outerStart = polarPoint(center, outerRadius, start);
-  const outerEnd = polarPoint(center, outerRadius, end);
-  const innerEnd = polarPoint(center, innerRadius, end);
-  const innerStart = polarPoint(center, innerRadius, start);
+  const arcStart = polarPoint(center, radius, start);
+  const arcEnd = polarPoint(center, radius, end);
   const largeArc = end - start > 180 ? 1 : 0;
-
-  return [
-    `M ${outerStart.x} ${outerStart.y}`,
-    `A ${outerRadius} ${outerRadius} 0 ${largeArc} 1 ${outerEnd.x} ${outerEnd.y}`,
-    `L ${innerEnd.x} ${innerEnd.y}`,
-    `A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${innerStart.x} ${innerStart.y}`,
-    'Z',
-  ].join(' ');
+  return `M ${arcStart.x} ${arcStart.y} A ${radius} ${radius} 0 ${largeArc} 1 ${arcEnd.x} ${arcEnd.y}`;
 };
 
 function InteractiveDonutChart({ total, colors }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
-  let runningAngle = 0;
+  let runningAngle = RING_START;
   const slices = CATEGORY_LEGEND.map((item) => {
     const startAngle = runningAngle;
-    const endAngle = runningAngle + item.percent * 3.6;
+    const endAngle = runningAngle + item.degrees;
     runningAngle = endAngle;
-    const middleAngle = (startAngle + endAngle) / 2;
-    const labelPoint = polarPoint(150, item.labelRadius || 99, middleAngle);
-    labelPoint.x += item.labelOffsetX || 0;
-
     return {
       ...item,
+      percent: Math.round((item.degrees / 360) * 100),
       startAngle,
       endAngle,
-      labelPoint,
     };
   });
   const selectedCategory = selectedIndex === null ? null : slices[selectedIndex];
@@ -216,39 +187,17 @@ function InteractiveDonutChart({ total, colors }) {
             const faded = selectedIndex !== null && !selected;
 
             return (
-              <G key={`slice-${item.label}`} opacity={faded ? 0.48 : 1}>
+              <G key={`slice-${item.label}`} opacity={faded ? 0.35 : 1}>
                 <Path
                   accessibilityLabel={`${item.label}, ${item.percent} percent`}
                   accessible
-                  d={createDonutSlice(item.startAngle, item.endAngle)}
-                  fill={`url(#donut-gradient-${index})`}
+                  d={createRingArc(item.startAngle, item.endAngle)}
+                  fill="none"
                   onPress={() => selectCategory(index)}
-                  stroke={colors.cardBackground}
-                  strokeLinejoin="round"
-                  strokeWidth={3}
+                  stroke={item.color}
+                  strokeLinecap="round"
+                  strokeWidth={selected ? 34 : 30}
                 />
-              </G>
-            );
-          })}
-
-          {slices.map((item, index) => {
-            const selected = selectedIndex === index;
-            const faded = selectedIndex !== null && !selected;
-
-            return (
-              <G key={`label-${item.label}`} opacity={faded ? 0.6 : 1}>
-                <SvgText
-                  x={item.labelPoint.x}
-                  y={item.labelPoint.y}
-                  dy="5"
-                  fill="#FFFFFF"
-                  fontSize="16"
-                  fontWeight="800"
-                  textAnchor="middle"
-                  onPress={() => selectCategory(index)}
-                >
-                  {item.percent}%
-                </SvgText>
               </G>
             );
           })}
@@ -259,14 +208,14 @@ function InteractiveDonutChart({ total, colors }) {
             style={[styles.donutCenterLabel, { color: colors.textSecondary }]}
             numberOfLines={1}
           >
-            {selectedCategory ? selectedCategory.label : 'Total spent'}
+            {selectedCategory ? selectedCategory.label : 'Spent this month'}
           </Text>
           <Text
             style={[styles.donutCenterAmount, { color: colors.textPrimary }]}
             numberOfLines={1}
             adjustsFontSizeToFit
           >
-            {formatNaira(centerAmount)}
+            {formatNaira(centerAmount, true)}
           </Text>
           {selectedCategory ? (
             <Text style={[styles.donutCenterPercent, { color: selectedCategory.color }]}>
@@ -275,74 +224,50 @@ function InteractiveDonutChart({ total, colors }) {
           ) : null}
         </View>
       </View>
-
-      <View style={styles.legendGrid}>
-        {slices.map((item, index) => {
-          const selected = selectedIndex === index;
-          return (
-            <TouchableOpacity
-              key={item.label}
-              activeOpacity={0.75}
-              accessibilityRole="button"
-              accessibilityState={{ selected }}
-              accessibilityLabel={`${item.label}, ${item.percent} percent`}
-              onPress={() => selectCategory(index)}
-              style={[
-                styles.legendCard,
-                {
-                  backgroundColor: selected ? `${item.color}12` : colors.cardBackground,
-                  borderColor: selected ? item.color : colors.border,
-                },
-              ]}
-            >
-              <View style={[styles.legendDot, { backgroundColor: item.color }]} />
-              <Text
-                style={[styles.legendLabel, { color: colors.textPrimary }]}
-                numberOfLines={1}
-              >
-                {item.label}
-              </Text>
-              <Text style={[styles.legendPercent, { color: colors.textPrimary }]}>
-                {item.percent}%
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
     </>
   );
 }
 
 export default function StatsScreen() {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const { ngnBalance } = useWallet();
   const navigation = useNavigation();
   const [selectedPeriod, setSelectedPeriod] = useState('This Week');
-  const [selectedTimeRange, setSelectedTimeRange] = useState('6m');
+  const [selectedTimeRange, setSelectedTimeRange] = useState('month');
   const [showPeriodModal, setShowPeriodModal] = useState(false);
 
   const chartData = useMemo(
-    () => CHART_DATA_BY_RANGE[selectedTimeRange] || CHART_DATA_BY_RANGE['6m'],
+    () => CHART_DATA_BY_RANGE[selectedTimeRange] || CHART_DATA_BY_RANGE.month,
     [selectedTimeRange],
   );
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <SafeAreaView edges={['top', 'left', 'right']} style={styles.header}>
-        <View style={{ width: 24 }} />
-        <Text style={[styles.title, { color: colors.textPrimary }]}>Statistics</Text>
-        <View style={{ width: 24 }} />
+        <View style={styles.balanceCopy}>
+          <Text style={[styles.currentBalanceLabel, { color: colors.textSecondary }]}>Current balance</Text>
+          <Text style={[styles.currentBalanceAmount, { color: colors.textPrimary }]}>
+            {formatNairaBalance(ngnBalance)}
+          </Text>
+        </View>
+        <TouchableOpacity
+          style={[styles.dateChip, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
+          onPress={() => setShowPeriodModal(true)}
+          accessibilityLabel={`Period, ${selectedPeriod}`}
+        >
+          <MaterialIcons name="calendar-today" size={16} color={colors.textPrimary} />
+          <Text style={[styles.dateChipText, { color: colors.textPrimary }]}>{selectedPeriod}</Text>
+        </TouchableOpacity>
       </SafeAreaView>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Current Balance */}
-        <Text style={[styles.currentBalanceLabel, { color: colors.textSecondary }]}>Current Balance</Text>
-        <Text style={[styles.currentBalanceAmount, { color: colors.textPrimary }]}>
-          {formatNairaBalance(ngnBalance)}
-        </Text>
+        <InteractiveDonutChart
+          key={selectedTimeRange}
+          colors={colors}
+          total={chartData.reduce((sum, item) => sum + item.total, 0)}
+        />
 
-        {/* Time range pills */}
-        <View style={styles.timeRangeRow}>
+        <View style={[styles.timeRangeRow, { backgroundColor: isDark ? '#2A2A2C' : '#ECEDEF' }]}>
           {TIME_RANGE_OPTIONS.map((opt) => {
             const isSelected = selectedTimeRange === opt.key;
             return (
@@ -350,16 +275,14 @@ export default function StatsScreen() {
                 key={opt.key}
                 style={[
                   styles.timeRangePill,
-                  isSelected
-                    ? { backgroundColor: colors.textPrimary }
-                    : { backgroundColor: colors.surfaceVariant || colors.cardBackground },
+                  isSelected && { backgroundColor: isDark ? '#3A3A3C' : '#FFFFFF' },
                 ]}
                 onPress={() => setSelectedTimeRange(opt.key)}
               >
                 <Text
                   style={[
                     styles.timeRangePillText,
-                    { color: isSelected ? '#FFF' : colors.textPrimary },
+                    { color: isSelected ? colors.textPrimary : colors.textSecondary },
                   ]}
                 >
                   {opt.label}
@@ -369,39 +292,31 @@ export default function StatsScreen() {
           })}
         </View>
 
-        {/* Spending overview – professional chart section */}
-        <View style={[styles.chartBlock, { backgroundColor: colors.cardBackground }]}>
-          <Text style={[styles.chartSectionTitle, { color: colors.textPrimary }]}>Spending overview</Text>
-          <Text style={[styles.chartTimeLabel, { color: colors.textSecondary }]}>
-            {selectedTimeRange === 'today' && 'Today'}
-            {selectedTimeRange === '7d' && 'Last 7 days'}
-            {selectedTimeRange === '3m' && 'Last 3 months'}
-            {(selectedTimeRange === '6m' || selectedTimeRange === 'custom') && 'Last 6 months'}
-          </Text>
-          <InteractiveDonutChart
-            key={selectedTimeRange}
-            colors={colors}
-            total={chartData.reduce((sum, item) => sum + item.total, 0)}
-          />
-        </View>
-
-        {/* Transactions */}
-        <View style={styles.transactionsSection}>
+        <View style={[styles.txSheet, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+          <View style={[styles.sheetHandle, { backgroundColor: colors.border }]} />
           <View style={styles.transactionsHeader}>
             <Text style={[styles.transactionsTitle, { color: colors.textPrimary }]}>Transactions</Text>
             <TouchableOpacity onPress={() => navigation.navigate('Transactions')}>
-              <Text style={[styles.seeAll, { color: colors.primary }]}>See All</Text>
+              <Text style={[styles.seeAll, { color: colors.accentText }]}>See all</Text>
             </TouchableOpacity>
           </View>
-          {RECENT_TRANSACTIONS.map((tx) => {
-            const isSuccess = tx.statusDisplay === 'Success';
-            const amountColor = isSuccess ? colors.success : PENDING_ORANGE;
-            const pillBg = isSuccess ? colors.success + '20' : PENDING_ORANGE_LIGHT;
-            const pillColor = isSuccess ? colors.success : PENDING_ORANGE;
+          <Text style={[styles.dayLabel, { color: colors.textSecondary }]}>
+            {selectedTimeRange === 'day' && 'TODAY'}
+            {selectedTimeRange === 'week' && 'THIS WEEK'}
+            {selectedTimeRange === 'month' && 'THIS MONTH'}
+            {selectedTimeRange === 'year' && 'THIS YEAR'}
+          </Text>
+          {RECENT_TRANSACTIONS.map((tx, index) => {
+            const incoming = tx.type === 'received';
+            const pending = tx.statusDisplay === 'Pending';
+            const amountColor = incoming ? '#3DDC84' : pending ? PENDING_ORANGE : colors.textPrimary;
             return (
               <TouchableOpacity
                 key={tx.id}
-                style={[styles.txCard, { backgroundColor: colors.cardBackground }]}
+                style={[
+                  styles.txRow,
+                  index < RECENT_TRANSACTIONS.length - 1 && { borderBottomColor: colors.border, borderBottomWidth: StyleSheet.hairlineWidth },
+                ]}
                 onPress={() =>
                   navigation.navigate('TransactionDetail', {
                     transaction: {
@@ -418,21 +333,23 @@ export default function StatsScreen() {
                 activeOpacity={0.7}
               >
                 <View style={[styles.txIconWrap, { backgroundColor: getIconBg(tx.type, colors) }]}>
-                  <MaterialIcons name={getTransactionIcon(tx.type)} size={24} color={getIconColor(tx.type, colors)} />
+                  <MaterialIcons name={getTransactionIcon(tx.type)} size={20} color={getIconColor(tx.type, colors)} />
                 </View>
                 <View style={styles.txContent}>
                   <Text style={[styles.txName, { color: colors.textPrimary }]} numberOfLines={1}>
                     {tx.name}
                   </Text>
-                  <Text style={[styles.txMeta, { color: colors.textSecondary }]}>{tx.dateTime}</Text>
+                  <Text style={[styles.txMeta, { color: colors.textSecondary }]} numberOfLines={1}>
+                    {tx.statusDisplay} · {tx.dateTime?.split(' | ')[0]}
+                  </Text>
                 </View>
                 <View style={styles.txRight}>
                   <Text style={[styles.txAmount, { color: amountColor }]}>
-                    {tx.type === 'sent' ? '-' : '+'}₦{tx.amount}
+                    {incoming ? '+' : '−'}₦{tx.amount}
                   </Text>
-                  <View style={[styles.pill, { backgroundColor: pillBg }]}>
-                    <Text style={[styles.pillText, { color: pillColor }]}>{tx.statusDisplay}</Text>
-                  </View>
+                  <Text style={[styles.txTime, { color: colors.textSecondary }]}>
+                    {tx.dateTime?.split(' | ')[1]}
+                  </Text>
                 </View>
               </TouchableOpacity>
             );
@@ -488,23 +405,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 20,
+    paddingTop: 8,
+    paddingBottom: 4,
   },
-  title: { fontSize: 20, fontWeight: '700' },
-  content: { paddingHorizontal: 20, paddingBottom: 40 },
-  currentBalanceLabel: { fontSize: 14, fontWeight: '500', marginBottom: 4 },
-  currentBalanceAmount: { fontSize: 28, fontWeight: '700', marginBottom: 20 },
+  balanceCopy: { flex: 1, paddingRight: 12 },
+  content: { paddingHorizontal: 20, paddingBottom: 120 },
+  currentBalanceLabel: { fontSize: 12, fontWeight: '500' },
+  currentBalanceAmount: { fontSize: 18, fontWeight: '700', marginTop: 2 },
+  dateChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  dateChipText: { fontSize: 13, fontWeight: '600' },
   timeRangeRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 24,
+    alignItems: 'center',
+    alignSelf: 'center',
+    borderRadius: 14,
+    padding: 4,
+    marginTop: 6,
+    marginBottom: 22,
+    width: '100%',
+    maxWidth: 340,
   },
   timeRangePill: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 20,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    paddingVertical: 9,
   },
   timeRangePillText: { fontSize: 13, fontWeight: '600' },
 
@@ -544,17 +478,18 @@ const styles = StyleSheet.create({
   },
   donutCenterLabel: {
     maxWidth: '100%',
-    fontSize: 12,
-    lineHeight: 17,
+    fontSize: 14,
+    lineHeight: 18,
+    fontWeight: '500',
     textAlign: 'center',
   },
   donutCenterAmount: {
     width: '100%',
-    fontSize: 22,
-    lineHeight: 29,
+    fontSize: 30,
+    lineHeight: 36,
     fontWeight: '800',
-    letterSpacing: -0.5,
-    marginTop: 3,
+    letterSpacing: -0.6,
+    marginTop: 4,
     textAlign: 'center',
   },
   donutCenterPercent: {
@@ -597,22 +532,38 @@ const styles = StyleSheet.create({
   },
   // Legend – compact horizontal chips
   // Transactions
-  transactionsSection: { marginTop: 8 },
+  txSheet: {
+    borderRadius: 28,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 8,
+  },
+  sheetHandle: {
+    width: 42,
+    height: 4,
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 14,
+  },
+  dayLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.6,
+    marginBottom: 4,
+  },
   transactionsHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: 12,
   },
   transactionsTitle: { fontSize: 18, fontWeight: '700' },
   seeAll: { fontSize: 14, fontWeight: '600' },
-  txCard: {
+  txRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 16,
-    marginBottom: 12,
+    paddingVertical: 12,
   },
   txIconWrap: {
     width: 48,
@@ -626,9 +577,8 @@ const styles = StyleSheet.create({
   txName: { fontSize: 16, fontWeight: '600' },
   txMeta: { fontSize: 13, marginTop: 4 },
   txRight: { alignItems: 'flex-end' },
-  txAmount: { fontSize: 16, fontWeight: '700' },
-  pill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, marginTop: 6 },
-  pillText: { fontSize: 12, fontWeight: '600' },
+  txAmount: { fontSize: 15, fontWeight: '700' },
+  txTime: { fontSize: 12, marginTop: 3 },
 
   // Modal
   modalOverlay: {
