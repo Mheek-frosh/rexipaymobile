@@ -69,11 +69,11 @@ const CHART_DATA_BY_RANGE = {
 
 const RING_START = 198;
 const CATEGORY_LEGEND = [
-  { label: 'Airtimes', color: '#3DDC6E', degrees: 42 },
+  { label: 'Airtimes', color: '#3DDC6E', degrees: 50 },
   { label: 'Others', color: '#7A3FF2', degrees: 78 },
   { label: 'ATM card', color: '#FF4D4D', degrees: 68 },
-  { label: 'Bills', color: '#3B82F6', degrees: 24 },
-  { label: 'Transfers', color: '#F5B400', degrees: 148 },
+  { label: 'Bills', color: '#3B82F6', degrees: 38 },
+  { label: 'Transfers', color: '#F5B400', degrees: 126 },
 ];
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -121,7 +121,7 @@ const polarPoint = (center, radius, angle) => {
 const createRingArc = (startAngle, endAngle) => {
   const center = 150;
   const radius = 104;
-  const gap = 16;
+  const gap = 30;
   const start = startAngle + gap / 2;
   const end = endAngle - gap / 2;
   const arcStart = polarPoint(center, radius, start);
