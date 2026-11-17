@@ -16,7 +16,7 @@
     "share": "cd rn && npm run share"
   },
   "dependencies": {
-    "expo": "~57.0.24",
+    "expo": "58.0.0",
     "expo-updates": "~57.0.22",
     "react": "19.2.3",
     "react-native": "0.86.3"
